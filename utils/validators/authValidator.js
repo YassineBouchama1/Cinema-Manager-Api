@@ -1,11 +1,11 @@
 const { check } = require('express-validator');
-const slugify = require('slugify');
 
-const validationMiddleWare = require('../../middleWares/validatorMiddleWare')
+const validatormiddleware = require('../../middlewares/validatormiddleware')
 const User = require('../../models/userModel')
 
 
 
+// validate fileds
 exports.createAuthalidator = [
     check('name')
         .notEmpty()
@@ -44,8 +44,9 @@ exports.createAuthalidator = [
         .withMessage('Password confirmation required'),
 
 
-    validationMiddleWare,
+    validatormiddleware,
 ];
+
 
 
 exports.LoginAuthalidator = [
@@ -66,5 +67,5 @@ exports.LoginAuthalidator = [
 
     ,
 
-    validationMiddleWare,
+    validatormiddleware,
 ];

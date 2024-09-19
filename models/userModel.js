@@ -5,20 +5,18 @@ const userSchema = mongoose.Schema({
 
     name: {
         type: String,
-        required: [true, "hello@hello.com required"],
-        lowercase: true,
-        trim: true,
+        required: [true, "name is required"],
 
     },
     email: {
         type: String,
-        required: [true, 'email required'],
+        required: [true, 'email  is required'],
         lowercase: true,
         uniqe: true,
     },
     password: {
         type: String,
-        required: [true, "passowrd requierd"],
+        required: [true, "passowrd is requierd"],
         minlegth: [6, 'to short password'],
 
     },

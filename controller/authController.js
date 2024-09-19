@@ -25,7 +25,7 @@ exports.signUp = expressAsyncHandler(async (req, res, next) => {
         //1 create user 
         const user = await userModel.create({
 
-            nameStore: req.body.nameStore,
+            name: req.body.name,
             email: req.body.email,
             password: await bcrypt.hash(req.body.password, salt)
         })

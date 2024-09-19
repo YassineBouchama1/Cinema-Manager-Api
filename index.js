@@ -2,31 +2,38 @@ const express = require('express');
 const app = express();
 const dotenv = require('dotenv');
 const globalError = require('./middlewares/globalError');
-const mongoContact = require('./config/mongo');
+const dbConect = require('./config/mongo');
 const path = require('path');
 const authRoute = require('./routes/authRoute');
 const ApiError = require('./utils/ApiError');
 
+const PORT = process.env.PORT || 3000;
+
 
 dotenv.config({ path: '.env' });
 
-// Parse JSON bodies
-app.use(express.json());
+
+// middlewars
+app.use(express.json());// Parse JSON bodies
+app.use(express.static(path.join(__dirname, 'uploads')))
 
 
 // conect db
-mongoContact();
+dbConect();
+
+
+
 
 app.get('/', (req, res) => {
     res.send('Hello World!');
 });
 
 
-app.use(express.static(path.join(__dirname, 'uploads')))
 
 
 // Routes
 app.use('/api/v1/auth', authRoute);
+
 
 
 // Handle 404 errors
@@ -38,7 +45,8 @@ app.all('*', (req, res, next) => {
 // Global error handler
 app.use(globalError);
 
-const PORT = process.env.PORT || 3000;
+
+
 
 const server = app.listen(PORT, () => {
     console.log(`Server working on Port: ${PORT}`);
