@@ -1,11 +1,11 @@
 const express = require('express');
 const app = express();
 const dotenv = require('dotenv');
-const dbContact = require('./config/Db');
+const globalError = require('./middlewares/globalError');
+const mongoContact = require('./config/mongo');
 const path = require('path');
-
-
-
+const authRoute = require('./routes/authRoute');
+const ApiError = require('./utils/ApiError');
 
 
 dotenv.config({ path: '.env' });
@@ -14,8 +14,8 @@ dotenv.config({ path: '.env' });
 app.use(express.json());
 
 
-
-dbContact();
+// conect db
+mongoContact();
 
 app.get('/', (req, res) => {
     res.send('Hello World!');
@@ -24,13 +24,19 @@ app.get('/', (req, res) => {
 
 app.use(express.static(path.join(__dirname, 'uploads')))
 
-app.get("/test", (req, res) => res.send("Express on Vercel"));
 
 // Routes
 app.use('/api/v1/auth', authRoute);
 
 
+// Handle 404 errors
+app.all('*', (req, res, next) => {
+    next(new ApiError(`Can't find this url ${req.originalUrl}`, 404));
+});
 
+
+// Global error handler
+app.use(globalError);
 
 const PORT = process.env.PORT || 3000;
 
