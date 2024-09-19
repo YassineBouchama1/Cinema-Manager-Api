@@ -1,25 +1,21 @@
 const jwt = require('jsonwebtoken')
-
 const bcrypt = require('bcryptjs');
-
-const dotenv = require('dotenv')
-
-dotenv.config({ path: './config.env' })
-const Jwt = process.env.JWT
-
 const expressAsyncHandler = require('express-async-handler')
-
 const userModel = require('../models/userModel');
 const ApiError = require('../utils/ApiError');
 
 
-// @Desc make sure key legnth  between 32 & 50
-const SECRET_KEY_JWT = 'Yassine.info'
+
+const JWT_SECRET = process.env.JWT_SECRET
 
 // create token by passing id user
-const createToken = (payload) => jwt.sign({ userId: payload }, 'Yassine.info')
+const createToken = (payload) => jwt.sign({ ...payload }, JWT_SECRET)
 
 
+
+// @desc    mark task is done
+// @route   PUT /api/v1/auth/signup
+// @access  public
 exports.signUp = expressAsyncHandler(async (req, res, next) => {
 
     try {
@@ -27,7 +23,6 @@ exports.signUp = expressAsyncHandler(async (req, res, next) => {
         const salt = await bcrypt.genSaltSync(10);
 
         //1 create user 
-
         const user = await userModel.create({
 
             nameStore: req.body.nameStore,
@@ -45,10 +40,9 @@ exports.signUp = expressAsyncHandler(async (req, res, next) => {
 })
 
 
-
 // @desc    mark task is done
-// @route   PUT /api/v1/list
-// @access  Private/User
+// @route   PUT /api/v1/auth/login
+// @access  public
 exports.login = expressAsyncHandler(async (req, res, next) => {
 
     try {
