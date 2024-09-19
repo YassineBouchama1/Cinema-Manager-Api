@@ -1,0 +1,50 @@
+const express = require('express');
+const app = express();
+const dotenv = require('dotenv');
+const dbContact = require('./config/Db');
+const path = require('path');
+
+
+
+
+
+dotenv.config({ path: '.env' });
+
+// Parse JSON bodies
+app.use(express.json());
+
+
+
+dbContact();
+
+app.get('/', (req, res) => {
+    res.send('Hello World!');
+});
+
+
+app.use(express.static(path.join(__dirname, 'uploads')))
+
+app.get("/test", (req, res) => res.send("Express on Vercel"));
+
+// Routes
+app.use('/api/v1/auth', authRoute);
+
+
+
+
+const PORT = process.env.PORT || 3000;
+
+const server = app.listen(PORT, () => {
+    console.log(`Server working on Port: ${PORT}`);
+});
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (err) => {
+    console.error(`UnhandledRejection Errors: ${err.name} | ${err.message}`);
+    server.close(() => {
+        console.error(`Shutting Down...`);
+        process.exit(1);
+    });
+}); PORT
+
+module.exports = app; 
