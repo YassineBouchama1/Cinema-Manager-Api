@@ -1,6 +1,7 @@
 const express = require('express')
-const { signUp, login, reset } = require('../controller/authController')
-const { createAuthValidator, LoginAuthValidator, resetPassValidator } = require('../utils/validators/authValidator')
+const { login, resetPassword, register, forgetPassword } = require('../controller/authController')
+const { createAuthValidator, LoginAuthValidator, resetPassValidator, forgetPassValidator } = require('../utils/validators/authValidator')
+const { protect } = require('../middlewares/guard')
 
 
 const router = express.Router()
@@ -8,14 +9,25 @@ const router = express.Router()
 
 //@access  : public
 router.route('/register')
-    .post(createAuthValidator, signUp)
+    .post(createAuthValidator, register)
+
 
 //@access  : public
 router.route('/login')
     .post(LoginAuthValidator, login)
 
+
+//@access  : private
 router.route('/reset')
-    .post(resetPassValidator, reset)
+    .put(resetPassValidator, protect, resetPassword)
+
+
+
+//@access  : public
+router.route('/forget')
+    .post(forgetPassValidator, protect, forgetPassword)
+
+
 
 
 

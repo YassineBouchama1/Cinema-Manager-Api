@@ -5,6 +5,7 @@ const globalError = require('./middlewares/globalError');
 const dbConect = require('./service/mongo');
 const path = require('path');
 const authRoute = require('./routes/authRoute');
+const adminRoute = require('./routes/adminRoute');
 const ApiError = require('./utils/ApiError');
 
 const PORT = process.env.PORT || 4000;
@@ -33,6 +34,7 @@ app.get('/', (req, res) => {
 
 // Routes
 app.use('/api/v1/auth', authRoute);
+app.use('/api/v1/admin', adminRoute);
 
 
 

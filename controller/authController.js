@@ -5,7 +5,9 @@ const UserModel = require('../models/userModel');
 const ApiError = require('../utils/ApiError');
 const NodeDaoMongodb = require('../service/node-dao-mongodb');
 
-const dotenv = require('dotenv')
+const dotenv = require('dotenv');
+const sendEmail = require('../utils/email/sendEmail');
+const { confirmationEmail } = require('../utils/email/emailTemplate');
 dotenv.config({ path: '.env' })
 
 
@@ -18,7 +20,7 @@ const JWT_SECRET = process.env.NEXT_PUBLIC_JWT_SECRET
 
 
 // create token by passing id user
-const createToken = (payload) => jwt.sign({ ...payload }, JWT_SECRET)
+const createToken = (payload) => jwt.sign(payload, JWT_SECRET)
 
 
 
@@ -76,7 +78,7 @@ exports.login = expressAsyncHandler(async (req, res, next) => {
 
 
         // 3. create token
-        const token = await createToken(user._id);
+        const token = await createToken({ userId: user.id });
 
         res.status(200).json({ data: user, token });
     } catch (error) {
@@ -93,11 +95,11 @@ exports.login = expressAsyncHandler(async (req, res, next) => {
 // @desc    chnage password
 // @route   PUT /api/v1/auth/reset
 // @access  public
-exports.reset = expressAsyncHandler(async (req, res, next) => {
+exports.resetPassword = expressAsyncHandler(async (req, res, next) => {
     try {
 
         // 1. check if user already has an account
-        const result = await nodeDaoMongodb.findOne(UserModel, { id: req.user._id });
+        const result = await nodeDaoMongodb.findOne(UserModel, { _id: req.user._id });
 
         if (result?.error) {
             return next(new ApiError(`Error finding user: ${result.error}`, 500));
@@ -119,7 +121,7 @@ exports.reset = expressAsyncHandler(async (req, res, next) => {
             password: await bcrypt.hash(req.body.password, salt),
         };
 
-        const passwordUpdated = await nodeDaoMongodb.update(UserModel, { id: req.user._id }, userData);
+        const passwordUpdated = await nodeDaoMongodb.update(UserModel, { _id: req.user._id }, userData);
 
 
         if (passwordUpdated?.error) {
@@ -131,3 +133,56 @@ exports.reset = expressAsyncHandler(async (req, res, next) => {
         return next(new ApiError(`Error Creating Account: ${error.message}`, 500));
     }
 });
+
+
+
+
+
+// @desc    Forget password
+// @route   PUT /api/v1/auth/forget
+// @access  public
+exports.forgetPassword = expressAsyncHandler(async (req, res, next) => {
+    try {
+
+        // 1. check if user already has an account
+        const result = await nodeDaoMongodb.findOne(UserModel, { email: req.body.email });
+
+        if (result?.error) {
+            return next(new ApiError(`Error finding user: ${result.error}`, 500));
+        }
+
+
+        const user = result.data;
+
+        // 2. check if user exist
+        if (!user) {
+            // return next(new ApiError(`cant find this user`, 401));
+            return res.status(201).json({ message: 'if this account exist should be recive email' });
+        }
+
+
+        // 3. create token
+        const token = await createToken({ userId: user.id });
+
+        const url = `${process.NEXT_PUBLIC_BASE_URL}/api/v1/auth/reset?forget=${token}`
+
+
+        const html = await confirmationEmail(url)
+
+        // send email
+        const isEmailSent = await sendEmail({ email: user.email, html })
+
+
+        // chekc if email sent
+        if (!isEmailSent.success) {
+            return next(new ApiError(`Error sending email: ${result.error}`, 500));
+        }
+
+
+        res.status(201).json({ message: 'if this account exist should be recive email' });
+    } catch (error) {
+        return next(new ApiError(`Error Creating Account: ${error.message}`, 500));
+    }
+});
+
+

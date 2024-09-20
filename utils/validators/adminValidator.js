@@ -3,10 +3,8 @@ const { check } = require('express-validator');
 const validatormiddleware = require('../../middlewares/validator')
 const User = require('../../models/userModel')
 
-
-
 // validate fileds
-exports.createAuthValidator = [
+exports.createAdminValidator = [
     check('name')
         .notEmpty()
         .withMessage('name is required')
@@ -27,10 +25,6 @@ exports.createAuthValidator = [
                 }
             })
         ),
-    check('role')
-        .isEmpty()
-        .withMessage('you cant pass role while register normal')
-    ,
 
     check('password')
         .notEmpty()
@@ -51,46 +45,3 @@ exports.createAuthValidator = [
 
     validatormiddleware,
 ];
-
-
-
-exports.LoginAuthValidator = [
-
-
-    check('email')
-        .notEmpty()
-        .withMessage('Email required')
-        .isEmail()
-        .withMessage('Invalid email address')
-
-    ,
-    check('password')
-        .notEmpty()
-        .withMessage('Password required')
-        .isLength({ min: 6 })
-        .withMessage('Password must be at least 6 characters')
-
-    ,
-
-    validatormiddleware,
-];
-
-
-exports.resetPassValidator = [
-
-    check('password')
-        .notEmpty()
-        .withMessage('new Password required')
-        .isLength({ min: 6 })
-        .withMessage('Password must be at least 6 characters')
-]
-
-
-exports.forgetPassValidator = [
-    check('email')
-        .notEmpty()
-        .withMessage('Email required')
-        .isEmail()
-        .withMessage('Invalid email address')
-
-]
