@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const NodeDaoMongodb = require('../config/node-dao-mongodb');
+const NodeDaoMongodb = require('../service/node-dao-mongodb');
 
 
 const nodeDaoMongodb = NodeDaoMongodb.getInstance();

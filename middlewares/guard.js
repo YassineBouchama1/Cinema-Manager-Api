@@ -10,7 +10,7 @@ const ApiError = require('../utils/ApiError');
 
 require('dotenv').config();
 
-
+const JWT_SECRET = process.env.NEXT_PUBLIC_JWT_SECRET
 
 //CHECK IF TOKEN EXIST IF YES GET INFORMATION USER FROM IT TO PASS IT TO NEXT MIDDLEWARE SUCH AS CREATE PRODUCT GET ...
 exports.protect = expressAsyncHandler(async (req, res, next) => {
@@ -28,7 +28,7 @@ exports.protect = expressAsyncHandler(async (req, res, next) => {
   
     //2) decoded Token 
     // token wont split
-    const decoded = jwt.verify(token, 'Yassine.info')
+    const decoded = jwt.verify(token, JWT_SECRET)
   
     //3) check if user exist 
   

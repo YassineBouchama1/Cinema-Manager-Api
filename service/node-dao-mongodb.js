@@ -19,7 +19,7 @@ class NodeDaoMongodb {
     }
 
     // connect to db 
-    async connect(url = process.env.DB_URL) {
+    async connect(url = process.env.NEXT_PUBLIC_DB_URL) {
         if (mongoose.connection.readyState === 1) {
             console.log('Already connected to DB');
             return;
@@ -49,6 +49,8 @@ class NodeDaoMongodb {
         }
     }
 
+
+    // select one or more items
     async select(model, conditions = {}) {
         try {
             const results = await model.find(conditions);
@@ -62,11 +64,13 @@ class NodeDaoMongodb {
         try {
             const result = await model.findOne(conditions);
 
+            // return data if there is no data return null thats mean nt find
             return result ? { data: result } : { data: null };
         } catch (error) {
             return { error: error.message };
         }
     }
+
 
     async insert(model, data) {
         try {

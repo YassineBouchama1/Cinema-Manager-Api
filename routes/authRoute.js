@@ -1,18 +1,21 @@
 const express = require('express')
-const { signUp, login } = require('../controller/authController')
-const { createAuthalidator, LoginAuthalidator } = require('../utils/validators/authValidator')
+const { signUp, login, reset } = require('../controller/authController')
+const { createAuthValidator, LoginAuthValidator, resetPassValidator } = require('../utils/validators/authValidator')
 
 
 const router = express.Router()
 
 
-//@access  : Pouplic
-router.route('/signup')
-    .post(createAuthalidator, signUp)
+//@access  : public
+router.route('/register')
+    .post(createAuthValidator, signUp)
 
-//@access  : Pouplic
+//@access  : public
 router.route('/login')
-    .post(LoginAuthalidator, login)
+    .post(LoginAuthValidator, login)
+
+router.route('/reset')
+    .post(resetPassValidator, reset)
 
 
 
