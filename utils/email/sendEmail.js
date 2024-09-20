@@ -1,20 +1,23 @@
 
 const nodemailer = require("nodemailer");
-const { confirmationEmail } = require("./emailTemplate");
+const { config } = require("../../config");
 
-// options : [email , ]
+// options : [email ,subject ]
 const sendEmail = async (options) => {
+
+
 
     try {
 
 
         // fetch html form 
-        const lettersDir = path.join(process.cwd(), "upload", "html");
-        const letterContent = fs.readFileSync(
-            path.join(lettersDir, `confirmation.html`), // target wich file
-            "utf-8"
-        );
-
+        // const lettersDir = path.join(process.cwd(), "upload", "html");
+        // const letterContent = fs.readFileSync(
+        //     path.join(lettersDir, `confirmation.html`), // target wich file
+        //     "utf-8"
+        // );
+        console.log(config.emailSmtp)
+        console.log(config.passSmtp)
 
         // 1) Create transporter ( service that will send email like "gmail","Mailgun", "mialtrap", sendGrid)
         const transporter = nodemailer.createTransport({

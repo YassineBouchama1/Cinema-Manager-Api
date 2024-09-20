@@ -5,10 +5,12 @@ const UserModel = require('../models/userModel');
 const ApiError = require('../utils/ApiError');
 const NodeDaoMongodb = require('../service/node-dao-mongodb');
 
-const dotenv = require('dotenv');
+
 const sendEmail = require('../utils/email/sendEmail');
-const { confirmationEmail } = require('../utils/email/emailTemplate');
-dotenv.config({ path: '.env' })
+const { forgetPasswordTemplate } = require('../utils/email/templates/forgetPasswordTemplate');
+const dotenv = require('dotenv');
+const { config } = require('../config');
+dotenv.config({ path: '.env' });
 
 
 // get instance from service object
@@ -20,7 +22,7 @@ const JWT_SECRET = process.env.NEXT_PUBLIC_JWT_SECRET
 
 
 // create token by passing id user
-const createToken = (payload) => jwt.sign(payload, JWT_SECRET)
+const createToken = (payload, expiresIn = '30d') => jwt.sign(payload, JWT_SECRET, { expiresIn })
 
 
 
@@ -161,16 +163,17 @@ exports.forgetPassword = expressAsyncHandler(async (req, res, next) => {
         }
 
 
-        // 3. create token
-        const token = await createToken({ userId: user.id });
+        // 3. create token to use it in forget pass 
+        // expired in 1 hours
+        const token = await createToken({ userId: user.id }, '1h');
 
-        const url = `${process.NEXT_PUBLIC_BASE_URL}/api/v1/auth/reset?forget=${token}`
+        const url = `${config.host}/api/v1/auth/reset?forget=${token}`
 
 
-        const html = await confirmationEmail(url)
+        const html = await forgetPasswordTemplate(url, user.name)
 
         // send email
-        const isEmailSent = await sendEmail({ email: user.email, html })
+        const isEmailSent = await sendEmail({ email: user.email, html, subject: 'forget password' })
 
 
         // chekc if email sent

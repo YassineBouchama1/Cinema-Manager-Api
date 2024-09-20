@@ -25,7 +25,7 @@ router.route('/reset')
 
 //@access  : public
 router.route('/forget')
-    .post(forgetPassValidator, protect, forgetPassword)
+    .post(forgetPassValidator, forgetPassword)
 
 
 

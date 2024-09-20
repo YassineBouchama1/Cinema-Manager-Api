@@ -82,7 +82,8 @@ exports.resetPassValidator = [
         .notEmpty()
         .withMessage('new Password required')
         .isLength({ min: 6 })
-        .withMessage('Password must be at least 6 characters')
+        .withMessage('Password must be at least 6 characters'),
+    validatormiddleware,
 ]
 
 
@@ -91,6 +92,7 @@ exports.forgetPassValidator = [
         .notEmpty()
         .withMessage('Email required')
         .isEmail()
-        .withMessage('Invalid email address')
+        .withMessage('Invalid email address'),
+    validatormiddleware,
 
 ]
