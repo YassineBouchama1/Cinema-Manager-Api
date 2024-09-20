@@ -7,7 +7,7 @@ const path = require('path');
 const authRoute = require('./routes/authRoute');
 const ApiError = require('./utils/ApiError');
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4000;
 
 
 dotenv.config({ path: '.env' });

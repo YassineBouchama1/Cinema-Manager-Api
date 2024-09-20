@@ -1,16 +1,13 @@
-const mongoose = require('mongoose')
-const dotenv = require('dotenv')
-dotenv.config({ path: '.env' })
+const NodeDaoMongodb = require('./node-dao-mongodb');
 
-const DB = process.env.DB_URL
+const dbConnect = async () => {
+    const nodeDaoMongodb = NodeDaoMongodb.getInstance();
+    try {
+        await nodeDaoMongodb.connect();
+    } catch (error) {
+        console.error('Failed to connect to database:', error);
+        process.exit(1);
+    }
+};
 
-const dbConnect = () => {
-    mongoose.connect(DB)
-        .then(() => {
-            console.log('DB Conected')
-        }).catch(() => {
-            console.log('Pb in Conect DB')
-        })
-}
-
-module.exports = dbConnect 
+module.exports = dbConnect;

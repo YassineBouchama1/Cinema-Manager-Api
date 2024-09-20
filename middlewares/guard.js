@@ -10,6 +10,8 @@ const ApiError = require('../utils/ApiError');
 
 require('dotenv').config();
 
+
+
 //CHECK IF TOKEN EXIST IF YES GET INFORMATION USER FROM IT TO PASS IT TO NEXT MIDDLEWARE SUCH AS CREATE PRODUCT GET ...
 exports.protect = expressAsyncHandler(async (req, res, next) => {
 

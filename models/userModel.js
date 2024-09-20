@@ -1,4 +1,8 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
+const NodeDaoMongodb = require('../config/node-dao-mongodb');
+
+
+const nodeDaoMongodb = NodeDaoMongodb.getInstance();
 
 
 const userSchema = mongoose.Schema({
@@ -29,6 +33,11 @@ const userSchema = mongoose.Schema({
 }, { timestamps: true })
 
 
-const userModel = mongoose.model('Users', userSchema)
+const UserModel = nodeDaoMongodb.createModel('Users', userSchema);
 
-module.exports = userModel
+module.exports = UserModel
+
+
+
+
+

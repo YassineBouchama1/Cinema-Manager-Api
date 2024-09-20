@@ -1,6 +1,6 @@
 const { validationResult } = require('express-validator');
 
-const validatormiddleware =
+const validator =
 
     // middleware catch errors if not valid
     (req, res, next) => {
@@ -17,4 +17,4 @@ const validatormiddleware =
         next()
     }
 
-module.exports = validatormiddleware
+module.exports = validator
