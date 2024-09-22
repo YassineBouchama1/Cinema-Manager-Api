@@ -33,7 +33,7 @@ const userSchema = mongoose.Schema({
 }, { timestamps: true })
 
 
-const UserModel = nodeDaoMongodb.createModel('Users', userSchema);
+const UserModel = nodeDaoMongodb.createModel('user', userSchema);
 
 module.exports = UserModel
 
