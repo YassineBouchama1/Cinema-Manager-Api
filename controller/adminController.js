@@ -19,7 +19,7 @@ const nodeDaoMongodb = NodeDaoMongodb.getInstance();
 
 // @desc    mark task is done
 // @route   PUT /api/v1/auth/register
-// @access  public
+// @access  private
 exports.createAdmin = expressAsyncHandler(async (req, res, next) => {
     try {
         const salt = await bcrypt.genSalt(10);
