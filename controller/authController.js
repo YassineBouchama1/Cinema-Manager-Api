@@ -100,13 +100,20 @@ exports.login = expressAsyncHandler(async (req, res, next) => {
 
         const user = result.data;
 
+
+
+
         // 2. Match password
         if (!user || !(await bcrypt.compare(req.body.password, user.password))) {
             return next(new ApiError(`Email or password incorrect`, 401));
         }
 
+        //3. check if user active 
+        if (user?.isDeleted) {
+            return next(new ApiError(`this Account Deleted Contact Admin : ${config.emailSmtp}`, 500));
+        }
 
-        // 3. create token
+        // 4. create token
         const token = await createToken({ userId: user.id });
 
         res.status(200).json({ data: user, token });

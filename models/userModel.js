@@ -40,6 +40,10 @@ const userSchema = mongoose.Schema({
         ref: 'cinema',
         default: null
     },
+    isDeleted: {
+        type: Boolean,
+        default: false
+    }
 }, { timestamps: true })
 
 
