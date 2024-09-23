@@ -19,7 +19,7 @@ exports.createShowTime = expressAsyncHandler(async (req, res, next) => {
         return next(new ApiError('Movie not found', 404));
     }
 
-    const durationInMillis = movie.duration * 60 * 1000; // Convert to milliseconds
+    const durationInMillis = movie.duration * 60 * 1000; // convert to milliseconds
     const additionalTime = 10 * 60 * 1000; // 10 minutes in milliseconds
 
     const endAt = new Date(new Date(startAt).getTime() + durationInMillis + additionalTime);
@@ -131,8 +131,12 @@ exports.viewShowTimes = expressAsyncHandler(async (req, res, next) => {
 // @route   GET /api/v1/showtime/:id
 // @access  Public
 exports.viewShowTime = expressAsyncHandler(async (req, res, next) => {
+
+    const { id } = req.params
     try {
-        const showTime = await ShowTimeModel.findById(req.params.id);
+        const showTime = await ShowTimeModel.findOne(Model, { _id: id, isDeleted: false })
+            .populate('movieId', 'name duration category')
+            .populate('roomId', 'name capacity');
         if (!showTime) {
             return next(new ApiError('Showtime not found', 404));
         }
