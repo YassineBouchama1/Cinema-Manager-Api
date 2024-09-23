@@ -10,8 +10,8 @@ const cinemaSchema = new mongoose.Schema({
 
     name: {
         type: String,
-        required: [true, "name is required"],
-        uniqe: true,
+        required: [true, "Cinema name is required"],
+        unique: true,
     },
     isDeleted: {
         type: Boolean,

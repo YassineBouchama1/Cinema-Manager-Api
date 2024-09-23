@@ -26,55 +26,119 @@ const nodeDaoMongodb = NodeDaoMongodb.getInstance();
 // @access  Private /user & admin
 exports.deleteUser = expressAsyncHandler(async (req, res, next) => {
 
-    let userId;
-
-    // check if id is passed in params
-    if (req.user.role === 'admin' && req.params.id) {
-        userId = req.params.id;
-    }
-
-    // if the user is not an admin but is authenticated
-    else if (req.user && req.user.role !== 'super') {
-        userId = req.user.userId;
-    }
 
 
-    // If neither condition is met return an error
-    else {
-        return next(new ApiError('User ID is required or you must be an authenticated admin', 400));
-    }
-
+    // there is middle ware determin userId
 
     try {
-        // change status user 
-        const userResult = await nodeDaoMongodb.findOneAndUpdate(
+
+
+
+        // check if user exist
+        const userIsExist = await nodeDaoMongodb.findOne(
             UserModel,
-            { _id: userId },
-            { isDeleted: true },
-            { new: false }
+            { _id: req.userId },
+
+        );
+
+
+        if (!userIsExist.data) {
+            return next(new ApiError(`There is no user Belong this Id `, 500));
+
+        }
+
+        let userExist = userIsExist.data
+        console.log(req.user)
+
+        // check if user belong same cinema admin or  this is super admin
+        if (userExist.cinemaId !== req.user.cinemaId && req.user.role !== 'super') {
+            return next(new ApiError('You are not allowed to remove a user from another cinema', 403));
+        }
+
+
+        // change status user 
+        const userResult = await nodeDaoMongodb.update(
+            UserModel,
+            { _id: req.userId },
+            { isDeleted: true }
         );
 
         if (userResult?.error) {
             return next(new ApiError(`Error Change Status : ${userResult.error}`, 500));
         }
 
-        if (!userResult.data) {
-            return next(new ApiError(`User with id ${id} not found`, 404));
-        }
 
 
 
         res.status(200).json({
-            message: "User Status Changed ",
-            cinema: userResult.data,
-            usersAffected: usersResult.data.modifiedCount
+            message: "User Deleted Changed ",
+
         });
     } catch (error) {
 
-        return next(new ApiError(`Error in Changing Status Operation: ${error.message}`, 500));
+        return next(new ApiError(`Error in Deleting Operation: ${error.message}`, 500));
     }
 });
 
+
+
+
+// @desc    mark task is done
+// @route   PUT /api/v1/user
+// @access  Private /user & admin
+exports.updateUser = expressAsyncHandler(async (req, res, next) => {
+
+
+
+
+    try {
+
+
+        // check if user exist
+        const userIsExist = await nodeDaoMongodb.findOne(
+            UserModel,
+            { _id: req.userId },
+
+        );
+
+
+        if (!userIsExist.data) {
+            return next(new ApiError(`Error finding user: ${userIsExist.error}`, 500));
+
+        }
+
+        let userExist = userIsExist.data
+        console.log(req.user)
+
+
+        // check if user belong same cinema admin or  this is super admin
+        if (req.user.role === 'admin' && userExist.cinemaId.toString() !== req.user.cinemaId.toString()) {
+            return next(new ApiError('You are not allowed to update a user from another cinema', 403));
+        }
+
+
+
+        // update user
+        const userResult = await nodeDaoMongodb.update(
+            UserModel,
+            { _id: req.userId },
+            req.body
+        );
+
+        // If there is an error updating the user
+        if (userResult?.error) {
+            return next(new ApiError(`There is no user Belong this Id || or there is errr `, 500));
+        }
+
+
+        res.status(200).json({
+            message: "User Updated Changed ",
+        });
+    } catch (error) {
+
+        return next(new ApiError(`Error in Updating Operation: ${error.message}`, 500));
+    }
+});
 
 
 
@@ -87,17 +151,17 @@ exports.deleteUser = expressAsyncHandler(async (req, res, next) => {
 // @route   GET /api/v1/user/:id
 // @access  Private
 exports.viewUser = expressAsyncHandler(async (req, res, next) => {
-    let userId;
+
 
     // check if id is passed in params
     if (req.user.role === 'admin' && req.params.id) {
-        userId = req.params.id;
+        req.userId = req.params.id;
     }
 
 
     // if the user is not an admin but is authenticated
     else if (req.user && req.user.role !== 'super') {
-        userId = req.user.userId;
+        req.userId = req.user.userId;
     }
 
     // If neither condition is met return an error
@@ -107,7 +171,7 @@ exports.viewUser = expressAsyncHandler(async (req, res, next) => {
 
 
     try {
-        const result = await nodeDaoMongodb.findOne(UserModel, { _id: userId, isDeleted: false });
+        const result = await nodeDaoMongodb.findOne(UserModel, { _id: req.userId, isDeleted: false });
 
         if (!result || !result.data) {
             return next(new ApiError(`No User found with this ID`, 404));
@@ -122,6 +186,11 @@ exports.viewUser = expressAsyncHandler(async (req, res, next) => {
         return next(new ApiError(`Error Fetching User: ${error.message}`, 500));
     }
 });
+
+
+
+
+
 
 
 
@@ -155,9 +224,15 @@ exports.usersBelongCinema = expressAsyncHandler(async (req, res, next) => {
 exports.viewUsers = expressAsyncHandler(async (req, res, next) => {
 
 
+    const { role, cinemaId } = req.user
+
     try {
 
-        const result = await nodeDaoMongodb.select(UserModel);
+        // if  request from super admin bring all users 
+        // if admin bring users belong same cinema admin 
+        const conditions = role === 'admin' ? { cinemaId } : {}
+
+        const result = await nodeDaoMongodb.select(UserModel, conditions);
 
         if (result?.error) {
             return next(new ApiError(`Error Fetching Cinemas: ${result.error}`, 500));

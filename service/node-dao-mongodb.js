@@ -83,14 +83,24 @@ class NodeDaoMongodb {
     }
 
 
-    async update(model, conditions, data) {
+    async update(model, conditions, data, options = { new: false }) {
         try {
-            const result = await model.updateMany(conditions, data);
+            const result = await model.updateMany(conditions, data, options);
             return { message: 'Update successful', modifiedCount: result.modifiedCount };
         } catch (error) {
             return { error: error.message };
         }
     }
+
+    async findOneAndUpdate(model, conditions, data, options = { new: false }) {
+        try {
+            const result = await model.findOneAndUpdate(conditions, data, options);
+            return { message: 'Update successful', modifiedCount: result ? 1 : 0 };
+        } catch (error) {
+            return { error: error.message };
+        }
+    }
+
 
     async delete(model, conditions) {
         try {

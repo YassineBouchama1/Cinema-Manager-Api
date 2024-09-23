@@ -1,7 +1,8 @@
 const { check } = require('express-validator');
 
 const validatormiddleware = require('../../middlewares/validator')
-const User = require('../../models/userModel')
+const User = require('../../models/userModel');
+const CinemaModel = require('../../models/cinemaModel');
 
 
 
@@ -39,11 +40,17 @@ exports.createAuthValidator = [
         .optional({ checkFalsy: true }),
     check('cinemaName')
         .custom((cinemaName, { req }) => {
-            // chck if cinema name passed if role is admin
+            // check if cinemaName is required when the role is admin
             if (req.body.role === 'admin' && !cinemaName) {
-                throw new Error('cinemaName is required for admins');
+                throw new Error('Cinema name is required for admins');
             }
-            return true;
+
+            // ceck if cinemaName already exists
+            return CinemaModel.findOne({ name: cinemaName }).then((cinema) => {
+                if (cinema) {
+                    return Promise.reject(new Error('Cinema name already exists'));
+                }
+            });
         })
         .optional({ checkFalsy: true }),
     check('password')
