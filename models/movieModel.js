@@ -35,7 +35,7 @@ const movieSchema = mongoose.Schema({
         type: Boolean,
         default: false
     }
-})
+},{ timestamps: true })
 
 
 const movieModel = nodeDaoMongodb.createModel('movie', movieSchema)

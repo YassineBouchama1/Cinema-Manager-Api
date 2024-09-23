@@ -10,6 +10,7 @@ const roomRoute = require('./routes/roomRoute');
 const cinemaRoute = require('./routes/cinemaRoute');
 const userRoute = require('./routes/userRoute');
 const movieRoute = require('./routes/movieRoute');
+const showtimeRoute = require('./routes/showtimeRoute');
 const ApiError = require('./utils/ApiError');
 
 const PORT = process.env.PORT || 4000;
@@ -43,6 +44,7 @@ app.use('/api/v1/room', roomRoute);
 app.use('/api/v1/cinema', cinemaRoute);
 app.use('/api/v1/user', userRoute);
 app.use('/api/v1/movie', movieRoute);
+app.use('/api/v1/showTime', showtimeRoute);
 
 
 
