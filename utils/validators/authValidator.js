@@ -28,10 +28,24 @@ exports.createAuthValidator = [
             })
         ),
     check('role')
-        .isEmpty()
-        .withMessage('you cant pass role while register normal')
-    ,
-
+        .custom((val) => {
+            const rolesAllowed = ['user', 'admin'];
+            // check if role is included in the allowed roles
+            if (val && !rolesAllowed.includes(val)) {
+                throw new Error('Invalid role');
+            }
+            return true; // return true if the role is valid or not passed
+        })
+        .optional({ checkFalsy: true }),
+    check('cinemaName')
+        .custom((cinemaName, { req }) => {
+            // chck if cinema name passed if role is admin
+            if (req.body.role === 'admin' && !cinemaName) {
+                throw new Error('cinemaName is required for admins');
+            }
+            return true;
+        })
+        .optional({ checkFalsy: true }),
     check('password')
         .notEmpty()
         .withMessage('Password is required')
@@ -47,7 +61,6 @@ exports.createAuthValidator = [
     check('passwordConfirm')
         .notEmpty()
         .withMessage('Password confirmation required'),
-
 
     validatormiddleware,
 ];

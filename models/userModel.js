@@ -27,13 +27,18 @@ const userSchema = mongoose.Schema({
 
     role: {
         type: String,
-        enum: ['user', 'admin'],
+        enum: ['user', 'admin', 'super'],
         default: 'user'
+    },
+    cinemaId: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'cinema',
+        default: null
     },
 }, { timestamps: true })
 
 
-const UserModel = nodeDaoMongodb.createModel('Users', userSchema);
+const UserModel = nodeDaoMongodb.createModel('user', userSchema);
 
 module.exports = UserModel
 

@@ -10,6 +10,7 @@ const sendEmail = require('../utils/email/sendEmail');
 const { forgetPasswordTemplate } = require('../utils/email/templates/forgetPasswordTemplate');
 const dotenv = require('dotenv');
 const { config } = require('../config');
+const CinemaModel = require('../models/cinemaModel');
 dotenv.config({ path: '.env' });
 
 
@@ -31,23 +32,49 @@ const createToken = (payload, expiresIn = '30d') => jwt.sign(payload, JWT_SECRET
 // @route   PUT /api/v1/auth/register
 // @access  public
 exports.register = expressAsyncHandler(async (req, res, next) => {
+    const { name, email, password, role, cinemaName } = req.body;
+
     try {
         const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
 
-        const userData = {
-            name: req.body.name,
-            email: req.body.email,
-            password: await bcrypt.hash(req.body.password, salt),
-            role: req.body.role
+        let userData = {
+            name,
+            email,
+            password: hashedPassword,
+            role
         };
 
-        const result = await nodeDaoMongodb.insert(UserModel, userData);
+        // if wany register as admin and not passed cinema name return error
+        if (role === 'admin') {
+            if (!cinemaName) {
+                return next(new ApiError('Cinema name is required for admin registration', 400));
+            }
 
-        if (result?.error) {
-            return next(new ApiError(`Error Creating Account: ${result.error}`, 500));
+            //1. create cinema 
+            const cinemaData = { name: cinemaName };
+            const cinemaResult = await nodeDaoMongodb.insert(CinemaModel, cinemaData);
+
+            if (cinemaResult?.error) {
+                return next(new ApiError(`Error Creating Cinema: ${cinemaResult.error}`, 500));
+            }
+
+            //2. ddd cinemaId to userData
+            userData.cinemaId = cinemaResult.data._id;
         }
 
-        res.status(201).json({ data: result.data });
+        //3. create user account
+        const userResult = await nodeDaoMongodb.insert(UserModel, userData);
+
+        if (userResult?.error) {
+            // if there was a error creating the user and we created a cinem we should delete it
+            if (role === 'admin' && userData.cinemaId) {
+                await nodeDaoMongodb.deleteOne(CinemaModel, { _id: userData.cinemaId });
+            }
+            return next(new ApiError(`Error Creating Account: ${userResult.error}`, 500));
+        }
+
+        res.status(201).json({ data: userResult.data, message: 'Created Account Successfully' });
     } catch (error) {
         return next(new ApiError(`Error Creating Account: ${error.message}`, 500));
     }
