@@ -13,7 +13,14 @@ const cinemaSchema = new mongoose.Schema({
         required: [true, "name is required"],
         uniqe: true,
     },
-
+    isDeleted: {
+        type: Boolean,
+        default: false
+    },
+    cinemaId: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'cinema',
+    },
 }, { timestamps: true });
 
 

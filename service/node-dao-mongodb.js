@@ -103,8 +103,11 @@ class NodeDaoMongodb {
 
     async deleteOne(model, conditions) {
         try {
-            await model.delete(conditions);
-            return { message: 'Delete successful' };
+            const result = await model.deleteOne(conditions);
+            if (result.deletedCount === 0) {
+                return { error: 'No document found with the given conditions' };
+            }
+            return { message: 'Delete successful', deletedCount: result.deletedCount };
         } catch (error) {
             return { error: error.message };
         }

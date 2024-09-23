@@ -1,6 +1,6 @@
 
 const expressAsyncHandler = require('express-async-handler')
-const RomeModel = require('../models/romeModel');
+const RoomModel = require('../models/roomModel');
 const ApiError = require('../utils/ApiError');
 const NodeDaoMongodb = require('../service/node-dao-mongodb');
 
@@ -21,9 +21,13 @@ const nodeDaoMongodb = NodeDaoMongodb.getInstance();
 // @route   POST /api/v1/room
 // @access  Private
 exports.createRoom = expressAsyncHandler(async (req, res, next) => {
+
+    // get id cinema from uathed admin
+    const { cinemaId } = req.user
+
     try {
 
-        const result = await nodeDaoMongodb.insert(RomeModel, req.body);
+        const result = await nodeDaoMongodb.insert(RoomModel, { ...req.body, cinemaId });
 
         if (result?.error) {
             return next(new ApiError(`Error Creating Room: ${result.error}`, 500));
@@ -45,7 +49,7 @@ exports.deleteRoom = expressAsyncHandler(async (req, res, next) => {
     const { id } = req.params
     try {
 
-        const result = await nodeDaoMongodb.deleteOne(RomeModel, { _id: id });
+        const result = await nodeDaoMongodb.deleteOne(RoomModel, { _id: id });
 
         if (result?.error) {
             return next(new ApiError(`Error Deleting Room: ${result.error}`, 500));
@@ -61,12 +65,15 @@ exports.deleteRoom = expressAsyncHandler(async (req, res, next) => {
 
 // @desc    mark task is done
 // @route   GET /api/v1/room
-// @access  Private
+// @access  Private : admins
 exports.viewRooms = expressAsyncHandler(async (req, res, next) => {
 
+
+    // get id cinema from uathed admin
+    const { cinemaId } = req.user
     try {
 
-        const result = await nodeDaoMongodb.select(RomeModel);
+        const result = await nodeDaoMongodb.select(RoomModel, { cinemaId });
 
         if (result?.error) {
             return next(new ApiError(`Error Fetching Rooms: ${result.error}`, 500));
@@ -90,7 +97,59 @@ exports.viewRoom = expressAsyncHandler(async (req, res, next) => {
     const { id } = req.params
     try {
 
-        const result = await nodeDaoMongodb.findOne(RomeModel, { _id: id });
+        const result = await nodeDaoMongodb.findOne(RoomModel, { _id: id, isDeleted: false });
+
+
+        if (!result) {
+            return next(new ApiError(`no room belong this id`, 404));
+        }
+
+        if (result?.error) {
+            return next(new ApiError(`Error Fetching Room: ${result.error}`, 500));
+        }
+
+        res.status(201).json({ data: result.data });
+    } catch (error) {
+        return next(new ApiError(`Error Fetching Room: ${error.message}`, 500));
+    }
+});
+
+
+
+
+
+// @desc    mark task is done
+// @route   GET /api/v1/room
+// @access  Public 
+exports.viewRoomsPublic = expressAsyncHandler(async (req, res, next) => {
+
+
+    try {
+
+        const result = await nodeDaoMongodb.select(RoomModel, { _id: id, isDeleted: false });
+
+        if (result?.error) {
+            return next(new ApiError(`Error Fetching Rooms: ${result.error}`, 500));
+        }
+
+        res.status(201).json({ data: result.data });
+    } catch (error) {
+        return next(new ApiError(`Error Fetching Room: ${error.message}`, 500));
+    }
+});
+
+
+
+
+// @desc    mark task is done
+// @route   GET /api/v1/room/:id
+// @access  Public
+exports.viewRoomPublic = expressAsyncHandler(async (req, res, next) => {
+
+    const { id } = req.params
+    try {
+
+        const result = await nodeDaoMongodb.findOne(RoomModel, { _id: id, isDeleted: false });
 
 
         if (!result) {

@@ -1,7 +1,7 @@
 const express = require('express')
 
 const { protect, allowedTo } = require('../middlewares/guard')
-const { createCinema, viewCinema, deleteCinema, viewCinemas } = require('../controller/cinemaController')
+const { createCinema, viewCinema, deleteCinema, viewCinemaPublic, viewCinemasPublic } = require('../controller/cinemaController')
 const { createCinemaValidator } = require('../utils/validators/cinemaValidator')
 
 
@@ -12,14 +12,19 @@ const router = express.Router()
 //@access  : private : admin
 router.route('/')
     .post(protect, allowedTo('admin'), createCinemaValidator, createCinema)
-    .post(protect, viewCinemas)
+    .get(viewCinemasPublic)
+
+
 
 router.route('/:id')
     .delete(protect, allowedTo('admin'), deleteCinema)
-    .post(protect, viewCinema)
+    .get(protect, allowedTo('admin'), protect, viewCinema)
 
 
 
+//@access  : public
+router.route('/public/:id')
+    .get(protect, viewCinemaPublic)
 
 
 

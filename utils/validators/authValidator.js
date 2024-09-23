@@ -10,7 +10,7 @@ exports.createAuthValidator = [
     check('name')
         .notEmpty()
         .withMessage('name is required')
-        .isLength({ min: 3 })
+        .isLength({ min: 2 })
         .withMessage('Too short name')
     ,
 
