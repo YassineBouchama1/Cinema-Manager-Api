@@ -55,7 +55,7 @@ exports.protect = expressAsyncHandler(async (req, res, next) => {
     //2) decoded Token 
     // token wont split
     const decoded = jwt.verify(token, JWT_SECRET)
-    console.log(decoded)
+
 
 
     //3) fetch user
@@ -98,7 +98,7 @@ exports.protect = expressAsyncHandler(async (req, res, next) => {
 exports.allowedTo = (...roles) =>
   expressAsyncHandler(async (req, res, next) => {
 
-    console.log(roles, req.user.role)
+
     // 1) access roles
     // 2) access registered user (req.user.role)
     if (!roles.includes(req.user.role)) {
