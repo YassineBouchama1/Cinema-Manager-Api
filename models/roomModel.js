@@ -30,7 +30,7 @@ const roomSchema = mongoose.Schema({
         type: Boolean,
         default: false
     }
-})
+}, { timestamps: true })
 
 
 const roomModel = nodeDaoMongodb.createModel('room', roomSchema)
