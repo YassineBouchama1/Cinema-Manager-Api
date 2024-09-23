@@ -83,14 +83,24 @@ class NodeDaoMongodb {
     }
 
 
-    async update(model, conditions, data) {
+    async update(model, conditions, data, options = { new: false }) {
         try {
-            const result = await model.updateMany(conditions, data);
+            const result = await model.updateMany(conditions, data, options);
             return { message: 'Update successful', modifiedCount: result.modifiedCount };
         } catch (error) {
             return { error: error.message };
         }
     }
+
+    async findOneAndUpdate(model, conditions, data, options = { new: false }) {
+        try {
+            const result = await model.findOneAndUpdate(conditions, data, options);
+            return { message: 'Update successful', modifiedCount: result ? 1 : 0 };
+        } catch (error) {
+            return { error: error.message };
+        }
+    }
+
 
     async delete(model, conditions) {
         try {
@@ -103,8 +113,11 @@ class NodeDaoMongodb {
 
     async deleteOne(model, conditions) {
         try {
-            await model.delete(conditions);
-            return { message: 'Delete successful' };
+            const result = await model.deleteOne(conditions);
+            if (result.deletedCount === 0) {
+                return { error: 'No document found with the given conditions' };
+            }
+            return { message: 'Delete successful', deletedCount: result.deletedCount };
         } catch (error) {
             return { error: error.message };
         }

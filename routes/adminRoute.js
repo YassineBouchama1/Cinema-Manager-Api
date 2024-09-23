@@ -10,7 +10,7 @@ const router = express.Router()
 
 //@access  : private : admin
 router.route('/create')
-    .post(createAdminValidator, protect, allowedTo('admin'), createAdmin)
+    .post(createAdminValidator, protect, allowedTo('admin', 'super'), createAdmin)
 
 
 

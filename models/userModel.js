@@ -30,11 +30,20 @@ const userSchema = mongoose.Schema({
         enum: ['user', 'admin', 'super'],
         default: 'user'
     },
+    isActive: {
+        type: Boolean,
+        default: true
+
+    },
     cinemaId: {
         type: mongoose.Schema.ObjectId,
         ref: 'cinema',
         default: null
     },
+    isDeleted: {
+        type: Boolean,
+        default: false
+    }
 }, { timestamps: true })
 
 
