@@ -7,6 +7,7 @@ const path = require('path');
 const authRoute = require('./routes/authRoute');
 const adminRoute = require('./routes/adminRoute');
 const roomRoute = require('./routes/roomRoute');
+const cinemaRoute = require('./routes/cinemaRoute');
 const ApiError = require('./utils/ApiError');
 
 const PORT = process.env.PORT || 4000;
@@ -37,6 +38,7 @@ app.get('/', (req, res) => {
 app.use('/api/v1/auth', authRoute);
 app.use('/api/v1/admin', adminRoute);
 app.use('/api/v1/room', roomRoute);
+app.use('/api/v1/cinema', cinemaRoute);
 
 
 

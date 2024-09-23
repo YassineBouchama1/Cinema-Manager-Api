@@ -17,10 +17,14 @@ const nodeDaoMongodb = NodeDaoMongodb.getInstance();
 
 
 
-// @desc    mark task is done
+// @desc   create admin belong spicific cinema
 // @route   PUT /api/v1/auth/register
 // @access  private
 exports.createAdmin = expressAsyncHandler(async (req, res, next) => {
+
+    // get cinema belong admin 
+    const { cinemaId } = req.user
+
     try {
         const salt = await bcrypt.genSalt(10);
 
@@ -28,6 +32,7 @@ exports.createAdmin = expressAsyncHandler(async (req, res, next) => {
             name: req.body.name,
             email: req.body.email,
             password: await bcrypt.hash(req.body.password, salt),
+            cinemaId: cinemaId,
             role: 'admin'
         };
 
