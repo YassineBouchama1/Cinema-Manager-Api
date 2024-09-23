@@ -195,21 +195,19 @@ exports.updateMyProfile = expressAsyncHandler(async (req, res, next) => {
 
 
         // update user
-        const userResult = await nodeDaoMongodb.update(
+        const userUpdated = await nodeDaoMongodb.update(
             UserModel,
             { _id: userExist.id },
             req.body
         );
 
         // If there is an error updating the user
-        if (userResult?.error) {
+        if (userUpdated?.error) {
             return next(new ApiError(`There is no user Belong this Id || or there is errr `, 500));
         }
 
 
-        res.status(200).json({
-            message: "User Updated Changed ",
-        });
+        res.status(200).json(userUpdated);
     } catch (error) {
 
         return next(new ApiError(`Error in Updating Operation: ${error.message}`, 500));
@@ -244,7 +242,7 @@ exports.viewUser = expressAsyncHandler(async (req, res, next) => {
 
 
         // check if user belong same cinema admin or  this is super admin 
-        if (req.user.role === 'admin' && userExist.cinemaId.toString() !== req.user.cinemaId.toString()) {
+        if (req.user.role === 'admin' && userExist.cinemaId !== req.user.cinemaId) {
             return next(new ApiError('You are not allowed to update a user from another cinema', 403));
         }
 

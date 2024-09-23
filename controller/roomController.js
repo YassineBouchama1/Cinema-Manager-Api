@@ -53,14 +53,13 @@ exports.deleteRoom = expressAsyncHandler(async (req, res, next) => {
 
         //Notic : req.resource : is resource item passed from accessControl middlewar file
 
-
         const result = await nodeDaoMongodb.deleteOne(RoomModel, { _id: req.resource.id });
 
         if (result?.error) {
             return next(new ApiError(`Error Deleting Room: ${result.error}`, 500));
         }
 
-        res.status(201).json({ message: result.message });
+        res.status(201).json(result);
     } catch (error) {
         return next(new ApiError(`Error Deleting Room: ${error.message}`, 500));
     }
@@ -100,7 +99,6 @@ exports.viewRooms = expressAsyncHandler(async (req, res, next) => {
 // @access  Private
 exports.viewRoom = expressAsyncHandler(async (req, res, next) => {
 
-
     try {
 
         //Notic : req.resource : is resource item passed from accessControl middlewar file
@@ -111,6 +109,36 @@ exports.viewRoom = expressAsyncHandler(async (req, res, next) => {
     }
 });
 
+
+
+// @desc    update room
+// @route   GET /api/v1/room/:id
+// @access  Private
+exports.updateRoom = expressAsyncHandler(async (req, res, next) => {
+
+    try {
+
+        //Notic : req.resource : is resource item passed from accessControl middlewar file
+
+
+        // update Room
+        const roomUpdated = await nodeDaoMongodb.update(
+            RoomModel,
+            { _id: req.resource.id },
+            req.body,
+            { new: true }
+        );
+
+        // If there is an error updating the user
+        if (roomUpdated?.error) {
+            return next(new ApiError(`There is a error while tryibg to update room`, 500));
+        }
+
+        res.status(200).json(roomUpdated);
+    } catch (error) {
+        return next(new ApiError(`Error Fetching Room: ${error.message}`, 500));
+    }
+});
 
 
 
