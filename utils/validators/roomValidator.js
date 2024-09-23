@@ -32,3 +32,12 @@ exports.createRoomValidator = [
 
     validatormiddleware,
 ];
+
+
+exports.roomByIdValidator = [
+    check('id')
+        .isMongoId().withMessage('id Invalid')
+    ,
+
+    validatormiddleware,
+]

@@ -17,6 +17,7 @@ const nodeDaoMongodb = NodeDaoMongodb.getInstance();
 
 
 
+
 // @desc    mark task is done
 // @route   POST /api/v1/room
 // @access  Private
@@ -46,10 +47,14 @@ exports.createRoom = expressAsyncHandler(async (req, res, next) => {
 // @access  Private
 exports.deleteRoom = expressAsyncHandler(async (req, res, next) => {
 
-    const { id } = req.params
+
     try {
 
-        const result = await nodeDaoMongodb.deleteOne(RoomModel, { _id: id });
+
+        //Notic : req.resource : is resource item passed from accessControl middlewar file
+
+
+        const result = await nodeDaoMongodb.deleteOne(RoomModel, { _id: req.resource.id });
 
         if (result?.error) {
             return next(new ApiError(`Error Deleting Room: ${result.error}`, 500));
@@ -71,6 +76,7 @@ exports.viewRooms = expressAsyncHandler(async (req, res, next) => {
 
     // get id cinema from uathed admin
     const { cinemaId } = req.user
+
     try {
 
         const result = await nodeDaoMongodb.select(RoomModel, { cinemaId });
@@ -79,7 +85,7 @@ exports.viewRooms = expressAsyncHandler(async (req, res, next) => {
             return next(new ApiError(`Error Fetching Rooms: ${result.error}`, 500));
         }
 
-        res.status(201).json({ data: result.data });
+        res.status(200).json({ data: result.data });
     } catch (error) {
         return next(new ApiError(`Error Fetching Room: ${error.message}`, 500));
     }
@@ -94,21 +100,12 @@ exports.viewRooms = expressAsyncHandler(async (req, res, next) => {
 // @access  Private
 exports.viewRoom = expressAsyncHandler(async (req, res, next) => {
 
-    const { id } = req.params
+
     try {
 
-        const result = await nodeDaoMongodb.findOne(RoomModel, { _id: id, isDeleted: false });
+        //Notic : req.resource : is resource item passed from accessControl middlewar file
 
-
-        if (!result) {
-            return next(new ApiError(`no room belong this id`, 404));
-        }
-
-        if (result?.error) {
-            return next(new ApiError(`Error Fetching Room: ${result.error}`, 500));
-        }
-
-        res.status(201).json({ data: result.data });
+        res.status(200).json({ data: req.resource });
     } catch (error) {
         return next(new ApiError(`Error Fetching Room: ${error.message}`, 500));
     }
@@ -122,6 +119,7 @@ exports.viewRoom = expressAsyncHandler(async (req, res, next) => {
 // @route   GET /api/v1/room
 // @access  Public 
 exports.viewRoomsPublic = expressAsyncHandler(async (req, res, next) => {
+
 
 
     try {
