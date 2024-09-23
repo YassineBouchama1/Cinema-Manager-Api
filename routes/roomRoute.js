@@ -13,13 +13,14 @@ const router = express.Router()
 
 //@access  : private : admin
 router.route('/')
-    .post(createRoomValidator, protect, allowedTo('admin', 'super'), createRoom)
+    .post(protect, allowedTo('admin', 'super'), createRoomValidator, createRoom)
     .get(protect, allowedTo('admin', 'super'), viewRooms)
 
+
 router.route('/:id')
-    .delete(roomByIdValidator, protect, allowedTo('admin', 'super'), checkUserAccessToResource(roomModel), deleteRoom)
-    .get(roomByIdValidator, protect, allowedTo('admin', 'super'), checkUserAccessToResource(roomModel), viewRoom)
-    .put(roomByIdValidator, protect, allowedTo('admin', 'super'), checkUserAccessToResource(roomModel), updateRoom)
+    .delete(protect, allowedTo('admin', 'super'), roomByIdValidator, checkUserAccessToResource(roomModel), deleteRoom)
+    .get(protect, allowedTo('admin', 'super'), roomByIdValidator, checkUserAccessToResource(roomModel), viewRoom)
+    .put(protect, allowedTo('admin', 'super'), roomByIdValidator, checkUserAccessToResource(roomModel), updateRoom)
 
 
 
