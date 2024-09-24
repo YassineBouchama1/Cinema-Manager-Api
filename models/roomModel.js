@@ -14,10 +14,14 @@ const roomSchema = mongoose.Schema({
         type: Number,
         required: [true, 'capacity room is required'],
     },
+    seatsPerRow: {
+        type: Number,
+        required: [true, 'Number of seats per row is required'],
+        default: 10
+    },
     type: {
         type: String,
         required: [true, 'type room is required'],
-
     },
     cinemaId: {
         type: mongoose.Schema.ObjectId,
