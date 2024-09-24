@@ -1,16 +1,14 @@
 
 const expressAsyncHandler = require('express-async-handler')
-const CinemaModel = require('../models/cinemaModel');
 const ApiError = require('../utils/ApiError');
-const NodeDaoMongodb = require('../service/node-dao-mongodb');
-
+const DatabaseOperations = require('../utils/DatabaseOperations');
 const dotenv = require('dotenv');
 const UserModel = require('../models/userModel');
 dotenv.config({ path: '.env' })
 
 
 // get instance from service object
-const nodeDaoMongodb = NodeDaoMongodb.getInstance();
+const dbOps = DatabaseOperations.getInstance();
 
 
 
@@ -60,7 +58,7 @@ exports.deleteUser = expressAsyncHandler(async (req, res, next) => {
 
 
         // check if user exist
-        const userIsExist = await nodeDaoMongodb.findOne(
+        const userIsExist = await dbOps.findOne(
             UserModel,
             { _id: id },
 
@@ -82,7 +80,7 @@ exports.deleteUser = expressAsyncHandler(async (req, res, next) => {
 
 
         // change status user 
-        const userResult = await nodeDaoMongodb.update(
+        const userResult = await dbOps.update(
             UserModel,
             { _id: req.userId },
             { isDeleted: true }
@@ -120,7 +118,7 @@ exports.updateUser = expressAsyncHandler(async (req, res, next) => {
 
 
         // check if user exist
-        const userIsExist = await nodeDaoMongodb.findOne(
+        const userIsExist = await dbOps.findOne(
             UserModel,
             { _id: id },
 
@@ -144,7 +142,7 @@ exports.updateUser = expressAsyncHandler(async (req, res, next) => {
 
 
         // update user
-        const userResult = await nodeDaoMongodb.update(
+        const userResult = await dbOps.update(
             UserModel,
             { _id: req.userId },
             req.body
@@ -180,7 +178,7 @@ exports.updateMyProfile = expressAsyncHandler(async (req, res, next) => {
 
 
         // check if user exist
-        const userIsExist = await nodeDaoMongodb.findOne(
+        const userIsExist = await dbOps.findOne(
             UserModel,
             { _id: id },
 
@@ -195,7 +193,7 @@ exports.updateMyProfile = expressAsyncHandler(async (req, res, next) => {
 
 
         // update user
-        const userUpdated = await nodeDaoMongodb.update(
+        const userUpdated = await dbOps.update(
             UserModel,
             { _id: userExist.id },
             req.body
@@ -229,7 +227,7 @@ exports.viewUser = expressAsyncHandler(async (req, res, next) => {
     const { id } = req.params
 
     try {
-        const userExist = await nodeDaoMongodb.findOne(UserModel, { _id: id, isDeleted: false });
+        const userExist = await dbOps.findOne(UserModel, { _id: id });
 
         if (!userExist || !userExist.data) {
             return next(new ApiError(`No User found with this ID`, 404));
@@ -271,7 +269,7 @@ exports.usersBelongCinema = expressAsyncHandler(async (req, res, next) => {
     const { cinemaId } = req.user
     try {
 
-        const result = await nodeDaoMongodb.select(UserModel, { cinemaId, isDeleted: false });
+        const result = await dbOps.select(UserModel, { cinemaId });
 
         if (result?.error) {
             return next(new ApiError(`Error Fetching Cinemas: ${result.error}`, 500));
@@ -299,7 +297,7 @@ exports.viewUsers = expressAsyncHandler(async (req, res, next) => {
         // if admin bring users belong same cinema admin 
         const conditions = role === 'admin' ? { cinemaId } : {}
 
-        const result = await nodeDaoMongodb.select(UserModel, conditions);
+        const result = await dbOps.select(UserModel, conditions);
 
         if (result?.error) {
             return next(new ApiError(`Error Fetching Cinemas: ${result.error}`, 500));

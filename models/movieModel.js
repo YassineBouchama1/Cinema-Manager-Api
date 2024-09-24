@@ -1,8 +1,7 @@
 const mongoose = require('mongoose');
-const NodeDaoMongodb = require('../service/node-dao-mongodb');
+const DatabaseOperations = require('../utils/DatabaseOperations');
 
-
-const nodeDaoMongodb = NodeDaoMongodb.getInstance();
+const dbOps = DatabaseOperations.getInstance();
 
 const movieSchema = mongoose.Schema({
 
@@ -35,10 +34,10 @@ const movieSchema = mongoose.Schema({
         type: Boolean,
         default: false
     }
-},{ timestamps: true })
+}, { timestamps: true })
 
 
-const movieModel = nodeDaoMongodb.createModel('movie', movieSchema)
+const movieModel = dbOps.createModel('movie', movieSchema)
 
 module.exports = movieModel
 

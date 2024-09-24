@@ -4,8 +4,7 @@ const expressAsyncHandler = require('express-async-handler');
 
 const jwt = require('jsonwebtoken');
 const ApiError = require('../utils/ApiError');
-const NodeDaoMongodb = require('../service/node-dao-mongodb');
-const UserModel = require('../models/userModel');
+const DatabaseOperations = require('../utils/DatabaseOperations'); const UserModel = require('../models/userModel');
 
 require('dotenv').config();
 
@@ -13,7 +12,7 @@ const JWT_SECRET = process.env.NEXT_PUBLIC_JWT_SECRET
 
 
 // get instance from service object
-const nodeDaoMongodb = NodeDaoMongodb.getInstance();
+const dbOps = DatabaseOperations.getInstance();
 
 
 //CHECK IF TOKEN EXIST IF YES GET INFORMATION USER FROM IT TO PASS IT TO NEXT MIDDLEWARE SUCH AS CREATE PRODUCT GET ...
@@ -59,7 +58,7 @@ exports.protect = expressAsyncHandler(async (req, res, next) => {
 
 
     //3) fetch user
-    const result = await nodeDaoMongodb.findOne(UserModel, { _id: decoded.userId })
+    const result = await dbOps.findOne(UserModel, { _id: decoded.userId })
 
     //4) check if user exist 
     if (result?.error) {

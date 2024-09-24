@@ -2,34 +2,81 @@ const expressAsyncHandler = require('express-async-handler');
 const ShowTimeModel = require('../models/showTimeModel');
 const MovieModel = require('../models/movieModel');
 const ApiError = require('../utils/ApiError');
-const NodeDaoMongodb = require('../service/node-dao-mongodb');
+const DatabaseOperations = require('../utils/DatabaseOperations');
+const RoomModel = require('../models/roomModel');
 
-const nodeDaoMongodb = NodeDaoMongodb.getInstance();
+const dbOps = DatabaseOperations.getInstance();
+
 
 // @desc    create a new showtime
 // @route   POST /api/v1/showtime
 // @access  private
+//@TODO : add validation if room avaible in that time
 exports.createShowTime = expressAsyncHandler(async (req, res, next) => {
     const { price, movieId, roomId, startAt } = req.body;
     const { cinemaId } = req.user;
 
-    // Get the movie's duration
-    const movie = await MovieModel.findById(movieId);
-    if (!movie) {
+
+    // get movie
+    const movieResult = await dbOps.findOne(MovieModel, { _id: movieId });
+
+
+    if (!movieResult || !movieResult.data) {
         return next(new ApiError('Movie not found', 404));
     }
 
-    const durationInMillis = movie.duration * 60 * 1000; // convert to milliseconds
-    const additionalTime = 10 * 60 * 1000; // 10 minutes in milliseconds
+    const movie = movieResult.data;
 
-    const endAt = new Date(new Date(startAt).getTime() + durationInMillis + additionalTime);
+    // ceck if this movie belong to the same cinema
+    if (movie.cinemaId.toString() !== cinemaId.toString()) {
+        return next(new ApiError("The movie doesnt belong to your cinema", 403));
+    }
+
+    // fet room
+    const roomResult = await dbOps.findOne(RoomModel, { _id: roomId });
+    if (!roomResult || !roomResult.data) {
+        return next(new ApiError('Room not found', 404));
+    }
+
+    const room = roomResult.data;
+
+
+    // check if this room belong to the same cinema
+    if (room.cinemaId.toString() !== cinemaId.toString()) {
+        return next(new ApiError("The room doesn't belong to your cinema", 403));
+    }
+
+    //@TODO : add validation if room avaible in that time
+
+
+    // validate and parse startAt
+    const parsedStartAt = new Date(startAt); // convert to date form
+
+    if (isNaN(parsedStartAt.getTime())) {
+        return next(new ApiError('Invalid startAt date format', 400));
+    }
+
+
+    const durationInMinutes = Number(movie.duration);
+    if (isNaN(durationInMinutes)) {
+        return next(new ApiError('Invalid movie duration', 400));
+    }
+
+
+    // calcul endAt based on movie durat + additional time : 10min
+    const durationInMillis = durationInMinutes * 60 * 1000; // convert to milliseconds
+    const additionalTime = 10 * 60 * 1000; // 10 minutes in milliseconds
+    const endAt = new Date(parsedStartAt.getTime() + durationInMillis + additionalTime);
+
+
+
 
     try {
-        const result = await nodeDaoMongodb.insert(ShowTimeModel, {
+        const result = await dbOps.insert(ShowTimeModel, {
             price,
             movieId,
             roomId,
-            startAt: new Date(startAt),
+            startAt: parsedStartAt,
             endAt,
             cinemaId
         });
@@ -54,8 +101,7 @@ exports.updateShowTime = expressAsyncHandler(async (req, res, next) => {
 
 
 
-    //req,resource is showtime item / watch accessControl file
-
+    //req.resource is showtime item / watch accessControl file
     let showTime = req.resource
 
     // Get the movie duration
@@ -89,11 +135,10 @@ exports.updateShowTime = expressAsyncHandler(async (req, res, next) => {
 exports.deleteShowTime = expressAsyncHandler(async (req, res, next) => {
     try {
 
-        //req,resource is showtime item / watch accessControl file
-
+        //req.resource is showtime item / watch accessControl file
         let showTime = req.resource
 
-        const result = await nodeDaoMongodb.deleteOne(ShowTimeModel, { _id: showTime.id });
+        const result = await dbOps.softDelete(ShowTimeModel, { _id: showTime.id });
 
         if (result?.error) {
             return next(new ApiError(`Error Deleting Showtime: ${result.error}`, 500));
@@ -113,7 +158,7 @@ exports.viewShowTimes = expressAsyncHandler(async (req, res, next) => {
     const { cinemaId } = req.user;
 
     try {
-        const result = await nodeDaoMongodb.select(ShowTimeModel, { cinemaId });
+        const result = await dbOps.select(ShowTimeModel, { cinemaId });
 
         if (result?.error) {
             return next(new ApiError(`Error Fetching Showtimes: ${result.error}`, 500));
@@ -134,7 +179,7 @@ exports.viewShowTime = expressAsyncHandler(async (req, res, next) => {
 
     const { id } = req.params
     try {
-        const showTime = await ShowTimeModel.findOne(Model, { _id: id, isDeleted: false })
+        const showTime = await ShowTimeModel.findOne(Model, { _id: id })
             .populate('movieId', 'name duration category')
             .populate('roomId', 'name capacity');
         if (!showTime) {

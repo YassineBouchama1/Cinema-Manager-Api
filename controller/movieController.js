@@ -1,14 +1,13 @@
 const expressAsyncHandler = require('express-async-handler');
 const MovieModel = require('../models/movieModel');
 const ApiError = require('../utils/ApiError');
-const NodeDaoMongodb = require('../service/node-dao-mongodb');
-const sharp = require('sharp');
+const DatabaseOperations = require('../utils/DatabaseOperations'); const sharp = require('sharp');
 
 const dotenv = require('dotenv');
 const { uploadSingleImage } = require('../middlewares/uploadimg');
 dotenv.config({ path: '.env' });
 
-const nodeDaoMongodb = NodeDaoMongodb.getInstance();
+const dbOps = DatabaseOperations.getInstance();
 
 
 
@@ -44,7 +43,7 @@ exports.createMovie = expressAsyncHandler(async (req, res, next) => {
 
 
     try {
-        const result = await nodeDaoMongodb.insert(MovieModel, { ...req.body, cinemaId })
+        const result = await dbOps.insert(MovieModel, { ...req.body, cinemaId })
 
 
 
@@ -67,7 +66,9 @@ exports.createMovie = expressAsyncHandler(async (req, res, next) => {
 // @access  Private
 exports.deleteMovie = expressAsyncHandler(async (req, res, next) => {
     try {
-        const result = await nodeDaoMongodb.deleteOne(MovieModel, { _id: req.resource.id });
+
+
+        const result = await dbOps.softDelete(MovieModel, { _id: req.resource.id });
 
         if (result?.error) {
             return next(new ApiError(`Error Deleting Movie: ${result.error}`, 500));
@@ -86,7 +87,7 @@ exports.viewMovies = expressAsyncHandler(async (req, res, next) => {
     const { cinemaId } = req.user;
 
     try {
-        const result = await nodeDaoMongodb.select(MovieModel, { cinemaId });
+        const result = await dbOps.select(MovieModel, { cinemaId });
 
         if (result?.error) {
             return next(new ApiError(`Error Fetching Movies: ${result.error}`, 500));
@@ -128,7 +129,7 @@ exports.updateMovie = expressAsyncHandler(async (req, res, next) => {
 
 
 
-        const movieUpdated = await nodeDaoMongodb.update(
+        const movieUpdated = await dbOps.update(
             MovieModel,
             { _id: req.resource.id }, // resource comes from middlewar accessControle.ks
             updateData,
@@ -150,7 +151,7 @@ exports.updateMovie = expressAsyncHandler(async (req, res, next) => {
 // @access  Public
 exports.viewMoviesPublic = expressAsyncHandler(async (req, res, next) => {
     try {
-        const result = await nodeDaoMongodb.select(MovieModel, { isDeleted: false });
+        const result = await dbOps.select(MovieModel, { isDeleted: false });
 
         if (result?.error) {
             return next(new ApiError(`Error Fetching Movies: ${result.error}`, 500));
@@ -168,7 +169,7 @@ exports.viewMoviesPublic = expressAsyncHandler(async (req, res, next) => {
 exports.viewMoviePublic = expressAsyncHandler(async (req, res, next) => {
     const { id } = req.params;
     try {
-        const result = await nodeDaoMongodb.findOne(MovieModel, { _id: id, isDeleted: false });
+        const result = await dbOps.findOne(MovieModel, { _id: id });
 
         if (!result) {
             return next(new ApiError(`No movie found with this ID`, 404));
