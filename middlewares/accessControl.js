@@ -12,7 +12,7 @@ const checkUserAccessToResource = (Model) =>
 
     const resource = await dbOps.findOne(Model, { _id: id });
 
-
+console
 
     if (resource?.error) {
       return next(new ApiError(`Resource not found : ${resource.error}`, 500));
@@ -23,10 +23,13 @@ const checkUserAccessToResource = (Model) =>
     }
 
     // if super admin return true with data
-    if (req.user.role === 'super') {
+    if (req.user.role === 'super' || req.user.role === 'user') {
       req.resource = resource.data;
       next();
     }
+
+
+  
 
     if (resource.data.cinemaId?.toString() !== cinemaId?.toString()) {
       return next(new ApiError('You do not have permission to access this resource', 403));

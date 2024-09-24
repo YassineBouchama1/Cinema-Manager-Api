@@ -100,33 +100,40 @@ exports.createShowTime = expressAsyncHandler(async (req, res, next) => {
 exports.updateShowTime = expressAsyncHandler(async (req, res, next) => {
     const { startAt, price, roomId } = req.body;
 
+    // TODO: add validation to check if the room is available at this time
 
+    // req.resource is showtime item / watch accessControl file
+    let showTime = req.resource;
 
-    //TODO: add validaton to check if room is avaible in this time
+    try {
+        // det the movie duration
+        const movie = await MovieModel.findById(showTime.movieId);
+        if (!movie) {
+            return next(new ApiError('Movie not found', 404));
+        }
 
-    //req.resource is showtime item / watch accessControl file
-    let showTime = req.resource
+        const durationInMillis = movie.duration * 60 * 1000; // convert to ms
+        const additionalTime = 10 * 60 * 1000; // 10 min 
 
-    // Get the movie duration
-    const movie = await MovieModel.findById(showTime.movieId);
+        // prepare updated fields
+        const updatedFields = {
+            startAt: startAt ? new Date(startAt) : showTime.startAt,
+            endAt: new Date((startAt ? new Date(startAt) : showTime.startAt).getTime() + durationInMillis + additionalTime),
+            price: price || showTime.price,
+            roomId: roomId || showTime.roomId,
+        };
 
-    if (!movie) {
-        return next(new ApiError('Movie not found', 404));
+        // update the showtime using the update function
+        const result = await dbOps.update(ShowTimeModel, { _id: showTime.id }, updatedFields);
+
+        if (result?.error) {
+            return next(new ApiError(`Error Updating Showtime: ${result.error}`, 500));
+        }
+
+        res.status(200).json(result);
+    } catch (error) {
+        return next(new ApiError(`Error Updating Showtime: ${error.message}`, 500));
     }
-
-    const durationInMillis = movie.duration * 60 * 1000; // convert to milliseconds
-    const additionalTime = 10 * 60 * 1000; // 10 minutes 
-
-    // Update fields
-    showTime.startAt = startAt ? new Date(startAt) : showTime.startAt;
-    showTime.endAt = new Date(showTime.startAt.getTime() + durationInMillis + additionalTime);
-    showTime.price = price || showTime.price;
-    showTime.roomId = roomId || showTime.roomId;
-
-    // save the updated showtime
-    const updatedShowTime = await showTime.save();
-
-    res.status(200).json(updatedShowTime);
 });
 
 
@@ -178,12 +185,13 @@ exports.viewShowTimes = expressAsyncHandler(async (req, res, next) => {
 
 
 
-// @desc    get all showtimes for a cinema for public
+// @desc    get all showtimes for a cinema for public With Filters
 // @route   GET /api/v1/public/showTimes
 // @access  Public
 exports.viewShowTimesPublic = expressAsyncHandler(async (req, res, next) => {
 
     const { cat = null, date, price, cinemaId, movieName } = req.query;
+
 
     // bring date now use it to bring only showtime that not passed date now
     const now = new Date();

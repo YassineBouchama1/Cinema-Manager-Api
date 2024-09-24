@@ -56,25 +56,31 @@ exports.createReservation = expressAsyncHandler(async (req, res, next) => {
 // @access  Private : user - admin - super admin
 exports.updateReservation = expressAsyncHandler(async (req, res, next) => {
 
-    const { status } = req.body
 
-    //req.resource is reservation item / watch accessControl file
-    let reservation = req.resource
+    // req.resource is reservation item / watch accessControl file
+    let reservation = req.resource;
 
 
-    const reservationUpdated = await dbOps.update(
-        ReservationModel,
-        { _id: reservation.id }, // resource comes from middlewar accessControle.ks
-        { status },
-        { new: true }
-    );
 
-    if (reservationUpdated?.error) {
-        return next(new ApiError(`Error Canceling Reservation: ${movieUpdated.error}`, 500));
+    try {
+        // Update the reservation status
+        const reservationUpdated = await dbOps.update(
+            ReservationModel,
+            { _id: reservation.id }, // resource comes from middleware accessControl.js
+            { status: reservation.status === 'active' ? 'cancel' : reservation.status }, // update only the status
+            { new: true }
+        );
+
+        if (reservationUpdated?.error) {
+            return next(new ApiError(`Error Canceling Reservation: ${reservationUpdated.error}`, 500));
+        }
+
+        res.status(200).json(reservationUpdated); // return the updated reservation
+    } catch (error) {
+        return next(new ApiError(`Error Updating Reservation: ${error.message}`, 500));
     }
-
-    res.status(200).json(updatedReservation);
 });
+
 
 
 

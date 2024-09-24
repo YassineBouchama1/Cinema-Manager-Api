@@ -8,7 +8,7 @@ const {
     updateReservation,
     viewUserReservations
 } = require('../controller/reservationController');
-const { createReservationValidator } = require('../utils/validators/reservationValidator');
+const { createReservationValidator, updateReservationValidator } = require('../utils/validators/reservationValidator');
 const checkUserAccessToResource = require('../middlewares/accessControl');
 const ReservationModel = require('../models/reservationModel');
 
@@ -19,10 +19,10 @@ router.route('/')
     .get(protect, allowedTo('user'), viewUserReservations);
 
 
-    
+
 router.route('/:id')
     .get(protect, allowedTo('user', 'admin', 'super'), checkUserAccessToResource(ReservationModel), viewReservation)
-    .put(protect, allowedTo('user', 'admin', 'super'), checkUserAccessToResource(ReservationModel), updateReservation)
+    .put(protect, allowedTo('user', 'admin', 'super'), updateReservationValidator, updateReservation)
     .delete(protect, allowedTo('admin', 'super'), checkUserAccessToResource(ReservationModel), deleteReservation);
 
 
