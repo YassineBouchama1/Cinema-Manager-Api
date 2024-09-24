@@ -178,13 +178,14 @@ exports.viewShowTimes = expressAsyncHandler(async (req, res, next) => {
 
 
 
-// @desc    get all showtimes for a cinema for public
+// @desc    get all showtimes for a cinema for public With Filters
 // @route   GET /api/v1/public/showTimes
 // @access  Public
 exports.viewShowTimesPublic = expressAsyncHandler(async (req, res, next) => {
 
     const { cat = null, date, price, cinemaId, movieName } = req.query;
 
+    
     // bring date now use it to bring only showtime that not passed date now
     const now = new Date();
 

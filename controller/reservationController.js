@@ -56,16 +56,26 @@ exports.createReservation = expressAsyncHandler(async (req, res, next) => {
 // @access  Private : user - admin - super admin
 exports.updateReservation = expressAsyncHandler(async (req, res, next) => {
 
-    const { status } = req.body
-
     //req.resource is reservation item / watch accessControl file
     let reservation = req.resource
+
+
+    // //DONe: Validate if want cancel and movie almost start in next 30 min return error cant do that
+
+    // const now = new Date();
+    // const thirtyMinutesFromNow = new Date(now.getTime() + 30 * 60 * 1000); // current time + 30 minutes
+
+    // // csheck if the show Belong reservation start  within the next 30 mins
+    // if (reservation.startAt <= thirtyMinutesFromNow) {
+    //     return next(new ApiError(`You cant cancel the show that will start soon. You have less than 30 minutes before the show starts.`, 400));
+    // }
+
 
 
     const reservationUpdated = await dbOps.update(
         ReservationModel,
         { _id: reservation.id }, // resource comes from middlewar accessControle.ks
-        { status },
+        { status: reservation.status === 'active' ? 'cancel' : reservation.status },
         { new: true }
     );
 
