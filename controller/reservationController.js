@@ -54,9 +54,9 @@ exports.createReservation = expressAsyncHandler(async (req, res, next) => {
 
 // @route   PUT /api/v1/reservation/:id
 // @access  Private : user - admin - super admin
-exports.cancelReservation = expressAsyncHandler(async (req, res, next) => {
+exports.updateReservation = expressAsyncHandler(async (req, res, next) => {
 
-
+    const { status } = req.body
 
     //req.resource is reservation item / watch accessControl file
     let reservation = req.resource
@@ -65,7 +65,7 @@ exports.cancelReservation = expressAsyncHandler(async (req, res, next) => {
     const reservationUpdated = await dbOps.update(
         ReservationModel,
         { _id: reservation.id }, // resource comes from middlewar accessControle.ks
-        req.body,
+        { status },
         { new: true }
     );
 
@@ -102,11 +102,30 @@ exports.deleteReservation = expressAsyncHandler(async (req, res, next) => {
 
 // @desc    Get all reservations for a user
 // @route   GET /api/v1/reservation
-// @access  Private
-exports.viewReservations = expressAsyncHandler(async (req, res, next) => {
+// @access  Private : user
+exports.viewUserReservations = expressAsyncHandler(async (req, res, next) => {
     const { userId } = req.user;
 
     const result = await dbOps.select(ReservationModel, { userId });
+    if (result?.error) {
+        return next(new ApiError(`Error Fetching Reservations: ${result.error}`, 500));
+    }
+
+    res.status(200).json({ data: result.data });
+});
+
+
+
+
+// @desc    Get all reservations belong cinema
+// @route   GET /api/v1/reservation
+// @access  Private : user
+exports.viewAdminReservations = expressAsyncHandler(async (req, res, next) => {
+    const { cinemaId } = req.user;
+
+
+    // bring all reservations belong this cinema
+    const result = await dbOps.select(ReservationModel, { cinemaId });
     if (result?.error) {
         return next(new ApiError(`Error Fetching Reservations: ${result.error}`, 500));
     }
@@ -146,28 +165,3 @@ exports.viewReservation = expressAsyncHandler(async (req, res, next) => {
 
 
 
-// @desc    Update a reservation
-// @route   PUT /api/v1/reservation/:id
-// @access  Private
-// exports.updateReservation = expressAsyncHandler(async (req, res, next) => {
-
-//     //TODO : validate seats is avaible
-
-
-//     //req.resource is reservation item / watch accessControl file
-//     let reservation = req.resource
-
-
-//     const reservationUpdated = await dbOps.update(
-//         ReservationModel,
-//         { _id: reservation.id }, // resource comes from middlewar accessControle.ks
-//         req.body,
-//         { new: true }
-//     );
-
-//     if (reservationUpdated?.error) {
-//         return next(new ApiError(`Error Updating Movie: ${movieUpdated.error}`, 500));
-//     }
-
-//     res.status(200).json(updatedReservation);
-// });
