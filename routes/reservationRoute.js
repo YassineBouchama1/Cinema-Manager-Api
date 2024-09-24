@@ -22,7 +22,7 @@ router.route('/')
 
 router.route('/:id')
     .get(protect, allowedTo('user', 'admin', 'super'), checkUserAccessToResource(ReservationModel), viewReservation)
-    .put(protect, allowedTo('user', 'admin', 'super'), checkUserAccessToResource(ReservationModel), updateReservationValidator, updateReservation)
+    .put(protect, allowedTo('user', 'admin', 'super'), updateReservationValidator, updateReservation)
     .delete(protect, allowedTo('admin', 'super'), checkUserAccessToResource(ReservationModel), deleteReservation);
 
 
