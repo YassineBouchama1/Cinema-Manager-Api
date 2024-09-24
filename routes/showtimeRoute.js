@@ -6,6 +6,7 @@ const {
     viewShowTimes,
     viewShowTime,
     deleteShowTime,
+    viewShowTimesPublic,
 } = require('../controller/showtimeController');
 const {
     createShowTimeValidator,
@@ -26,5 +27,9 @@ router.route('/:id')
     .get(showTimeByIdValidator, viewShowTime) // public 
     .put(protect, allowedTo('admin', 'super'), showTimeByIdValidator, checkUserAccessToResource(ShowTimeModel), updateShowTime)
     .delete(protect, allowedTo('admin', 'super'), checkUserAccessToResource(ShowTimeModel), deleteShowTime);
+
+
+
+
 
 module.exports = router;

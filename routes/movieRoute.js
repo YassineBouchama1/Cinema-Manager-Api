@@ -24,9 +24,6 @@ router.route('/:id')
     .put(protect, allowedTo('admin', 'super'), movieByIdValidator, imageUploaderMovie, resizeImage, checkUserAccessToResource(movieModel), updateMovie);
 
 
-// @access  : Public
-router.route('/public')
-    .get(viewMoviesPublic);
 
 router.route('/public/:id')
     .get(viewMoviePublic);

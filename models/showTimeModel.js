@@ -30,10 +30,12 @@ const showTimeSchema = mongoose.Schema({
     startAt: {
         type: Date,
         required: [true, 'Start time is required'],
+        index: true
     },
     endAt: {
         type: Date,
-        required: [true, 'End time is required']
+        required: [true, 'End time is required'],
+        index: true
     },
     isDeleted: {
         type: Boolean,
