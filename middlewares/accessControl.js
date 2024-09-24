@@ -13,9 +13,9 @@ const checkUserAccessToResource = (Model) =>
     const resource = await dbOps.findOne(Model, { _id: id });
 
 
-    console.log(resource)
+
     if (resource?.error) {
-      return next(new ApiError(`Error finding resource: ${resource.error}`, 500));
+      return next(new ApiError(`Resource not found : ${resource.error}`, 500));
     }
 
     if (!resource.data) {

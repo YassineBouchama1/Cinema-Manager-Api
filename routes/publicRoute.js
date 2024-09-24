@@ -33,10 +33,12 @@ router.route('/movie/:id')
 router.route('/cinema/:id')
     .get(viewCinemaPublic)
 
+
 //@Path  : Public/cinema : bring all cinema
 router.route('/cinema')
     .get(viewCinemasPublic)
 
 
 
+    
 module.exports = router;

@@ -207,9 +207,12 @@ exports.viewShowTime = expressAsyncHandler(async (req, res, next) => {
 
     const { id } = req.params
     try {
-        const showTime = await ShowTimeModel.findOne(Model, { _id: id })
-            .populate('movieId', 'name duration category')
-            .populate('roomId', 'name capacity');
+        const showTime = await dbOps.findOne(ShowTimeModel, { _id: id })
+            .populate([
+                { path: 'movieId', select: 'name duration category' },
+                { path: 'roomId', select: 'name capacity' }
+            ]);
+
         if (!showTime) {
             return next(new ApiError('Showtime not found', 404));
         }

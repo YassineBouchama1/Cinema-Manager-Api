@@ -12,6 +12,7 @@ const userRoute = require('./routes/userRoute');
 const movieRoute = require('./routes/movieRoute');
 const showtimeRoute = require('./routes/showtimeRoute');
 const publicRoute = require('./routes/publicRoute');
+const reservationRoute = require('./routes/reservationRoute');
 const ApiError = require('./utils/ApiError');
 
 const PORT = process.env.PORT || 4000;
@@ -47,6 +48,7 @@ app.use('/api/v1/user', userRoute);
 app.use('/api/v1/movie', movieRoute);
 app.use('/api/v1/showtime', showtimeRoute);
 app.use('/api/v1/public', publicRoute);
+app.use('/api/v1/reservation', reservationRoute);
 
 
 

@@ -16,8 +16,19 @@ exports.createRoomValidator = [
         .notEmpty().withMessage('capacity is Required')
         .isNumeric().withMessage('capacity shouldbe number')
         .custom((val) => {
-            if (val < 2) {
-                throw new Error('capacity is to low make sure be more than 2 seats');
+            if (val < 4) {
+                throw new Error('capacity is to low make sure be more than 4 seats');
+            }
+            return true;
+        })
+    ,
+
+    check('seatsPerRow')
+        .notEmpty().withMessage('seatsPerRow is Required')
+        .isNumeric().withMessage('seatsPerRow shouldbe number')
+        .custom((val) => {
+            if (val < 4) {
+                throw new Error('seatsPerRow is to low make sure be more than  rows');
             }
             return true;
         })
