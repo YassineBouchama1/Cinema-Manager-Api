@@ -77,6 +77,8 @@ class DatabaseOperations {
     async findOne(model, conditions = {}, populateOptions = null) {
 
         const modifiedConditions = { ...conditions, isDeleted: false };  // default cire
+
+        console.log(modifiedConditions)
         try {
             let query = model.findOne(modifiedConditions); // Create the query object
 

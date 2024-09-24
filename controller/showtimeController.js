@@ -183,7 +183,7 @@ exports.viewShowTimes = expressAsyncHandler(async (req, res, next) => {
 // @access  Public
 exports.viewShowTimesPublic = expressAsyncHandler(async (req, res, next) => {
 
-    const { cat = null, date, price, cinemaId } = req.query;
+    const { cat = null, date, price, cinemaId, movieName } = req.query;
 
     // bring date now use it to bring only showtime that not passed date now
     const now = new Date();
@@ -224,6 +224,26 @@ exports.viewShowTimesPublic = expressAsyncHandler(async (req, res, next) => {
     }
 
 
+
+    // filter by movie name : (find all matching movies)
+    if (movieName) {
+        const movieResults = await dbOps.select(MovieModel, {
+            name: { $regex: movieName, $options: 'i' }
+        });
+
+        if (movieResults?.data && movieResults.data.length > 0) {
+            // store all movies ids that match search name
+            const movieIds = movieResults.data.map(movie => movie._id);
+
+
+            // use movieIds to match showtimes for all found movie IDs
+            conditions.movieId = { $in: movieIds };
+
+        } else {
+            // if there are no movies that match this name. return an empty array
+            return res.status(200).json({ data: [] });
+        }
+    }
 
     // filter by price if provided
     if (price) {
