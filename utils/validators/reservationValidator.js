@@ -67,6 +67,9 @@ exports.updateReservationValidator = [
     check('id').custom(async (id, { req }) => {
         try {
 
+            // if admin wnat excute this operation no need validate
+            if (req.user.role === 'admin') return true
+
             let reservation = req.resource // already fetched in file ACCESS Vontroll
 
             const now = new Date();
