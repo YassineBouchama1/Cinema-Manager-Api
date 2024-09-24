@@ -28,6 +28,8 @@ exports.createReservationValidator = [
                     return true;
                 }
 
+
+
                 // extract reserved seats from reservations
                 const reservedSeats = reservations.flatMap(reservation => reservation.seats);
 
@@ -36,12 +38,13 @@ exports.createReservationValidator = [
 
                 if (isSeatReserved) {
                     throw new Error('Some seats are already reserved');
+
                 }
 
-                return true; // n error
+                return true;
             } catch (error) {
                 // hanlde unexpected errors
-                throw new Error('Error fetching reservations. Please try again later');
+                throw new Error(`Error Creating reservations : ${error}`);
             }
         }),
 

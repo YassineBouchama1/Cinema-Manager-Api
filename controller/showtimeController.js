@@ -102,6 +102,8 @@ exports.updateShowTime = expressAsyncHandler(async (req, res, next) => {
 
 
 
+    //TODO: add validaton to check if room is avaible in this time
+
     //req.resource is showtime item / watch accessControl file
     let showTime = req.resource
 
@@ -165,6 +167,9 @@ exports.viewShowTimes = expressAsyncHandler(async (req, res, next) => {
             return next(new ApiError(`Error Fetching Showtimes: ${result.error}`, 500));
         }
 
+
+
+
         res.status(200).json({ data: result.data });
     } catch (error) {
         return next(new ApiError(`Error Fetching Showtimes: ${error.message}`, 500));
@@ -174,21 +179,71 @@ exports.viewShowTimes = expressAsyncHandler(async (req, res, next) => {
 
 
 // @desc    get all showtimes for a cinema for public
-// @route   GET /api/v1/showtime/public
+// @route   GET /api/v1/public/showTimes
 // @access  Public
 exports.viewShowTimesPublic = expressAsyncHandler(async (req, res, next) => {
 
+    const { cat = null, date, price, cinemaId } = req.query;
 
-    // bring only showtime avaible right now
+    // bring date now use it to bring only showtime that not passed date now
     const now = new Date();
-    const oneSecondLater = new Date(now.getTime() + 1000);
+
+    // add 10 min : even showtime start 
+    const tenMinutesLater = new Date(now.getTime() - 10 * 60 * 1000);
+
+    // define base conditionz
+    const conditions = {
+        startAt: { $gte: tenMinutesLater } // great than equal time now + 10min
+
+    };
+
+
+    // filter by category if provided
+    if (cat) {
+        conditions.movieId = conditions.movieId || {};
+        conditions.movieId.category = cat;
+    }
+
+
+
+    // filter by date if provided
+    if (date) {
+        const selectedDate = new Date(date);
+
+        // setup start date and add hour start from first hour
+        const startOfDay = new Date(selectedDate.setHours(0, 0, 0, 0)); //start hours day
+
+        // set hour before midnight
+        const endOfDay = new Date(selectedDate.setHours(23, 59, 59, 999)); // end hour day
+
+
+        conditions.startAt.$gte = startOfDay;
+
+        // Only showtimes within the selected date
+        conditions.startAt.$lte = endOfDay;
+    }
+
+
+
+    // filter by price if provided
+    if (price) {
+        conditions.price = { $lte: price };
+    }
+
+    // filter by cinemaId if provided
+    if (cinemaId) {
+        conditions.cinemaId = cinemaId; // Only  showtimes for spicif cinema
+    }
+
+    // define populate options for movieId and roomId
+    const populateOptions = [
+        { path: 'movieId', select: 'name duration category image' },
+        { path: 'roomId', select: 'name capacity' }
+    ];
+
 
     try {
-
-
-        const result = await dbOps.select(ShowTimeModel, {
-            startAt: { $gte: now, $lt: oneSecondLater }
-        });
+        const result = await dbOps.select(ShowTimeModel, conditions, populateOptions);
 
         if (result?.error) {
             return next(new ApiError(`Error Fetching Showtimes: ${result.error}`, 500));
@@ -199,6 +254,7 @@ exports.viewShowTimesPublic = expressAsyncHandler(async (req, res, next) => {
         return next(new ApiError(`Error Fetching Showtimes: ${error.message}`, 500));
     }
 });
+
 
 
 // @desc    Get a single showtime by ID

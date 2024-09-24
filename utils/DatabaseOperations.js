@@ -51,23 +51,41 @@ class DatabaseOperations {
     }
 
 
-    // select one or more items
-    async select(model, conditions = {}) {
 
-        const modifiedConditions = { ...conditions, isDeleted: false };
-
+    // find multiple documents with optional populate logic
+    //populate : is bring assoiated schemas
+    async select(model, conditions = {}, populateOptions = null) {
+        const modifiedConditions = { ...conditions, isDeleted: false }; // Exclude soft-deleted documents
         try {
-            const results = await model.find(modifiedConditions);
+            let query = model.find(modifiedConditions); // Create the query object
+
+            // apply populate if are provider
+            if (populateOptions) {
+                query = query.populate(populateOptions);
+            }
+
+            const results = await query; // Execute the query
+
             return { data: results };
         } catch (error) {
             return { error: error.message };
         }
     }
 
-    async findOne(model, conditions = {}) {
-        const modifiedConditions = { ...conditions, isDeleted: false };
+    // find one documents with optional populate logic
+    //populate : is bring assoiated schemas
+    async findOne(model, conditions = {}, populateOptions = null) {
+
+        const modifiedConditions = { ...conditions, isDeleted: false };  // default cire
         try {
-            const result = await model.findOne(modifiedConditions);
+            let query = model.findOne(modifiedConditions); // Create the query object
+
+            // appply populate if options are provided
+            if (populateOptions) {
+                query = query.populate(populateOptions);
+            }
+
+            const result = await query; // eecute the query
 
             // return data if there is no data return null thats mean nt find
             return result ? { data: result } : { data: null };

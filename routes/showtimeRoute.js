@@ -5,8 +5,7 @@ const {
     updateShowTime,
     viewShowTimes,
     viewShowTime,
-    deleteShowTime,
-    viewShowTimesPublic,
+    deleteShowTime
 } = require('../controller/showtimeController');
 const {
     createShowTimeValidator,
@@ -21,7 +20,7 @@ const router = express.Router();
 // @access  : Private : Admin
 router.route('/')
     .post(protect, allowedTo('admin', 'super'), createShowTimeValidator, createShowTime)
-    .get(protect, allowedTo('admin', 'super'), viewShowTimes);
+    .get(protect, allowedTo('admin', 'super'), viewShowTimes); // bring showtimes belong cinema
 
 router.route('/:id')
     .get(showTimeByIdValidator, viewShowTime) // public 
