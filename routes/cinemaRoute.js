@@ -22,9 +22,6 @@ router.route('/:id')
 
 
 
-//@access  : public
-router.route('/public/:id')
-    .get(protect, viewCinemaPublic)
 
 
 

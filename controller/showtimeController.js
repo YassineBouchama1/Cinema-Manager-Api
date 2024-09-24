@@ -172,6 +172,34 @@ exports.viewShowTimes = expressAsyncHandler(async (req, res, next) => {
 
 
 
+// @desc    get all showtimes for a cinema for public
+// @route   GET /api/v1/showtime/public
+// @access  Public
+exports.viewShowTimesPublic = expressAsyncHandler(async (req, res, next) => {
+
+
+    // bring only showtime avaible right now
+    const now = new Date();
+    const oneSecondLater = new Date(now.getTime() + 1000);
+
+    try {
+
+
+        const result = await dbOps.select(ShowTimeModel, {
+            startAt: { $gte: now, $lt: oneSecondLater }
+        });
+
+        if (result?.error) {
+            return next(new ApiError(`Error Fetching Showtimes: ${result.error}`, 500));
+        }
+
+        res.status(200).json({ data: result.data });
+    } catch (error) {
+        return next(new ApiError(`Error Fetching Showtimes: ${error.message}`, 500));
+    }
+});
+
+
 // @desc    Get a single showtime by ID
 // @route   GET /api/v1/showtime/:id
 // @access  Public
@@ -191,3 +219,6 @@ exports.viewShowTime = expressAsyncHandler(async (req, res, next) => {
         return next(new ApiError(`Error Fetching Showtime: ${error.message}`, 500));
     }
 });
+
+
+

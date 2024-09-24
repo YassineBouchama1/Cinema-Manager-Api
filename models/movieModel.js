@@ -8,7 +8,8 @@ const movieSchema = mongoose.Schema({
     name: {
         type: String,
         required: [true, 'Name Movie is required'],
-        minlegth: [1, 'Name Movie is too short']
+        minlegth: [1, 'Name Movie is too short'],
+        index: true
     },
 
     duration: {
