@@ -1,11 +1,12 @@
 const express = require('express');
-const { protect } = require('../middlewares/guard');
+const { protect, allowedTo } = require('../middlewares/guard');
 const {
     createReservation,
     deleteReservation,
     viewReservations,
     viewReservation,
-    cancelReservation
+    updateReservation,
+    viewUserReservations
 } = require('../controller/reservationController');
 const { createReservationValidator } = require('../utils/validators/reservationValidator');
 const checkUserAccessToResource = require('../middlewares/accessControl');
@@ -14,12 +15,15 @@ const ReservationModel = require('../models/reservationModel');
 const router = express.Router();
 
 router.route('/')
-    .post(protect, createReservationValidator, createReservation)
-    .get(protect, viewReservations);
+    .post(protect, allowedTo('user'), createReservationValidator, createReservation)
+    .get(protect, allowedTo('user'), viewUserReservations);
 
+
+    
 router.route('/:id')
-    .get(protect, checkUserAccessToResource(ReservationModel), viewReservation)
-    .put(protect, checkUserAccessToResource(ReservationModel), cancelReservation)
-    .delete(protect, checkUserAccessToResource(ReservationModel), deleteReservation);
+    .get(protect, allowedTo('user', 'admin', 'super'), checkUserAccessToResource(ReservationModel), viewReservation)
+    .put(protect, allowedTo('user', 'admin', 'super'), checkUserAccessToResource(ReservationModel), updateReservation)
+    .delete(protect, allowedTo('admin', 'super'), checkUserAccessToResource(ReservationModel), deleteReservation);
+
 
 module.exports = router;

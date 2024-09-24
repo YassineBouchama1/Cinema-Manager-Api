@@ -4,6 +4,7 @@ const MovieModel = require('../models/movieModel');
 const ApiError = require('../utils/ApiError');
 const DatabaseOperations = require('../utils/DatabaseOperations');
 const RoomModel = require('../models/roomModel');
+const ReservationModel = require('../models/reservationModel');
 
 const dbOps = DatabaseOperations.getInstance();
 
@@ -217,6 +218,9 @@ exports.viewShowTime = expressAsyncHandler(async (req, res, next) => {
             return next(new ApiError('Showtime not found', 404));
         }
 
+
+
+
         res.status(200).json({ data: showTime });
     } catch (error) {
         return next(new ApiError(`Error Fetching Showtime: ${error.message}`, 500));
@@ -225,3 +229,44 @@ exports.viewShowTime = expressAsyncHandler(async (req, res, next) => {
 
 
 
+
+
+// @desc    Get a single showtime by ID with reservations
+// @route   GET /api/v1/showtime/:id
+// @access  Private = super - admin
+exports.viewShowTimeWithReservations = expressAsyncHandler(async (req, res, next) => {
+
+    const { id } = req.params
+
+
+    try {
+        const showTimeResult = await dbOps.findOne(ShowTimeModel, { _id: id })
+            .populate([
+                { path: 'movieId', select: 'name duration category' },
+                { path: 'roomId', select: 'name capacity' }
+            ]);
+
+        if (!showTimeResult.data) {
+            return next(new ApiError('Showtime not found', 404));
+        }
+
+        let showTime = showTimeResult.data
+
+
+        const reservationsResult = await dbOps.select(ReservationModel, { showTimeId: showTime._id });
+
+
+        if (!reservationsResult.data) {
+            return next(new ApiError('reservations not found', 404));
+        }
+
+
+        let reservations = reservationsResult
+
+        res.status(200).json({ showTime: showTime, reservations: reservations.data });
+
+
+    } catch (error) {
+        return next(new ApiError(`Error Fetching Showtime: ${error.message}`, 500));
+    }
+});
