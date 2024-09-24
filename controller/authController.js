@@ -3,8 +3,7 @@ const bcrypt = require('bcryptjs');
 const expressAsyncHandler = require('express-async-handler')
 const UserModel = require('../models/userModel');
 const ApiError = require('../utils/ApiError');
-const NodeDaoMongodb = require('../service/node-dao-mongodb');
-
+const DatabaseOperations = require('../utils/DatabaseOperations');
 
 const sendEmail = require('../utils/email/sendEmail');
 const { forgetPasswordTemplate } = require('../utils/email/templates/forgetPasswordTemplate');
@@ -15,7 +14,7 @@ dotenv.config({ path: '.env' });
 
 
 // get instance from service object
-const nodeDaoMongodb = NodeDaoMongodb.getInstance();
+const dbOps = DatabaseOperations.getInstance();
 const JWT_SECRET = process.env.NEXT_PUBLIC_JWT_SECRET
 
 
@@ -53,7 +52,7 @@ exports.register = expressAsyncHandler(async (req, res, next) => {
 
             //1. create cinema 
             const cinemaData = { name: cinemaName };
-            const cinemaResult = await nodeDaoMongodb.insert(CinemaModel, cinemaData);
+            const cinemaResult = await dbOps.insert(CinemaModel, cinemaData);
 
             if (cinemaResult?.error) {
                 return next(new ApiError(`Error Creating Cinema: ${cinemaResult.error}`, 500));
@@ -64,12 +63,12 @@ exports.register = expressAsyncHandler(async (req, res, next) => {
         }
 
         //3. create user account
-        const userResult = await nodeDaoMongodb.insert(UserModel, userData);
+        const userResult = await dbOps.insert(UserModel, userData);
 
         if (userResult?.error) {
             // if there was a error creating the user and we created a cinem we should delete it
             if (role === 'admin' && userData.cinemaId) {
-                await nodeDaoMongodb.deleteOne(CinemaModel, { _id: userData.cinemaId });
+                await dbOps.deleteOne(CinemaModel, { _id: userData.cinemaId });
             }
             return next(new ApiError(`Error Creating Account: ${userResult.error}`, 500));
         }
@@ -92,7 +91,7 @@ exports.register = expressAsyncHandler(async (req, res, next) => {
 exports.login = expressAsyncHandler(async (req, res, next) => {
     try {
         // 1. check if user already has an account
-        const result = await nodeDaoMongodb.findOne(UserModel, { email: req.body.email });
+        const result = await dbOps.findOne(UserModel, { email: req.body.email });
 
         if (result?.error) {
             return next(new ApiError(`Error finding user: ${result.error}`, 500));
@@ -135,7 +134,7 @@ exports.resetPassword = expressAsyncHandler(async (req, res, next) => {
     try {
 
         // 1. check if user already has an account
-        const result = await nodeDaoMongodb.findOne(UserModel, { _id: req.user._id });
+        const result = await dbOps.findOne(UserModel, { _id: req.user._id });
 
         if (result?.error) {
             return next(new ApiError(`Error finding user: ${result.error}`, 500));
@@ -157,7 +156,7 @@ exports.resetPassword = expressAsyncHandler(async (req, res, next) => {
             password: await bcrypt.hash(req.body.password, salt),
         };
 
-        const passwordUpdated = await nodeDaoMongodb.update(UserModel, { _id: req.user._id }, userData);
+        const passwordUpdated = await dbOps.update(UserModel, { _id: req.user._id }, userData);
 
 
         if (passwordUpdated?.error) {
@@ -181,7 +180,7 @@ exports.forgetPassword = expressAsyncHandler(async (req, res, next) => {
     try {
 
         // 1. check if user already has an account
-        const result = await nodeDaoMongodb.findOne(UserModel, { email: req.body.email });
+        const result = await dbOps.findOne(UserModel, { email: req.body.email });
 
         if (result?.error) {
             return next(new ApiError(`Error finding user: ${result.error}`, 500));

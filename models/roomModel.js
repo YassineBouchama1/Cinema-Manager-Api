@@ -1,8 +1,7 @@
 const mongoose = require('mongoose');
-const NodeDaoMongodb = require('../service/node-dao-mongodb');
+const DatabaseOperations = require('../utils/DatabaseOperations');
 
-
-const nodeDaoMongodb = NodeDaoMongodb.getInstance();
+const dbOps = DatabaseOperations.getInstance();
 
 const roomSchema = mongoose.Schema({
 
@@ -33,7 +32,7 @@ const roomSchema = mongoose.Schema({
 }, { timestamps: true })
 
 
-const roomModel = nodeDaoMongodb.createModel('room', roomSchema)
+const roomModel = dbOps.createModel('room', roomSchema)
 
 module.exports = roomModel
 

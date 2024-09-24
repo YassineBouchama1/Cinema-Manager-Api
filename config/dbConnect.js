@@ -1,4 +1,4 @@
-const NodeDaoMongodb = require('./node-dao-mongodb');
+const NodeDaoMongodb = require('../utils/DatabaseOperations');
 
 const dbConnect = async () => {
     const nodeDaoMongodb = NodeDaoMongodb.getInstance();

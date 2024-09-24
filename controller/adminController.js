@@ -2,15 +2,14 @@ const bcrypt = require('bcryptjs');
 const expressAsyncHandler = require('express-async-handler')
 const UserModel = require('../models/userModel');
 const ApiError = require('../utils/ApiError');
-const NodeDaoMongodb = require('../service/node-dao-mongodb');
+const DatabaseOperations = require('../utils/DatabaseOperations');
 
 const dotenv = require('dotenv')
 dotenv.config({ path: '.env' })
 
 
 // get instance from service object
-const nodeDaoMongodb = NodeDaoMongodb.getInstance();
-
+const dbOps = DatabaseOperations.getInstance();
 
 
 
@@ -36,7 +35,7 @@ exports.createAdmin = expressAsyncHandler(async (req, res, next) => {
             role: 'admin'
         };
 
-        const result = await nodeDaoMongodb.insert(UserModel, userData);
+        const result = await dbOps.insert(UserModel, userData);
 
         if (result?.error) {
             return next(new ApiError(`Error Creating Account: ${result.error}`, 500));

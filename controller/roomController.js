@@ -2,14 +2,13 @@
 const expressAsyncHandler = require('express-async-handler')
 const RoomModel = require('../models/roomModel');
 const ApiError = require('../utils/ApiError');
-const NodeDaoMongodb = require('../service/node-dao-mongodb');
-
+const DatabaseOperations = require('../utils/DatabaseOperations');
 const dotenv = require('dotenv')
 dotenv.config({ path: '.env' })
 
 
 // get instance from service object
-const nodeDaoMongodb = NodeDaoMongodb.getInstance();
+const dbOps = DatabaseOperations.getInstance();
 
 
 
@@ -28,7 +27,7 @@ exports.createRoom = expressAsyncHandler(async (req, res, next) => {
 
     try {
 
-        const result = await nodeDaoMongodb.insert(RoomModel, { ...req.body, cinemaId });
+        const result = await dbOps.insert(RoomModel, { ...req.body, cinemaId });
 
         if (result?.error) {
             return next(new ApiError(`Error Creating Room: ${result.error}`, 500));
@@ -53,7 +52,7 @@ exports.deleteRoom = expressAsyncHandler(async (req, res, next) => {
 
         //Notic : req.resource : is resource item passed from accessControl middlewar file
 
-        const result = await nodeDaoMongodb.deleteOne(RoomModel, { _id: req.resource.id });
+        const result = await dbOps.softDelete(RoomModel, { _id: req.resource.id });
 
         if (result?.error) {
             return next(new ApiError(`Error Deleting Room: ${result.error}`, 500));
@@ -78,7 +77,7 @@ exports.viewRooms = expressAsyncHandler(async (req, res, next) => {
 
     try {
 
-        const result = await nodeDaoMongodb.select(RoomModel, { cinemaId });
+        const result = await dbOps.select(RoomModel, { cinemaId });
 
         if (result?.error) {
             return next(new ApiError(`Error Fetching Rooms: ${result.error}`, 500));
@@ -122,7 +121,7 @@ exports.updateRoom = expressAsyncHandler(async (req, res, next) => {
 
 
         // update Room
-        const roomUpdated = await nodeDaoMongodb.update(
+        const roomUpdated = await dbOps.update(
             RoomModel,
             { _id: req.resource.id },
             req.body,
@@ -152,7 +151,7 @@ exports.viewRoomsPublic = expressAsyncHandler(async (req, res, next) => {
 
     try {
 
-        const result = await nodeDaoMongodb.select(RoomModel, { _id: id, isDeleted: false });
+        const result = await dbOps.select(RoomModel, { _id: id });
 
         if (result?.error) {
             return next(new ApiError(`Error Fetching Rooms: ${result.error}`, 500));
@@ -175,7 +174,7 @@ exports.viewRoomPublic = expressAsyncHandler(async (req, res, next) => {
     const { id } = req.params
     try {
 
-        const result = await nodeDaoMongodb.findOne(RoomModel, { _id: id, isDeleted: false });
+        const result = await dbOps.findOne(RoomModel, { _id: id });
 
 
         if (!result) {

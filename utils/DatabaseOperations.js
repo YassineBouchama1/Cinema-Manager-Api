@@ -1,21 +1,22 @@
 const mongoose = require('mongoose');
 
 
-class NodeDaoMongodb {
+class DatabaseOperations {
     constructor() {
-        if (NodeDaoMongodb.instance) {
-            return NodeDaoMongodb.instance;
+        if (DatabaseOperations.instance) {
+            return DatabaseOperations.instance;
         }
-        NodeDaoMongodb.instance = this;
+        DatabaseOperations.instance = this;
     }
 
 
-    // get instance of db 
+    // get instance of db  
+    // make sure db dosent conected twis
     static getInstance() {
-        if (!NodeDaoMongodb.instance) {
-            NodeDaoMongodb.instance = new NodeDaoMongodb();
+        if (!DatabaseOperations.instance) {
+            DatabaseOperations.instance = new DatabaseOperations();
         }
-        return NodeDaoMongodb.instance;
+        return DatabaseOperations.instance;
     }
 
     // connect to db 
@@ -52,8 +53,11 @@ class NodeDaoMongodb {
 
     // select one or more items
     async select(model, conditions = {}) {
+
+        const modifiedConditions = { ...conditions, isDeleted: false };
+
         try {
-            const results = await model.find(conditions);
+            const results = await model.find(modifiedConditions);
             return { data: results };
         } catch (error) {
             return { error: error.message };
@@ -61,8 +65,9 @@ class NodeDaoMongodb {
     }
 
     async findOne(model, conditions = {}) {
+        const modifiedConditions = { ...conditions, isDeleted: false };
         try {
-            const result = await model.findOne(conditions);
+            const result = await model.findOne(modifiedConditions);
 
             // return data if there is no data return null thats mean nt find
             return result ? { data: result } : { data: null };
@@ -83,18 +88,20 @@ class NodeDaoMongodb {
     }
 
 
-    async update(model, conditions, data, options = { new: false }) {
+    async update(model, conditions = {}, data, options = { new: false }) {
+        const modifiedConditions = { ...conditions, isDeleted: false };
         try {
-            const result = await model.updateMany(conditions, data, options);
+            const result = await model.updateMany(modifiedConditions, data, options);
             return { message: 'Update successful', modifiedCount: result.modifiedCount };
         } catch (error) {
             return { error: error.message };
         }
     }
 
-    async findOneAndUpdate(model, conditions, data, options = { new: false }) {
+    async findOneAndUpdate(model, conditions = {}, data, options = { new: false }) {
+        const modifiedConditions = { ...conditions, isDeleted: false };
         try {
-            const result = await model.findOneAndUpdate(conditions, data, options);
+            const result = await model.findOneAndUpdate(modifiedConditions, data, options);
             return { message: 'Update successful', modifiedCount: result ? 1 : 0 };
         } catch (error) {
             return { error: error.message };
@@ -102,18 +109,37 @@ class NodeDaoMongodb {
     }
 
 
-    async delete(model, conditions) {
+    async deleteMany(model, conditions) {
+        const modifiedConditions = { ...conditions, isDeleted: false };
         try {
-            const result = await model.deleteMany(conditions);
+            const result = await model.deleteMany(modifiedConditions);
             return { message: 'Delete successful', deletedCount: result.deletedCount };
         } catch (error) {
             return { error: error.message };
         }
     }
 
-    async deleteOne(model, conditions) {
+
+    async softDelete(model, conditions = {}, options = { new: false }) {
+        const modifiedConditions = { ...conditions, isDeleted: false };
         try {
-            const result = await model.deleteOne(conditions);
+            const result = await model.findOneAndUpdate(modifiedConditions, { isDeleted: true }, options);
+            if (!result) {
+                return { message: 'Document not found or already deleted', modifiedCount: 0 };
+            }
+            return { message: 'Soft Deleted Successfully', modifiedCount: 1, data: result };
+        } catch (error) {
+            return { error: error.message };
+        }
+    }
+
+
+
+
+    async hardDelete(model, conditions) {
+        const modifiedConditions = { ...conditions, isDeleted: false };
+        try {
+            const result = await model.deleteOne(modifiedConditions);
             if (result.deletedCount === 0) {
                 return { error: 'No document found with the given conditions' };
             }
@@ -124,4 +150,4 @@ class NodeDaoMongodb {
     }
 }
 
-module.exports = NodeDaoMongodb;
+module.exports = DatabaseOperations;

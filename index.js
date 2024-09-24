@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const dotenv = require('dotenv');
 const globalError = require('./middlewares/globalError');
-const dbConect = require('./service/mongo');
+const dbConect = require('./config/dbConnect');
 const path = require('path');
 const authRoute = require('./routes/authRoute');
 const adminRoute = require('./routes/adminRoute');
@@ -44,7 +44,7 @@ app.use('/api/v1/room', roomRoute);
 app.use('/api/v1/cinema', cinemaRoute);
 app.use('/api/v1/user', userRoute);
 app.use('/api/v1/movie', movieRoute);
-app.use('/api/v1/showTime', showtimeRoute);
+app.use('/api/v1/showtime', showtimeRoute);
 
 
 

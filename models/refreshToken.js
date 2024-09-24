@@ -1,8 +1,7 @@
 const mongoose = require('mongoose');
-const NodeDaoMongodb = require('../service/node-dao-mongodb');
+const DatabaseOperations = require('../utils/DatabaseOperations');
 
-
-const nodeDaoMongodb = NodeDaoMongodb.getInstance();
+const dbOps = DatabaseOperations.getInstance();
 
 
 
@@ -23,7 +22,7 @@ const refreshTokenSchema = new mongoose.Schema({
 
 
 
-const RefreshToken = nodeDaoMongodb.createModel('refreshToken', refreshTokenSchema)
+const RefreshToken = dbOps.createModel('refreshToken', refreshTokenSchema)
 
 
 module.exports = RefreshToken

@@ -1,8 +1,7 @@
 const mongoose = require('mongoose');
-const NodeDaoMongodb = require('../service/node-dao-mongodb');
+const DatabaseOperations = require('../utils/DatabaseOperations');
 
-
-const nodeDaoMongodb = NodeDaoMongodb.getInstance();
+const dbOps = DatabaseOperations.getInstance();
 
 
 
@@ -25,7 +24,7 @@ const cinemaSchema = new mongoose.Schema({
 
 
 
-const CinemaModel = nodeDaoMongodb.createModel('cinema', cinemaSchema)
+const CinemaModel = dbOps.createModel('cinema', cinemaSchema)
 
 
 module.exports = CinemaModel

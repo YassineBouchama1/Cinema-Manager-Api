@@ -1,17 +1,16 @@
-// accessControl.js (or any filename of your choice)
+
 const expressAsyncHandler = require('express-async-handler');
 const ApiError = require('../utils/ApiError');
-const NodeDaoMongodb = require('../service/node-dao-mongodb');
-
+const DatabaseOperations = require('../utils/DatabaseOperations');
 // get instance from service object
-const nodeDaoMongodb = NodeDaoMongodb.getInstance();
+const dbOps = DatabaseOperations.getInstance();
 
 const checkUserAccessToResource = (Model) =>
   expressAsyncHandler(async (req, res, next) => {
     const { id } = req.params;
     const { cinemaId } = req.user;
 
-    const resource = await nodeDaoMongodb.findOne(Model, { _id: id, isDeleted: false });
+    const resource = await dbOps.findOne(Model, { _id: id });
 
 
     console.log(resource)

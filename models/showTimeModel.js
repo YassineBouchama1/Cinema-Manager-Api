@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
-const NodeDaoMongodb = require('../service/node-dao-mongodb')
+const DatabaseOperations = require('../utils/DatabaseOperations');
 
-const nodeDaoMongodb = NodeDaoMongodb.getInstance()
+const dbOps = DatabaseOperations.getInstance();
 
 const showTimeSchema = mongoose.Schema({
 
@@ -33,30 +33,16 @@ const showTimeSchema = mongoose.Schema({
     },
     endAt: {
         type: Date,
+        required: [true, 'End time is required']
     },
+    isDeleted: {
+        type: Boolean,
+        default: false
+    }
 }, { timestamps: true })
 
 
-// // before save hook to set endAt based on movie duration + 10min
-// showTimeSchema.pre('save', async function (next) {
-//     try {
-//         const movie = await mongoose.model('movie').findById(this.movieId);
-//         if (movie && movie.duration) {
-
-
-
-//             const durationInMillis = movie.duration * 60 * 1000; // convert to milliseconds
-//             const additionalTime = 10 * 60 * 1000 // add 10min 
-//             this.endAt = new Date(this.startAt.getTime() + durationInMillis, additionalTime);
-//         }
-//         next();
-//     } catch (error) {
-//         next(error);
-//     }
-// });
-
-
-const ShowTimeModel = nodeDaoMongodb.createModel('showtime', showTimeSchema)
+const ShowTimeModel = dbOps.createModel('showtime', showTimeSchema)
 
 
 module.exports = ShowTimeModel
