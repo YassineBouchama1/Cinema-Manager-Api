@@ -150,8 +150,19 @@ exports.updateMovie = expressAsyncHandler(async (req, res, next) => {
 // @route   GET /api/v1/movie/public
 // @access  Public
 exports.viewMoviesPublic = expressAsyncHandler(async (req, res, next) => {
+
+    const { movieName } = req.query;
+
+
+
+    const conditions = {};
+
+    //Filterby name  if s provided add it to the conditions
+    if (movieName) {
+        conditions.name = { $regex: movieName, $options: 'i' };
+    }
     try {
-        const result = await dbOps.select(MovieModel, { isDeleted: false });
+        const result = await dbOps.select(MovieModel, conditions);
 
         if (result?.error) {
             return next(new ApiError(`Error Fetching Movies: ${result.error}`, 500));

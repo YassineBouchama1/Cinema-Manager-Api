@@ -4,7 +4,8 @@ const CinemaModel = require('../models/cinemaModel');
 const ApiError = require('../utils/ApiError');
 const DatabaseOperations = require('../utils/DatabaseOperations');
 
-const dotenv = require('dotenv')
+const dotenv = require('dotenv');
+const ShowTimeModel = require('../models/showTimeModel');
 dotenv.config({ path: '.env' })
 
 
@@ -229,7 +230,7 @@ exports.viewCinemasPublic = expressAsyncHandler(async (req, res, next) => {
 // @access  Public
 exports.viewCinemaPublic = expressAsyncHandler(async (req, res, next) => {
 
-    const id = req.params.id || req.user?.cinemaId
+    const id = req.params.id
     try {
 
         const result = await dbOps.findOne(CinemaModel, { _id: id });
@@ -243,7 +244,18 @@ exports.viewCinemaPublic = expressAsyncHandler(async (req, res, next) => {
             return next(new ApiError(`Error Fetching Cinema: ${result.error}`, 500));
         }
 
-        res.status(201).json({ data: result.data });
+
+        // bring showtime belong this cinema
+        const showTimesResult = await dbOps.select(ShowTimeModel, { cinemaId: id })
+
+        // check if data exst
+        if (!showTimesResult?.data) {
+            return next(new ApiError(`Error Fetching Cinema: ${result.error}`, 500));
+        }
+
+        const showTimes = showTimesResult.data
+
+        res.status(201).json({ data: result.data, showTimes: showTimes });
     } catch (error) {
         return next(new ApiError(`Error Fetching Cinema: ${error.message}`, 500));
     }

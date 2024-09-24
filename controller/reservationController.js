@@ -11,7 +11,7 @@ const dbOps = DatabaseOperations.getInstance();
 // @access  Private
 exports.createReservation = expressAsyncHandler(async (req, res, next) => {
     const { seats, showTimeId } = req.body;
-    const { userId } = req.user;
+    const { id: userId } = req.user;
 
 
     //valid show time id :DONE
@@ -104,7 +104,7 @@ exports.deleteReservation = expressAsyncHandler(async (req, res, next) => {
 // @route   GET /api/v1/reservation
 // @access  Private : user
 exports.viewUserReservations = expressAsyncHandler(async (req, res, next) => {
-    const { userId } = req.user;
+    const { id: userId } = req.user;
 
     const result = await dbOps.select(ReservationModel, { userId });
     if (result?.error) {
@@ -142,20 +142,29 @@ exports.viewReservation = expressAsyncHandler(async (req, res, next) => {
 
     const { id } = req.params
 
+
+
+    // determin bring schemas that associated with reservation
+    const populateOptions = {
+        path: 'showTimeId',
+        populate: [
+            { path: 'movieId', select: 'name duration category' },
+            { path: 'roomId', select: 'name capacity' }
+        ]
+    };
+
+
     try {
-        const reservation = await dbOps.findOne(ShowTimeModel, { _id: id })
-            .populate({
-                path: 'showTimeId',
-                populate: [
-                    { path: 'movieId', select: 'name duration category' },
-                    { path: 'roomId', select: 'name capacity' }
-                ]
-            });
-        if (!reservation) {
-            return next(new ApiError('reservation not found', 404));
+        const reservation = await dbOps.findOne(ReservationModel, { _id: id }, populateOptions)
+
+
+        if (!reservation || !reservation.data) {
+            return next(new ApiError('reservation belong this id not found', 404));
         }
 
-        res.status(200).json({ data: reservation });
+
+        res.status(200).json(reservation);
+
     } catch (error) {
         return next(new ApiError(`Error Fetching Showtime: ${error.message}`, 500));
     }

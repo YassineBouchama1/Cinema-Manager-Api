@@ -31,7 +31,7 @@ router.route('/movie/:id')
 
 //@Path  : Public/cinema
 router.route('/cinema/:id')
-    .get(viewCinemaPublic)
+    .get(viewCinemaPublic) // bring all showTimes belong this cinema
 
 
 //@Path  : Public/cinema : bring all cinema
@@ -40,5 +40,5 @@ router.route('/cinema')
 
 
 
-    
+
 module.exports = router;

@@ -35,7 +35,13 @@ const showTimeSchema = mongoose.Schema({
     endAt: {
         type: Date,
         required: [true, 'End time is required'],
-        index: true
+        index: true,
+        validate: {
+            validator: function (value) {
+                return value > this.startAt;
+            },
+            message: 'End time must be after start time'
+        }
     },
     isDeleted: {
         type: Boolean,

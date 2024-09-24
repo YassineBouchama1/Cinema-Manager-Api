@@ -28,7 +28,7 @@ const checkUserAccessToResource = (Model) =>
       next();
     }
 
-    if (resource.data.cinemaId.toString() !== cinemaId.toString()) {
+    if (resource.data.cinemaId?.toString() !== cinemaId?.toString()) {
       return next(new ApiError('You do not have permission to access this resource', 403));
     }
 
