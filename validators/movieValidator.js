@@ -1,5 +1,5 @@
 const { check } = require('express-validator');
-const validatorMiddleware = require('../../middlewares/validator');
+const validatormiddleware = require('../middlewares/validator')
 
 exports.createMovieValidator = [
     check('name')
@@ -44,7 +44,7 @@ exports.createMovieValidator = [
         return true; // Return true  if all passs
     }),
 
-    validatorMiddleware,
+    validatormiddleware,
 ];
 
 exports.movieByIdValidator = [
@@ -52,5 +52,5 @@ exports.movieByIdValidator = [
         .isMongoId()
         .withMessage('Invalid Movie ID'),
 
-    validatorMiddleware,
+    validatormiddleware,
 ];

@@ -5,7 +5,7 @@ const ApiError = require('../utils/ApiError');
 const DatabaseOperations = require('../utils/DatabaseOperations');
 const sendEmail = require('../utils/email/sendEmail');
 const { confirmationTemplate } = require('../utils/email/templates/confirmationTemplate');
-
+const { logEmailError } = require('../utils/logger');
 const dbOps = DatabaseOperations.getInstance();
 
 // @desc    Create a new reservation
@@ -57,7 +57,10 @@ exports.createReservation = expressAsyncHandler(async (req, res, next) => {
         // chekc if email sent
         if (!isEmailSent.success) {
             // if there is error sening email 
-            //remve previews reservation or add thsi to mq
+            //TODO:remve previews reservation or add thsi to mq
+
+            // Log email error using the utility
+            logEmailError({ userId, email, name, error: isEmailSent.error, category: 'Confirmaton Resrvation' });
 
             return next(new ApiError(`Error sending email: ${result.error}`, 500));
         }

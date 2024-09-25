@@ -1,5 +1,5 @@
 const { check } = require('express-validator');
-const validatorMiddleware = require('../../middlewares/validator');
+const validatorMiddleware = require('../middlewares/validator');
 
 
 exports.createShowTimeValidator = [

@@ -8,7 +8,7 @@ const {
     updateReservation,
     viewUserReservations
 } = require('../controller/reservationController');
-const { createReservationValidator, updateReservationValidator } = require('../utils/validators/reservationValidator');
+const { createReservationValidator, updateReservationValidator } = require('../validators/reservationValidator');
 const checkUserAccessToResource = require('../middlewares/accessControl');
 const ReservationModel = require('../models/reservationModel');
 
