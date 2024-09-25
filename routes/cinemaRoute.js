@@ -1,7 +1,7 @@
 const express = require('express')
 
 const { protect, allowedTo } = require('../middlewares/guard')
-const { createCinema, viewCinema, deleteCinema, viewCinemaPublic, viewCinemasPublic } = require('../controller/cinemaController')
+const { createCinema, viewCinema, deleteCinema, viewCinemaPublic, viewCinemasPublic } = require('../controllers/cinemaController')
 const { createCinemaValidator } = require('../validators/cinemaValidator')
 
 

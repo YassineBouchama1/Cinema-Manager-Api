@@ -2,14 +2,14 @@ const bcrypt = require('bcryptjs');
 const expressAsyncHandler = require('express-async-handler')
 const UserModel = require('../models/userModel');
 const ApiError = require('../utils/ApiError');
-const DatabaseOperations = require('../utils/DatabaseOperations');
+const dbOps = require('../utils/DatabaseOperations');
 
 const dotenv = require('dotenv')
 dotenv.config({ path: '.env' })
 
 
-// get instance from service object
-const dbOps = DatabaseOperations.getInstance();
+
+
 
 
 

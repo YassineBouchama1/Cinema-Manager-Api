@@ -1,13 +1,15 @@
 const expressAsyncHandler = require('express-async-handler');
 const MovieModel = require('../models/movieModel');
 const ApiError = require('../utils/ApiError');
-const DatabaseOperations = require('../utils/DatabaseOperations'); const sharp = require('sharp');
+const dbOps = require('../utils/DatabaseOperations');
+
+const sharp = require('sharp');
 
 const dotenv = require('dotenv');
 const { uploadSingleImage } = require('../middlewares/uploadimg');
 dotenv.config({ path: '.env' });
 
-const dbOps = DatabaseOperations.getInstance();
+
 
 
 

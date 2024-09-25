@@ -6,7 +6,7 @@ const {
     viewShowTimes,
     viewShowTime,
     deleteShowTime
-} = require('../controller/showtimeController');
+} = require('../controllers/showtimeController');
 const {
     createShowTimeValidator,
     showTimeByIdValidator,

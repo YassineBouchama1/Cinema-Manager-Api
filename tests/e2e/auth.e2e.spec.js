@@ -8,7 +8,7 @@ describe('User API Endpoints', () => {
         it('should register a user successfully', async () => {
 
             const response = await request(app)
-                .post('/api/v1/auth/register') // endpoint 
+                .post('/api/v1/auth/register') // endpoint
                 .send(userData)
                 .set('Content-Type', 'application/json');
 
@@ -59,7 +59,7 @@ describe('User API Endpoints', () => {
             expect(response.status).toBe(400);
 
             // expecting error message if passwordConfirm missing
-            // expect(response.body.error).toBe('Password confirmation does not match.'); 
+            // expect(response.body.error).toBe('Password confirmation does not match.');
         });
     });
 });

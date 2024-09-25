@@ -1,6 +1,6 @@
 const express = require('express');
 const { protect, allowedTo } = require('../middlewares/guard');
-const { createMovie, deleteMovie, viewMovies, viewMovie, updateMovie, viewMoviesPublic, viewMoviePublic, imageUploaderMovie, resizeImage } = require('../controller/movieController');
+const { createMovie, deleteMovie, viewMovies, viewMovie, updateMovie, viewMoviesPublic, viewMoviePublic, imageUploaderMovie, resizeImage } = require('../controllers/movieController');
 const { createMovieValidator, movieByIdValidator } = require('../validators/movieValidator');
 const checkUserAccessToResource = require('../middlewares/accessControl');
 const movieModel = require('../models/movieModel');

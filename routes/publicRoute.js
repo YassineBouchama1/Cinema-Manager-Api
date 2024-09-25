@@ -2,9 +2,9 @@ const express = require('express');
 const {
     viewShowTimesPublic,
     viewShowTime
-} = require('../controller/showtimeController');
-const { viewMoviesPublic, viewMoviePublic } = require('../controller/movieController');
-const { viewCinemaPublic, viewCinemasPublic } = require('../controller/cinemaController');
+} = require('../controllers/showtimeController');
+const { viewMoviesPublic, viewMoviePublic } = require('../controllers/movieController');
+const { viewCinemaPublic, viewCinemasPublic } = require('../controllers/cinemaController');
 
 const router = express.Router();
 

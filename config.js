@@ -7,6 +7,7 @@ exports.config = {
     hostSmtp: process.env.NEXT_PUBLIC_HOST_SMTP,
     portSmtp: process.env.NEXT_PUBLIC_PORT_SMTP,
     host: process.env.NEXT_PUBLIC_BASE_URL,
+    frontUrl: process.env.NEXT_PUBLIC_FRONT_URL,
     projectName: 'Cenima Manager'
 };
 

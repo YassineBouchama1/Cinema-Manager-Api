@@ -170,4 +170,4 @@ class DatabaseOperations {
     }
 }
 
-module.exports = DatabaseOperations;
+module.exports = new DatabaseOperations();

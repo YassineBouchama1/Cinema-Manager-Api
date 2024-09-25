@@ -1,14 +1,14 @@
 
 const expressAsyncHandler = require('express-async-handler')
 const ApiError = require('../utils/ApiError');
-const DatabaseOperations = require('../utils/DatabaseOperations');
+const dbOps = require('../utils/DatabaseOperations');
 const dotenv = require('dotenv');
 const UserModel = require('../models/userModel');
 dotenv.config({ path: '.env' })
 
 
-// get instance from service object
-const dbOps = DatabaseOperations.getInstance();
+
+
 
 
 

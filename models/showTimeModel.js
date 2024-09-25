@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
-const DatabaseOperations = require('../utils/DatabaseOperations');
+const dbOps = require('../utils/DatabaseOperations');
 
-const dbOps = DatabaseOperations.getInstance();
+
 
 const showTimeSchema = mongoose.Schema({
 

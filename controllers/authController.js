@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 const expressAsyncHandler = require('express-async-handler')
 const UserModel = require('../models/userModel');
 const ApiError = require('../utils/ApiError');
-const DatabaseOperations = require('../utils/DatabaseOperations');
+const dbOps = require('../utils/DatabaseOperations');
 
 const sendEmail = require('../utils/email/sendEmail');
 const { forgetPasswordTemplate } = require('../utils/email/templates/forgetPasswordTemplate');
@@ -14,8 +14,8 @@ const { createToken } = require('../utils/createToken');
 dotenv.config({ path: '.env' });
 
 
-// get instance from service object
-const dbOps = DatabaseOperations.getInstance();
+
+
 
 
 
