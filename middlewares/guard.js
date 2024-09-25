@@ -4,15 +4,15 @@ const expressAsyncHandler = require('express-async-handler');
 
 const jwt = require('jsonwebtoken');
 const ApiError = require('../utils/ApiError');
-const DatabaseOperations = require('../utils/DatabaseOperations'); const UserModel = require('../models/userModel');
+const dbOps = require('../utils/DatabaseOperations'); const UserModel = require('../models/userModel');
 
 require('dotenv').config();
 
 const JWT_SECRET = process.env.NEXT_PUBLIC_JWT_SECRET
 
 
-// get instance from service object
-const dbOps = DatabaseOperations.getInstance();
+
+
 
 
 //CHECK IF TOKEN EXIST IF YES GET INFORMATION USER FROM IT TO PASS IT TO NEXT MIDDLEWARE SUCH AS CREATE PRODUCT GET ...

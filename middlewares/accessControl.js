@@ -1,9 +1,9 @@
 
 const expressAsyncHandler = require('express-async-handler');
 const ApiError = require('../utils/ApiError');
-const DatabaseOperations = require('../utils/DatabaseOperations');
-// get instance from service object
-const dbOps = DatabaseOperations.getInstance();
+const dbOps = require('../utils/DatabaseOperations');
+
+
 
 const checkUserAccessToResource = (Model) =>
   expressAsyncHandler(async (req, res, next) => {
@@ -12,7 +12,7 @@ const checkUserAccessToResource = (Model) =>
 
     const resource = await dbOps.findOne(Model, { _id: id });
 
-console
+    console
 
     if (resource?.error) {
       return next(new ApiError(`Resource not found : ${resource.error}`, 500));
@@ -29,7 +29,7 @@ console
     }
 
 
-  
+
 
     if (resource.data.cinemaId?.toString() !== cinemaId?.toString()) {
       return next(new ApiError('You do not have permission to access this resource', 403));

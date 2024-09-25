@@ -1,7 +1,7 @@
 const express = require('express')
 
 const { protect, allowedTo } = require('../middlewares/guard')
-const { viewUser, deleteUser, viewUsers, updateUser, determineUserId, updateMyProfile } = require('../controller/userController')
+const { viewUser, deleteUser, viewUsers, updateUser, determineUserId, updateMyProfile } = require('../controllers/userController')
 
 
 

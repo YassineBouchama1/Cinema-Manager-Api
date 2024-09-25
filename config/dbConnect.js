@@ -1,9 +1,9 @@
 const NodeDaoMongodb = require('../utils/DatabaseOperations');
 
 const dbConnect = async () => {
-    const nodeDaoMongodb = NodeDaoMongodb.getInstance();
+    // const nodeDaoMongodb = NodeDaoMongodb.getInstance();
     try {
-        await nodeDaoMongodb.connect();
+        await NodeDaoMongodb.connect();
     } catch (error) {
         console.error('Failed to connect to database:', error);
         process.exit(1);

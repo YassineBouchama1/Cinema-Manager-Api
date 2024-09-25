@@ -2,15 +2,15 @@
 const expressAsyncHandler = require('express-async-handler')
 const CinemaModel = require('../models/cinemaModel');
 const ApiError = require('../utils/ApiError');
-const DatabaseOperations = require('../utils/DatabaseOperations');
+const dbOps = require('../utils/DatabaseOperations');
 
 const dotenv = require('dotenv');
 const ShowTimeModel = require('../models/showTimeModel');
 dotenv.config({ path: '.env' })
 
 
-// get instance from service object
-const dbOps = DatabaseOperations.getInstance();
+
+
 
 
 

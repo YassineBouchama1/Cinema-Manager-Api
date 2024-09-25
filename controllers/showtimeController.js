@@ -2,11 +2,11 @@ const expressAsyncHandler = require('express-async-handler');
 const ShowTimeModel = require('../models/showTimeModel');
 const MovieModel = require('../models/movieModel');
 const ApiError = require('../utils/ApiError');
-const DatabaseOperations = require('../utils/DatabaseOperations');
+const dbOps = require('../utils/DatabaseOperations');
 const RoomModel = require('../models/roomModel');
 const ReservationModel = require('../models/reservationModel');
 
-const dbOps = DatabaseOperations.getInstance();
+
 
 
 // @desc    create a new showtime

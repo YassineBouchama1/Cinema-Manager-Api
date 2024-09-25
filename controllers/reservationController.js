@@ -2,11 +2,11 @@ const expressAsyncHandler = require('express-async-handler');
 const ReservationModel = require('../models/reservationModel');
 const ShowTimeModel = require('../models/showTimeModel');
 const ApiError = require('../utils/ApiError');
-const DatabaseOperations = require('../utils/DatabaseOperations');
+const dbOps = require('../utils/DatabaseOperations');
 const sendEmail = require('../utils/email/sendEmail');
 const { confirmationTemplate } = require('../utils/email/templates/confirmationTemplate');
 const { logEmailError } = require('../utils/logger');
-const dbOps = DatabaseOperations.getInstance();
+
 
 // @desc    Create a new reservation
 // @route   POST /api/v1/reservation
@@ -47,7 +47,7 @@ exports.createReservation = expressAsyncHandler(async (req, res, next) => {
         }
 
         // prepare template that send to user 
-        const html = await confirmationTemplate(name, totalPrice, seats)
+        const html = await confirmationTemplate(name, totalPrice, seats, result.data._id)
 
 
         // send email confirmation
