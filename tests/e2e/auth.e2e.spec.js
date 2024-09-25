@@ -39,7 +39,7 @@ describe('User API Endpoints', () => {
                 .set('Content-Type', 'application/json');
 
             expect(response.status).toBe(400); // expection eror status 400
-            // expect(response.body.error).toBe('Email already in use.'); // expecting error message
+
         });
 
         it('should return an error for missing fields', async () => {
@@ -58,8 +58,6 @@ describe('User API Endpoints', () => {
 
             expect(response.status).toBe(400);
 
-            // expecting error message if passwordConfirm missing
-            // expect(response.body.error).toBe('Password confirmation does not match.');
         });
     });
 });
