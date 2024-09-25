@@ -27,7 +27,7 @@ app.use(express.static(path.join(__dirname, 'uploads')))
 
 
 // conect db
-dbConect(); //  comment it if yu stat testing
+// dbConect(); //  comment it if yu stat testing
 
 
 
