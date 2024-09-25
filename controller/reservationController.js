@@ -3,6 +3,8 @@ const ReservationModel = require('../models/reservationModel');
 const ShowTimeModel = require('../models/showTimeModel');
 const ApiError = require('../utils/ApiError');
 const DatabaseOperations = require('../utils/DatabaseOperations');
+const sendEmail = require('../utils/email/sendEmail');
+const { confirmationTemplate } = require('../utils/email/templates/confirmationTemplate');
 
 const dbOps = DatabaseOperations.getInstance();
 
@@ -11,7 +13,7 @@ const dbOps = DatabaseOperations.getInstance();
 // @access  Private
 exports.createReservation = expressAsyncHandler(async (req, res, next) => {
     const { seats, showTimeId } = req.body;
-    const { id: userId } = req.user;
+    const { id: userId, email, name } = req.user;
 
 
     //valid show time id :DONE
@@ -27,13 +29,13 @@ exports.createReservation = expressAsyncHandler(async (req, res, next) => {
     }
 
 
-
+    let totalPrice = showTimeResult.data.price * seats?.length
 
     const reservationData = {
         userId,
         showTimeId,
         seats,
-        totalPrice: showTimeResult.data.price * seats?.length
+        totalPrice
     };
 
     try {
@@ -43,6 +45,23 @@ exports.createReservation = expressAsyncHandler(async (req, res, next) => {
         if (result?.error) {
             return next(new ApiError(`Error Creating Reservation: ${result.error}`, 500));
         }
+
+        // prepare template that send to user 
+        const html = await confirmationTemplate(name, totalPrice, seats)
+
+
+        // send email confirmation
+        const isEmailSent = await sendEmail({ email, html, subject: 'Confirmation Reservation' })
+
+
+        // chekc if email sent
+        if (!isEmailSent.success) {
+            // if there is error sening email 
+            //remve previews reservation or add thsi to mq
+
+            return next(new ApiError(`Error sending email: ${result.error}`, 500));
+        }
+
         res.status(201).json({ data: result.data, message: 'Reservation created successfully' });
     } catch (error) {
         return next(new ApiError(`Error Creating Reservation: ${error.message}`, 500));
