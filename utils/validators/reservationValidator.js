@@ -92,10 +92,16 @@ exports.updateReservationValidator = [
             req.resource = reservation;
 
             const now = new Date();
-            const thirtyMinutesFromNow = new Date(now.getTime() - 30 * 60 * 1000); // current time + 30 min
+            const thirtyMinutesFromNow = new Date(now.getTime() + 30 * 60 * 1000); // current time + 30 min
+
+            console.log(showTimeStartAt)
+            console.log(thirtyMinutesFromNow)
+
+            console.log(showTimeStartAt.getTime())
+            console.log(thirtyMinutesFromNow.getTime())
 
             // check if the reservation startAt time is within the next 30 min
-            if (showTimeStartAt >= thirtyMinutesFromNow) {
+            if (showTimeStartAt <= thirtyMinutesFromNow) {
                 throw new Error("You can't update the show that will start soon. You have less than 30 minutes before the show starts.");
             }
 
