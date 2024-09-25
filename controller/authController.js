@@ -10,20 +10,12 @@ const { forgetPasswordTemplate } = require('../utils/email/templates/forgetPassw
 const dotenv = require('dotenv');
 const { config } = require('../config');
 const CinemaModel = require('../models/cinemaModel');
+const { createToken } = require('../utils/createToken');
 dotenv.config({ path: '.env' });
 
 
 // get instance from service object
 const dbOps = DatabaseOperations.getInstance();
-const JWT_SECRET = process.env.NEXT_PUBLIC_JWT_SECRET
-
-
-
-
-
-// create token by passing id user
-const createToken = (payload, expiresIn = '30d') => jwt.sign(payload, JWT_SECRET, { expiresIn })
-
 
 
 
@@ -160,6 +152,9 @@ exports.resetPassword = expressAsyncHandler(async (req, res, next) => {
 
 
         if (passwordUpdated?.error) {
+            // Log email error using the utility
+            logEmailError({ userId: req.user._id, email: req.user.email, name: req.user.name, error: isEmailSent.error, category: 'Forget Password' });
+
             return next(new ApiError(`Error password update : ${passwordUpdated.error}`, 500));
         }
 

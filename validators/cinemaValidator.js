@@ -1,7 +1,9 @@
 const { check } = require('express-validator');
 
-const validatormiddleware = require('../../middlewares/validator')
-const User = require('../../models/userModel')
+const validatormiddleware = require('../middlewares/validator')
+
+
+const User = require('../models/userModel')
 
 // validate fileds
 exports.createCinemaValidator = [

@@ -1,6 +1,6 @@
 const { check } = require('express-validator');
 
-const validatormiddleware = require('../../middlewares/validator')
+const validatormiddleware = require('../middlewares/validator')
 
 // validate fileds
 exports.createRoomValidator = [

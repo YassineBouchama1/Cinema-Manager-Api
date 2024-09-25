@@ -1,6 +1,6 @@
 const express = require('express')
 const { login, resetPassword, register, forgetPassword } = require('../controller/authController')
-const { createAuthValidator, LoginAuthValidator, resetPassValidator, forgetPassValidator } = require('../utils/validators/authValidator')
+const { createAuthValidator, LoginAuthValidator, resetPassValidator, forgetPassValidator } = require('../validators/authValidator')
 const { protect } = require('../middlewares/guard')
 
 

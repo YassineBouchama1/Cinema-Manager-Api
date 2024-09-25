@@ -14,7 +14,7 @@ const showtimeRoute = require('./routes/showtimeRoute');
 const publicRoute = require('./routes/publicRoute');
 const reservationRoute = require('./routes/reservationRoute');
 const ApiError = require('./utils/ApiError');
-
+const request = require("supertest")
 const PORT = process.env.PORT || 4000;
 
 
@@ -27,7 +27,7 @@ app.use(express.static(path.join(__dirname, 'uploads')))
 
 
 // conect db
-dbConect();
+// dbConect(); //  comment it if yu stat testing
 
 
 

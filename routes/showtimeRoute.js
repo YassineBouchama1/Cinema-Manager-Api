@@ -10,7 +10,7 @@ const {
 const {
     createShowTimeValidator,
     showTimeByIdValidator,
-} = require('../utils/validators/showtimeValidator');
+} = require('../validators/showtimeValidator');
 const ShowTimeModel = require('../models/showTimeModel');
 const checkUserAccessToResource = require('../middlewares/accessControl');
 

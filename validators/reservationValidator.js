@@ -1,6 +1,6 @@
 const { check } = require('express-validator');
-const validatorMiddleware = require('../../middlewares/validator');
-const ReservationModel = require('../../models/reservationModel');
+const validatorMiddleware = require('../middlewares/validator');
+const ReservationModel = require('../models/reservationModel');
 
 exports.createReservationValidator = [
     check('seats')

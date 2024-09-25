@@ -2,7 +2,7 @@ const express = require('express')
 
 const { protect, allowedTo } = require('../middlewares/guard')
 const { createRoom, deleteRoom, viewRooms, viewRoom, viewRoomPublic, viewRoomsPublic, updateRoom } = require('../controller/roomController')
-const { createRoomValidator, roomByIdValidator } = require('../utils/validators/roomValidator')
+const { createRoomValidator, roomByIdValidator } = require('../validators/roomValidator')
 const checkUserAccessToResource = require('../middlewares/accessControl')
 const roomModel = require('../models/roomModel')
 
