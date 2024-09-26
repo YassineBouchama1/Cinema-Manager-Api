@@ -190,7 +190,14 @@ exports.viewShowTimes = expressAsyncHandler(async (req, res, next) => {
 // @access  Public
 exports.viewShowTimesPublic = expressAsyncHandler(async (req, res, next) => {
 
-    const { cat = null, date, price, cinemaId, movieName } = req.query;
+    const { cat = null, date, price, cinemaId, movieName, page = 1, limit = 10 } = req.query;
+
+
+
+    const currentPage = parseInt(page) || 1;
+    const perPage = parseInt(limit) || 10;
+    const skip = (currentPage - 1) * perPage;
+
 
 
     // bring date now use it to bring only showtime that not passed date now
@@ -271,7 +278,7 @@ exports.viewShowTimesPublic = expressAsyncHandler(async (req, res, next) => {
 
 
     try {
-        const result = await dbOps.select(ShowTimeModel, conditions, populateOptions);
+        const result = await dbOps.select(ShowTimeModel, conditions, populateOptions, { skip, limit: perPage });
 
         if (result?.error) {
             return next(new ApiError(`Error Fetching Showtimes: ${result.error}`, 500));
