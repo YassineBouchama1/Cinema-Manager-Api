@@ -8,6 +8,11 @@
     "dev": "nodemon index.js",
     "prepare": "husky"
   },
+  "husky": {
+    "hooks": {
+      "pre-push": "npm run test"
+    }
+  },
   "author": "",
   "license": "ISC",
   "description": "",
