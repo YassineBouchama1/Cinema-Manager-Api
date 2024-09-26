@@ -1,18 +1,23 @@
-const dbOps = require('../../../utils/DatabaseOperations');
-const UserModel = require('../../../models/userModel');
-const CinemaModel = require('../../../models/cinemaModel');
-const { register } = require('../../../controllers/authController');
+const dbOps = require('../../../../utils/DatabaseOperations');
+
+const { register } = require('../../../../controllers/authController');
 
 const bcrypt = require('bcryptjs');
-const ApiError = require('../../../utils/ApiError');
+const ApiError = require('../../../../utils/ApiError');
 
 
-jest.mock('../../../models/userModel', () => jest.fn())
-jest.mock('../../../models/cinemaModel', () => jest.fn())
-jest.mock('../../../utils/DatabaseOperations');
+jest.mock('../../../../models/userModel', () => jest.fn())
+jest.mock('../../../../models/cinemaModel', () => jest.fn())
+jest.mock('../../../../utils/DatabaseOperations');
 jest.mock('bcryptjs');
 
-describe('Register Controller', () => {
+
+
+jest.mock('../../../../utils/createToken', () => ({
+    createToken: jest.fn()
+}));
+
+describe('Register Test ', () => {
     let req, res, next;
 
     beforeEach(() => {
@@ -74,7 +79,7 @@ describe('Register Controller', () => {
         });
     });
 
-    
+
     it('should register an admin with cinema successfully', async () => {
         req.body.role = 'admin';
         req.body.cinemaName = 'Test Cinema';

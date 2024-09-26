@@ -62,7 +62,7 @@ exports.createReservation = expressAsyncHandler(async (req, res, next) => {
             // Log email error using the utility
             logEmailError({ userId, email, name, error: isEmailSent.error, category: 'Confirmaton Resrvation' });
 
-            return next(new ApiError(`Error sending email: ${result.error}`, 500));
+            return next(new ApiError(`Error sending email Confirmation`, 500));
         }
 
         res.status(201).json({ data: result.data, message: 'Reservation created successfully' });

@@ -73,7 +73,12 @@ exports.viewRooms = expressAsyncHandler(async (req, res, next) => {
 
 
     // get id cinema from uathed admin
-    const { cinemaId } = req.user
+    const { cinemaId = null } = req.user
+
+    if (!cinemaId) {
+        return next(new ApiError(`Cinema Id is required`, 400));
+
+    }
 
     try {
 
@@ -130,7 +135,7 @@ exports.updateRoom = expressAsyncHandler(async (req, res, next) => {
 
         // If there is an error updating the user
         if (roomUpdated?.error) {
-            return next(new ApiError(`There is a error while tryibg to update room`, 500));
+            return next(new ApiError(`Error Creating Room: ${roomUpdated.error}`, 500));
         }
 
         res.status(200).json(roomUpdated);

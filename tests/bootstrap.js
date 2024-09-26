@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const { MongoMemoryServer } = require("mongodb-memory-server");
-const httpMocks = require('node-mocks-http');
+
 
 let mongoServer;
 
@@ -27,6 +27,7 @@ afterAll(async () => {
     await mongoose.connection.dropDatabase(); // drop the database to clean up
     await mongoose.connection.close(); // close the connection
     await mongoServer.stop(); // stop the MongoMemoryServer instance
+
 });
 
 afterEach(async () => {
@@ -44,4 +45,8 @@ afterEach(async () => {
 
 beforeEach(() => {
     jest.clearAllMocks();
+});
+
+process.on("unhandledRejection", (reason, promise) => {
+    console.error("Unhandled Rejection at:", promise, "reason:", reason);
 });
