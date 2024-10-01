@@ -175,8 +175,6 @@ exports.viewShowTimes = expressAsyncHandler(async (req, res, next) => {
         }
 
 
-
-
         res.status(200).json({ data: result.data });
     } catch (error) {
         return next(new ApiError(`Error Fetching Showtimes: ${error.message}`, 500));
@@ -188,94 +186,71 @@ exports.viewShowTimes = expressAsyncHandler(async (req, res, next) => {
 // @desc    get all showtimes for a cinema for public With Filters
 // @route   GET /api/v1/public/showTimes
 // @access  Public
+// @desc    Get all public showtimes with unique movies
+// @route   GET /api/v1/showtime/public
+// @access  Public
 exports.viewShowTimesPublic = expressAsyncHandler(async (req, res, next) => {
-
     const { cat = null, date, price, cinemaId, movieName, page = 1, limit = 10 } = req.query;
-
-
 
     const currentPage = parseInt(page) || 1;
     const perPage = parseInt(limit) || 10;
     const skip = (currentPage - 1) * perPage;
 
-
-
-    // bring date now use it to bring only showtime that not passed date now
+    // Get current date and time
     const now = new Date();
+    const tenMinutesLater = new Date(now.getTime() - 10 * 60 * 1000); // 10 minutes later
 
-    // add 10 min : even showtime start 
-    const tenMinutesLater = new Date(now.getTime() - 10 * 60 * 1000);
-
-    // define base conditionz
+    // Define base conditions
     const conditions = {
-        startAt: { $gte: tenMinutesLater } // great than equal time now + 10min
-
+        startAt: { $gte: tenMinutesLater } // Only future showtimes
     };
 
-
-    // filter by category if provided
+    // Filter by category if provided
     if (cat) {
         conditions.movieId = conditions.movieId || {};
         conditions.movieId.category = cat;
     }
 
-
-
-    // filter by date if provided
+    // Filter by date if provided
     if (date) {
         const selectedDate = new Date(date);
-
-        // setup start date and add hour start from first hour
-        const startOfDay = new Date(selectedDate.setHours(0, 0, 0, 0)); //start hours day
-
-        // set hour before midnight
-        const endOfDay = new Date(selectedDate.setHours(23, 59, 59, 999)); // end hour day
-
+        const startOfDay = new Date(selectedDate.setHours(0, 0, 0, 0));
+        const endOfDay = new Date(selectedDate.setHours(23, 59, 59, 999));
 
         conditions.startAt.$gte = startOfDay;
-
-        // Only showtimes within the selected date
         conditions.startAt.$lte = endOfDay;
     }
 
-
-
-    // filter by movie name : (find all matching movies)
+    // Filter by movie name
+    let movieIds = [];
     if (movieName) {
         const movieResults = await dbOps.select(MovieModel, {
             name: { $regex: movieName, $options: 'i' }
         });
 
         if (movieResults?.data && movieResults.data.length > 0) {
-            // store all movies ids that match search name
-            const movieIds = movieResults.data.map(movie => movie._id);
-
-
-            // use movieIds to match showtimes for all found movie IDs
+            movieIds = movieResults.data.map(movie => movie._id);
             conditions.movieId = { $in: movieIds };
-
         } else {
-            // if there are no movies that match this name. return an empty array
-            return res.status(200).json({ data: [] });
+            return res.status(200).json({ data: [] }); // No matching movies
         }
     }
 
-    // filter by price if provided
+    // Filter by price if provided
     if (price) {
         conditions.price = { $lte: price };
     }
 
-    // filter by cinemaId if provided
+    // Filter by cinemaId if provided
     if (cinemaId) {
-        conditions.cinemaId = cinemaId; // Only  showtimes for spicif cinema
+        conditions.cinemaId = cinemaId; // Only showtimes for specific cinema
     }
 
-    // define populate options for movieId and roomId
+    // Retrieve showtimes based on the defined conditions
     const populateOptions = [
         { path: 'movieId', select: 'name duration category image' },
         { path: 'roomId', select: 'name capacity' }
     ];
-
 
     try {
         const result = await dbOps.select(ShowTimeModel, conditions, populateOptions, { skip, limit: perPage });
@@ -284,7 +259,18 @@ exports.viewShowTimesPublic = expressAsyncHandler(async (req, res, next) => {
             return next(new ApiError(`Error Fetching Showtimes: ${result.error}`, 500));
         }
 
-        res.status(200).json({ data: result.data });
+        // Extract unique movie IDs from the result
+        const uniqueMovies = [];
+        const seenMovieIds = new Set();
+
+        result.data.forEach(showtime => {
+            if (showtime.movieId && !seenMovieIds.has(showtime.movieId._id.toString())) {
+                uniqueMovies.push(showtime.movieId);
+                seenMovieIds.add(showtime.movieId._id.toString());
+            }
+        });
+
+        res.status(200).json({ data: uniqueMovies });
     } catch (error) {
         return next(new ApiError(`Error Fetching Showtimes: ${error.message}`, 500));
     }

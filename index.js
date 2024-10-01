@@ -16,18 +16,19 @@ const reservationRoute = require('./routes/reservationRoute');
 const ApiError = require('./utils/ApiError');
 const request = require("supertest")
 const PORT = process.env.PORT || 4000;
-
+const cors = require('cors')
 
 dotenv.config({ path: '.env' });
 
 
 // middlewars
+app.use(cors());
 app.use(express.json());// Parse JSON bodies
 app.use(express.static(path.join(__dirname, 'uploads')))
 
 
 // conect db
-// dbConect(); //  comment it if yu stat testing
+dbConect(); //  comment it if yu stat testing
 
 
 

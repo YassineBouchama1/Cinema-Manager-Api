@@ -25,3 +25,6 @@ exports.uploadSingleImage = (fieldName) => multerOptions().single(fieldName);
 
 exports.uploadMultImage = (arrayOfFields) =>
     multerOptions().fields(arrayOfFields);
+
+
+

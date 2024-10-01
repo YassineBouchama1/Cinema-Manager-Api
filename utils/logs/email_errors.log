@@ -1287,3 +1287,27 @@
     Time: 2024-09-26T15:03:31.759Z
         -----------------------------------
     
+    User ID: userId123
+    Name: John Doe
+    Email: user@example.com
+    Category: Confirmaton Resrvation
+    Error: Email error
+    Time: 2024-09-26T15:04:20.331Z
+        -----------------------------------
+    
+    User ID: userId123
+    Name: John Doe
+    Email: user@example.com
+    Category: Confirmaton Resrvation
+    Error: Email error
+    Time: 2024-10-01T13:03:36.297Z
+        -----------------------------------
+    
+    User ID: userId123
+    Name: John Doe
+    Email: user@example.com
+    Category: Confirmaton Resrvation
+    Error: Email error
+    Time: 2024-10-01T13:04:32.434Z
+        -----------------------------------
+    
