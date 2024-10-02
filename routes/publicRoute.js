@@ -13,8 +13,6 @@ const router = express.Router();
 
 
 //@Path  : Public/showtime
-router.route('/showTime')
-    .get(viewShowTimesPublic)
 
 router.route('/showTime/:id')
     .get(viewShowTime)

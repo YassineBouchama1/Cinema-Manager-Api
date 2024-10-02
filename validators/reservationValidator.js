@@ -1,6 +1,8 @@
 const { check } = require('express-validator');
 const validatorMiddleware = require('../middlewares/validator');
 const ReservationModel = require('../models/reservationModel');
+const roomModel = require('../models/roomModel');
+const ShowTimeModel = require('../models/showTimeModel');
 
 exports.createReservationValidator = [
     check('seats')
@@ -19,26 +21,34 @@ exports.createReservationValidator = [
 
             try {
                 // fetch reservations for the given showTimeId
-                const reservations = await ReservationModel.find({ showTimeId });
-
-                // check if there are any reservations
-                if (reservations.length === 0) {
-
-                    // ff no reservations, all seats are free
-                    return true;
+                const showTime = await ShowTimeModel.findById(showTimeId).populate('roomId');
+                if (!showTime) {
+                    throw new Error('Showtime not found');
                 }
 
+                const room = showTime.roomId;
+                if (!room) {
+                    throw new Error('Room not found for the specified showtime');
+                }
 
+                // fetch reservations for the given showTimeId
+                const reservations = await ReservationModel.find({ showTimeId });
 
-                // extract reserved seats from reservations
+                // esxtract reserved seats from reservations
                 const reservedSeats = reservations.flatMap(reservation => reservation.seats);
 
-                // check if any of the requested seats are already reserved
+                // heck if any of the requested seats are already reserved
                 const isSeatReserved = seats.some(seat => reservedSeats.includes(seat));
-
                 if (isSeatReserved) {
                     throw new Error('Some seats are already reserved');
+                }
 
+                // calculate total reserved seats
+                const totalReservedSeats = reservedSeats.length + seats.length;
+
+                // check against room capacity
+                if (totalReservedSeats > room.capacity) {
+                    throw new Error('Room is fully booked. Cannot reserve more seats.');
                 }
 
                 return true;

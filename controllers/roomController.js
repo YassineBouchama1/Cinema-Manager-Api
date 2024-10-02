@@ -51,7 +51,6 @@ exports.deleteRoom = expressAsyncHandler(async (req, res, next) => {
 
 
         //Notic : req.resource : is resource item passed from accessControl middlewar file
-
         const result = await dbOps.softDelete(RoomModel, { _id: req.resource.id });
 
         if (result?.error) {
@@ -104,6 +103,7 @@ exports.viewRooms = expressAsyncHandler(async (req, res, next) => {
 exports.viewRoom = expressAsyncHandler(async (req, res, next) => {
 
     try {
+
 
         //Notic : req.resource : is resource item passed from accessControl middlewar file
 

@@ -26,12 +26,12 @@ dotenv.config({ path: '.env' });
 
 // @desc Resize Image That user input
 exports.resizeImage = expressAsyncHandler(async (req, res, next) => {
-    const fileName = `${req.user.cinemaId}-${Date.now()} - ${Math.round(Math.random() * 1E9)}.png`;
+    const fileName = `${req.user.cinemaId}-${Date.now()}-${Math.round(Math.random() * 1E9)}.png`;
 
     if (req.file) {
         await sharp(req.file.buffer)
             .toFile(`uploads/movies/${fileName}`);
-        req.body.image = `uploads/movies/${fileName}`;  // storage path
+        req.body.image = `/movies/${fileName}`;  // storage path
     }
 
     next();
@@ -129,9 +129,6 @@ exports.viewMovie = expressAsyncHandler(async (req, res, next) => {
 exports.updateMovie = expressAsyncHandler(async (req, res, next) => {
     try {
 
-
-
-
         const updateData = { ...req.body };
 
 
@@ -158,6 +155,9 @@ exports.updateMovie = expressAsyncHandler(async (req, res, next) => {
         return next(new ApiError(`Error Updating Movie: ${error.message}`, 500));
     }
 });
+
+
+
 
 // @desc    Get all public movies
 // @route   GET /api/v1/movie/public

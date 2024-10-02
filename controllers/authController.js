@@ -11,6 +11,8 @@ const dotenv = require('dotenv');
 const { config } = require('../config');
 const CinemaModel = require('../models/cinemaModel');
 const { createToken } = require('../utils/createToken');
+
+
 dotenv.config({ path: '.env' });
 
 

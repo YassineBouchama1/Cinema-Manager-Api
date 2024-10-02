@@ -80,11 +80,27 @@ exports.updateReservation = expressAsyncHandler(async (req, res, next) => {
 
 
     // req.resource is reservation item / watch accessControl file
-    let reservation = req.resource;
+    let { id } = req.params;
+
+
 
 
 
     try {
+
+        // fetch reservation with id 
+        const reservationResult = await dbOps.findOne(ReservationModel, { _id: id });
+
+
+
+        if (reservationResult?.error | !reservationResult.data) {
+            return next(new ApiError(`reservation not found : ${reservationResult.error}`, 500));
+        }
+
+
+        let reservation = reservationResult.data
+
+
         // Update the reservation status
         const reservationUpdated = await dbOps.update(
             ReservationModel,
