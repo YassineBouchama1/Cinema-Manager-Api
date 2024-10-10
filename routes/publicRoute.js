@@ -1,20 +1,18 @@
 const express = require('express');
 
-const { viewMoviesPublic, viewMoviePublic } = require('../controllers/movieController');
+const { showTimesBelongMovie, viewShowTimesPublic } = require('../controllers/showtimeController');
 
 const router = express.Router();
 
 
-//@desc : routs un auth users 
-
 
 
 //@Path  : Public/movie
-router.route('/movie')
-    .get(viewMoviesPublic);
+router.route('/showtime')
+    .get(viewShowTimesPublic);
 
-router.route('/movie/:id')
-    .get(viewMoviePublic);
+router.route('/showtime/:id')
+    .get(showTimesBelongMovie);
 
 
 

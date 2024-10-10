@@ -1,10 +1,9 @@
 const express = require('express');
 const { protect, allowedTo } = require('../middlewares/guard');
-const { createMovie, deleteMovie, viewMovies, viewMovie, updateMovie, viewMoviesPublic, uploaderSupabase, viewMoviePublic, imageUploaderMovie, resizeImage } = require('../controllers/movieController');
+const { createMovie, deleteMovie, viewMovies, viewMovie, updateMovie, viewMoviePublic, imageUploaderMovie, resizeImage, viewMovieAdmin } = require('../controllers/movieController');
 const { createMovieValidator, movieByIdValidator } = require('../validators/movieValidator');
 const checkUserAccessToResource = require('../middlewares/accessControl');
 const movieModel = require('../models/movieModel');
-const upload = require('../middlewares/uploadimg');
 
 const router = express.Router();
 
@@ -16,16 +15,15 @@ const router = express.Router();
 // @access  : Private : Admin
 router.route('/')
     .post(protect, imageUploaderMovie, resizeImage, allowedTo('admin', 'super'), createMovie)
-    .get(protect, allowedTo('admin', 'super'), viewMovies);
+    .get(viewMovies);
 
 router.route('/:id')
     .delete(protect, allowedTo('admin', 'super'), movieByIdValidator, checkUserAccessToResource(movieModel), deleteMovie)
-    .get(protect, allowedTo('admin', 'super'), movieByIdValidator, checkUserAccessToResource(movieModel), viewMovie)
+    .get(protect, allowedTo('admin', 'super'), movieByIdValidator, checkUserAccessToResource(movieModel), viewMovieAdmin)
     .put(protect, allowedTo('admin', 'super'), movieByIdValidator, imageUploaderMovie, resizeImage, checkUserAccessToResource(movieModel), updateMovie);
 
 
 
-router.route('/public/:id')
-    .get(viewMoviePublic);
+
 
 module.exports = router;

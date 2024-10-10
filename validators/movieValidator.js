@@ -14,9 +14,9 @@ exports.createMovieValidator = [
         .isLength({ min: 1 })
         .withMessage('Duration is too short'),
 
-    check('category')
+    check('genre')
         .notEmpty()
-        .withMessage('Category is required')
+        .withMessage('genre is required')
         .isIn(['action', 'comedy', 'drama', 'horror', 'romance', 'thriller', 'animation'])
         .withMessage('Invalid category'),
 

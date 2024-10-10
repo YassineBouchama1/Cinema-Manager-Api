@@ -148,13 +148,13 @@ exports.deleteShowTime = expressAsyncHandler(async (req, res, next) => {
 });
 
 
-// @desc    get all showtimes for a cinema
+// @desc    get all showtimes 
 // @route   GET /api/v1/showtime
-// @access  Private
+// @access  Private - admin
 exports.viewShowTimes = expressAsyncHandler(async (req, res, next) => {
 
     try {
-        const result = await dbOps.select(ShowTimeModel, { cinemaId });
+        const result = await dbOps.select(ShowTimeModel);
 
         if (result?.error) {
             return next(new ApiError(`Error Fetching Showtimes: ${result.error}`, 500));
@@ -213,5 +213,141 @@ exports.viewShowTimeWithReservations = expressAsyncHandler(async (req, res, next
 
     } catch (error) {
         return next(new ApiError(`Error Fetching Showtime: ${error.message}`, 500));
+    }
+});
+
+
+
+
+// @desc    Get all  movies that has showtimes  
+// @route   GET /api/v1/public/showTimes
+// @access  Public
+exports.viewShowTimesPublic = expressAsyncHandler(async (req, res, next) => {
+    const { search, genre, date, price } = req.query;
+
+    const conditions = {};
+
+    // Filter by movie name if provided
+    if (search) {
+        conditions.name = { $regex: search, $options: 'i' };
+    }
+
+    // Find all showtimes based on additional filters
+    const showtimeConditions = {};
+
+    // Get current date and time
+    const now = new Date();
+    const tenMinutesLater = new Date(now.getTime() - 10 * 60 * 1000); // 10 minutes later
+    showtimeConditions.startAt = { $gte: tenMinutesLater }; // only future showtimes
+
+    // filter by category if provided
+    if (genre) {
+        showtimeConditions.movieId = showtimeConditions.movieId || {};
+        showtimeConditions.movieId.genre = genre;
+    }
+
+    // filter by date if provided
+    if (date) {
+        const selectedDate = new Date(date);
+        const startOfDay = new Date(selectedDate.setHours(0, 0, 0, 0));
+        const endOfDay = new Date(selectedDate.setHours(23, 59, 59, 999));
+
+        showtimeConditions.startAt.$gte = startOfDay;
+        showtimeConditions.startAt.$lte = endOfDay;
+    }
+
+
+    // Filter by price if provided
+    if (price) {
+        showtimeConditions.price = { $lte: price };
+    }
+
+
+
+
+    try {
+
+
+        // rtrieve showtimes based on the defined conditions
+        const showtimeResults = await dbOps.select(ShowTimeModel, showtimeConditions);
+
+        if (showtimeResults?.error) {
+            return next(new ApiError(`Error Fetching Showtimes: ${showtimeResults.error}`, 500));
+        }
+
+        // extract unique movie IDs from the showtimes
+        const movieIds = showtimeResults.data.map(showtime => showtime.movieId);
+        const uniqueMovieIds = [...new Set(movieIds)]; // Remove duplicates
+
+        // find movies that match the unique movie IDs
+        if (uniqueMovieIds.length > 0) {
+            conditions._id = { $in: uniqueMovieIds }; // Filter movies based on showtime IDs
+        } else {
+            return res.status(200).json({ data: [] }); // No movies with showtimes
+        }
+
+        // Fetch movies based on the conditions
+        const result = await dbOps.select(MovieModel, conditions);
+
+        if (result?.error) {
+            return next(new ApiError(`Error Fetching Movies: ${result.error}`, 500));
+        }
+
+        res.status(200).json({ data: result.data });
+    } catch (error) {
+        return next(new ApiError(`Error Fetching Movies: ${error.message}`, 500));
+    }
+});
+
+
+
+// @desc    get showtimes belong movie
+// @route   GET /api/v1/public/movie/:id
+// @access  Public
+exports.showTimesBelongMovie = expressAsyncHandler(async (req, res, next) => {
+    const { id } = req.params;
+    try {
+
+        const result = await dbOps.findOne(MovieModel, { _id: id });
+
+        if (!result || !result.data) {
+            return next(new ApiError(`No movie found with this ID`, 404));
+        }
+
+        // define populate options for roomId
+        const populateOptions = [
+            { path: 'roomId', select: 'name capacity seatsPerRow' }
+        ];
+
+        // fetch showtimes for this movie
+        const showtimes = await dbOps.select(ShowTimeModel, { movieId: id }, populateOptions);
+
+        if (!showtimes) {
+            return next(new ApiError(`No showtimes found for this movie`, 404));
+        }
+
+        // create an array to hold the showtimes with reserved seats [1j]
+        const showtimesWithReservedSeats = await Promise.all(
+            showtimes.data.map(async (showtime) => {
+
+
+                // getch reservations for each showtime only  active reservations
+                const reservations = await dbOps.select(ReservationModel, { showTimeId: showtime._id, status: 'active' });
+
+                // collec all reserved seats for the current showtime
+                const reservedSeats = reservations.data.flatMap(reservation => reservation.seats);
+
+
+                // return the showtime with reserved seats
+                return {
+                    ...showtime._doc, // bring only data showtime
+                    reservedSeats // add setas reserved belong eahc showtime
+                };
+            })
+        );
+
+        res.status(200).json({ data: result.data, showTimes: showtimesWithReservedSeats });
+    } catch (error) {
+        return next(new ApiError(`Error Fetching Movie: ${error.message}`, 500));
     }
 });
