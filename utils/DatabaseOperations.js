@@ -99,6 +99,16 @@ class DatabaseOperations {
     }
 
 
+
+
+
+
+
+
+
+
+
+
     async insert(model, data) {
         try {
             const newDoc = new model(data);

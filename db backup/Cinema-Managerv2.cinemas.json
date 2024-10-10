@@ -1,0 +1,14 @@
+[{
+  "_id": {
+    "$oid": "6701a092a58246608534d8a4"
+  },
+  "name": "el farah",
+  "isDeleted": false,
+  "createdAt": {
+    "$date": "2024-10-05T20:24:50.154Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-05T20:24:50.154Z"
+  },
+  "__v": 0
+}]

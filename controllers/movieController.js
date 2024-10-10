@@ -123,6 +123,8 @@ exports.viewMovie = expressAsyncHandler(async (req, res, next) => {
     }
 });
 
+
+
 // @desc    Update a movie
 // @route   PUT /api/v1/movie/:id
 // @access  Private
@@ -163,13 +165,13 @@ exports.updateMovie = expressAsyncHandler(async (req, res, next) => {
 // @route   GET /api/v1/movie/public
 // @access  Public
 exports.viewMoviesPublic = expressAsyncHandler(async (req, res, next) => {
-    const { movieName, cat, date, price, cinemaId } = req.query;
+    const { search, genre, date, price, cinemaId } = req.query;
 
     const conditions = {};
 
     // Filter by movie name if provided
-    if (movieName) {
-        conditions.name = { $regex: movieName, $options: 'i' };
+    if (search) {
+        conditions.name = { $regex: search, $options: 'i' };
     }
 
     // Find all showtimes based on additional filters
@@ -181,9 +183,9 @@ exports.viewMoviesPublic = expressAsyncHandler(async (req, res, next) => {
     showtimeConditions.startAt = { $gte: tenMinutesLater }; // only future showtimes
 
     // filter by category if provided
-    if (cat) {
+    if (genre) {
         showtimeConditions.movieId = showtimeConditions.movieId || {};
-        showtimeConditions.movieId.category = cat;
+        showtimeConditions.movieId.category = genre;
     }
 
     // filter by date if provided
@@ -275,8 +277,8 @@ exports.viewMoviePublic = expressAsyncHandler(async (req, res, next) => {
             showtimes.data.map(async (showtime) => {
 
 
-                // getch reservations for each showtime
-                const reservations = await dbOps.select(ReservationModel, { showTimeId: showtime._id });
+                // getch reservations for each showtime only  active reservations
+                const reservations = await dbOps.select(ReservationModel, { showTimeId: showtime._id, status: 'active' });
 
                 // collec all reserved seats for the current showtime
                 const reservedSeats = reservations.data.flatMap(reservation => reservation.seats);

@@ -1,0 +1,21 @@
+[{
+  "_id": {
+    "$oid": "6701a092a58246608534d8a6"
+  },
+  "name": "yassine admin",
+  "email": "hello@yassine.info",
+  "password": "$2a$10$8jYQejptheVQzM.Eyve43OojxDwNERx83iEwxwyWsQzYKeVdjsARi",
+  "role": "admin",
+  "isActive": true,
+  "cinemaId": {
+    "$oid": "6701a092a58246608534d8a4"
+  },
+  "isDeleted": false,
+  "createdAt": {
+    "$date": "2024-10-05T20:24:50.230Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-05T20:24:50.230Z"
+  },
+  "__v": 0
+}]

@@ -150,12 +150,46 @@ exports.deleteReservation = expressAsyncHandler(async (req, res, next) => {
 exports.viewUserReservations = expressAsyncHandler(async (req, res, next) => {
     const { id: userId } = req.user;
 
-    const result = await dbOps.select(ReservationModel, { userId });
+
+
+    const populateOptions = [
+        {
+            path: 'showTimeId',
+            populate: [
+                { path: 'movieId', select: 'name duration category image' },
+                { path: 'roomId', select: 'name' }
+            ]
+        }
+    ];
+
+    const result = await dbOps.select(ReservationModel, { userId }, populateOptions);
     if (result?.error) {
         return next(new ApiError(`Error Fetching Reservations: ${result.error}`, 500));
     }
 
-    res.status(200).json({ data: result.data });
+    // transform the data to include only necessary fields
+    const transformedData = result.data.map(reservation => ({
+        reservationId: reservation._id,
+        showTime: {
+            startAt: reservation.showTimeId.startAt,
+            endAt: reservation.showTimeId.endAt,
+            price: reservation.showTimeId.price,
+            movie: {
+                name: reservation.showTimeId.movieId.name,
+                duration: reservation.showTimeId.movieId.duration,
+                category: reservation.showTimeId.movieId.category,
+                image: reservation.showTimeId.movieId.image
+            },
+            room: {
+                name: reservation.showTimeId.roomId.name
+            }
+        },
+        seats: reservation.seats,
+        totalPrice: reservation.totalPrice,
+        status: reservation.status
+    }));
+
+    res.status(200).json({ data: transformedData });
 });
 
 
@@ -163,7 +197,7 @@ exports.viewUserReservations = expressAsyncHandler(async (req, res, next) => {
 
 // @desc    Get all reservations belong cinema
 // @route   GET /api/v1/reservation
-// @access  Private : user
+// @access  Private : admin
 exports.viewAdminReservations = expressAsyncHandler(async (req, res, next) => {
     const { cinemaId } = req.user;
 
@@ -192,7 +226,7 @@ exports.viewReservation = expressAsyncHandler(async (req, res, next) => {
     const populateOptions = {
         path: 'showTimeId',
         populate: [
-            { path: 'movieId', select: 'name duration category' },
+            { path: 'movieId', select: 'name duration category image' },
             { path: 'roomId', select: 'name capacity' }
         ]
     };

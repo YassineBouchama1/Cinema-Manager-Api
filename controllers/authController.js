@@ -121,6 +121,7 @@ exports.login = expressAsyncHandler(async (req, res, next) => {
 
 
 
+
 // @desc    chnage password
 // @route   PUT /api/v1/auth/reset
 // @access  public
@@ -170,6 +171,7 @@ exports.resetPassword = expressAsyncHandler(async (req, res, next) => {
 
 
 
+
 // @desc    Forget password
 // @route   PUT /api/v1/auth/forget
 // @access  public
@@ -197,7 +199,7 @@ exports.forgetPassword = expressAsyncHandler(async (req, res, next) => {
         // expired in 1 hours
         const token = await createToken({ userId: user.id }, '1h');
 
-        const url = `${config.host}/api/v1/auth/reset?forget=${token}`
+        const url = `${config.frontUrl}?tokenPass=${token}`
 
 
         const html = await forgetPasswordTemplate(url, user.name)

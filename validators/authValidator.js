@@ -21,6 +21,7 @@ exports.createAuthValidator = [
         .isEmail()
         .withMessage('Invalid email address')
         .custom((val) =>
+            
             // check if user exist if not return error
             User.findOne({ email: val }).then((user) => {
                 if (user) {
