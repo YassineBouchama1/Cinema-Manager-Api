@@ -34,11 +34,6 @@ const userSchema = mongoose.Schema({
         default: true
 
     },
-    cinemaId: {
-        type: mongoose.Schema.ObjectId,
-        ref: 'cinema',
-        default: null
-    },
     isDeleted: {
         type: Boolean,
         default: false

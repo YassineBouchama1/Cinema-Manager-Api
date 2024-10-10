@@ -23,12 +23,7 @@ const roomSchema = mongoose.Schema({
         type: String,
         required: [true, 'type room is required'],
     },
-    cinemaId: {
-        type: mongoose.Schema.ObjectId,
-        ref: 'cinema',
-        required: [true, 'cinema id is required'],
 
-    },
     isDeleted: {
         type: Boolean,
         default: false

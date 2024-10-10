@@ -17,11 +17,6 @@ const movieSchema = mongoose.Schema({
         required: [true, 'Movie duration is required'],
         minlength: [1, 'Movie duration is too short']
     },
-    cinemaId: {
-        type: mongoose.Schema.ObjectId,
-        ref: 'cinema',
-        required: [true, 'cinema id is required'],
-    },
     category: {
         type: String,
         enum: ['action', 'comedy', 'drama', 'horror', 'romance', 'thriller', 'animation'],

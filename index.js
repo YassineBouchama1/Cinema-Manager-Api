@@ -7,7 +7,6 @@ const path = require('path');
 const authRoute = require('./routes/authRoute');
 const adminRoute = require('./routes/adminRoute');
 const roomRoute = require('./routes/roomRoute');
-const cinemaRoute = require('./routes/cinemaRoute');
 const userRoute = require('./routes/userRoute');
 const movieRoute = require('./routes/movieRoute');
 const showtimeRoute = require('./routes/showtimeRoute');
@@ -44,7 +43,6 @@ app.get('/', (req, res) => {
 app.use('/api/v1/auth', authRoute);
 app.use('/api/v1/admin', adminRoute);
 app.use('/api/v1/room', roomRoute);
-app.use('/api/v1/cinema', cinemaRoute);
 app.use('/api/v1/user', userRoute);
 app.use('/api/v1/movie', movieRoute);
 app.use('/api/v1/showtime', showtimeRoute);

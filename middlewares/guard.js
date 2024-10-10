@@ -54,7 +54,7 @@ exports.protect = expressAsyncHandler(async (req, res, next) => {
 
     //2) decoded Token 
     // token wont split
-    const decoded = jwt.verify(token, 'helodjbj')
+    const decoded = jwt.verify(token, JWT_SECRET)
 
 
 

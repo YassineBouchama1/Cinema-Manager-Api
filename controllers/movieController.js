@@ -52,11 +52,10 @@ exports.imageUploaderMovie = uploadSingleImage('image');
 // @route   POST /api/v1/movie
 // @access  Private
 exports.createMovie = expressAsyncHandler(async (req, res, next) => {
-    const { cinemaId } = req.user;
 
 
     try {
-        const result = await dbOps.insert(MovieModel, { ...req.body, cinemaId })
+        const result = await dbOps.insert(MovieModel, req.body)
 
 
 
@@ -93,14 +92,14 @@ exports.deleteMovie = expressAsyncHandler(async (req, res, next) => {
     }
 });
 
-// @desc    Get all movies for a cinema
+// @desc    Get all movies 
 // @route   GET /api/v1/movie
 // @access  Private
 exports.viewMovies = expressAsyncHandler(async (req, res, next) => {
     const { cinemaId } = req.user;
 
     try {
-        const result = await dbOps.select(MovieModel, { cinemaId });
+        const result = await dbOps.select(MovieModel);
 
         if (result?.error) {
             return next(new ApiError(`Error Fetching Movies: ${result.error}`, 500));

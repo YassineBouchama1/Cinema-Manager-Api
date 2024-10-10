@@ -9,7 +9,6 @@ const sendEmail = require('../utils/email/sendEmail');
 const { forgetPasswordTemplate } = require('../utils/email/templates/forgetPasswordTemplate');
 const dotenv = require('dotenv');
 const { config } = require('../config');
-const CinemaModel = require('../models/cinemaModel');
 const { createToken } = require('../utils/createToken');
 
 
@@ -25,7 +24,7 @@ dotenv.config({ path: '.env' });
 // @route   PUT /api/v1/auth/register
 // @access  public
 exports.register = expressAsyncHandler(async (req, res, next) => {
-    const { name, email, password, role, cinemaName } = req.body;
+    const { name, email, password } = req.body;
 
     try {
         const salt = await bcrypt.genSalt(10);
@@ -35,35 +34,16 @@ exports.register = expressAsyncHandler(async (req, res, next) => {
             name,
             email,
             password: hashedPassword,
-            role
+            role: 'user'
         };
 
-        // if wany register as admin and not passed cinema name return error
-        if (role === 'admin') {
-            if (!cinemaName) {
-                return next(new ApiError('Cinema name is required for admin registration', 400));
-            }
 
-            //1. create cinema 
-            const cinemaData = { name: cinemaName };
-            const cinemaResult = await dbOps.insert(CinemaModel, cinemaData);
-
-            if (cinemaResult?.error) {
-                return next(new ApiError(`Error Creating Cinema: ${cinemaResult.error}`, 500));
-            }
-
-            //2. ddd cinemaId to userData
-            userData.cinemaId = cinemaResult.data._id;
-        }
-
-        //3. create user account
+        //2. create user account
         const userResult = await dbOps.insert(UserModel, userData);
 
         if (userResult?.error) {
-            // if there was a error creating the user and we created a cinem we should delete it
-            if (role === 'admin' && userData.cinemaId) {
-                await dbOps.deleteOne(CinemaModel, { _id: userData.cinemaId });
-            }
+
+
             return next(new ApiError(`Error Creating Account: ${userResult.error}`, 500));
         }
 
@@ -107,7 +87,7 @@ exports.login = expressAsyncHandler(async (req, res, next) => {
         }
 
         // 4. create token
-        const token = await createToken({ userId: user.id });
+        const token = createToken({ userId: user.id });
 
         res.status(200).json({ data: user, token });
     } catch (error) {

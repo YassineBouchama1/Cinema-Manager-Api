@@ -15,7 +15,6 @@ const ReservationModel = require('../models/reservationModel');
 //@TODO : add validation if room avaible in that time
 exports.createShowTime = expressAsyncHandler(async (req, res, next) => {
     const { price, movieId, roomId, startAt } = req.body;
-    const { cinemaId } = req.user;
 
 
     // get movie
@@ -28,23 +27,11 @@ exports.createShowTime = expressAsyncHandler(async (req, res, next) => {
 
     const movie = movieResult.data;
 
-    // ceck if this movie belong to the same cinema
-    if (movie.cinemaId.toString() !== cinemaId.toString()) {
-        return next(new ApiError("The movie doesnt belong to your cinema", 403));
-    }
 
     // fet room
     const roomResult = await dbOps.findOne(RoomModel, { _id: roomId });
     if (!roomResult || !roomResult.data) {
         return next(new ApiError('Room not found', 404));
-    }
-
-    const room = roomResult.data;
-
-
-    // check if this room belong to the same cinema
-    if (room.cinemaId.toString() !== cinemaId.toString()) {
-        return next(new ApiError("The room doesn't belong to your cinema", 403));
     }
 
     //@TODO : add validation if room avaible in that time
@@ -78,8 +65,8 @@ exports.createShowTime = expressAsyncHandler(async (req, res, next) => {
             movieId,
             roomId,
             startAt: parsedStartAt,
-            endAt,
-            cinemaId
+            endAt
+
         });
 
         if (result?.error) {
@@ -165,7 +152,6 @@ exports.deleteShowTime = expressAsyncHandler(async (req, res, next) => {
 // @route   GET /api/v1/showtime
 // @access  Private
 exports.viewShowTimes = expressAsyncHandler(async (req, res, next) => {
-    const { cinemaId } = req.user;
 
     try {
         const result = await dbOps.select(ShowTimeModel, { cinemaId });
@@ -185,32 +171,6 @@ exports.viewShowTimes = expressAsyncHandler(async (req, res, next) => {
 
 
 
-
-// @desc    Get a single showtime by ID
-// @route   GET /api/v1/showtime/:id
-// @access  Public
-exports.viewShowTime = expressAsyncHandler(async (req, res, next) => {
-
-    const { id } = req.params
-    try {
-        const showTime = await dbOps.findOne(ShowTimeModel, { _id: id })
-            .populate([
-                { path: 'movieId', select: 'name duration category' },
-                { path: 'roomId', select: 'name capacity' }
-            ]);
-
-        if (!showTime) {
-            return next(new ApiError('Showtime not found', 404));
-        }
-
-
-
-
-        res.status(200).json({ data: showTime });
-    } catch (error) {
-        return next(new ApiError(`Error Fetching Showtime: ${error.message}`, 500));
-    }
-});
 
 
 

@@ -195,15 +195,14 @@ exports.viewUserReservations = expressAsyncHandler(async (req, res, next) => {
 
 
 
-// @desc    Get all reservations belong cinema
+// @desc    Get all reservations 
 // @route   GET /api/v1/reservation
 // @access  Private : admin
 exports.viewAdminReservations = expressAsyncHandler(async (req, res, next) => {
-    const { cinemaId } = req.user;
 
 
     // bring all reservations belong this cinema
-    const result = await dbOps.select(ReservationModel, { cinemaId });
+    const result = await dbOps.select(ReservationModel);
     if (result?.error) {
         return next(new ApiError(`Error Fetching Reservations: ${result.error}`, 500));
     }
