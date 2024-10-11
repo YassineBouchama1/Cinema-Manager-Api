@@ -15,7 +15,8 @@ const reservationRoute = require('./routes/reservationRoute');
 const ApiError = require('./utils/ApiError');
 const request = require("supertest")
 const PORT = process.env.PORT || 4000;
-const cors = require('cors')
+const cors = require('cors');
+const minioClient = require('./config/minioClient');
 
 dotenv.config({ path: '.env' });
 
@@ -30,6 +31,21 @@ app.use(express.static(path.join(__dirname, 'uploads')))
 dbConect(); //  comment it if yu stat testing
 
 
+
+// check of 'cinema' bucket exists
+minioClient.bucketExists('cinema', (err, exists) => {
+    if (err) {
+        return console.log(err); // debuggings errfos
+    }
+    if (!exists) {
+        minioClient.makeBucket('cinema', 'us-east-1', (err) => {
+            if (err) return console.log('Error creating bucket.', err);
+            console.log('Bucket created successfully.');
+        });
+    }
+    console.log('bucket already created')
+
+});
 
 
 app.get('/', (req, res) => {
@@ -59,6 +75,8 @@ app.all('*', (req, res, next) => {
 
 // Global error handler
 app.use(globalError);
+
+
 
 
 

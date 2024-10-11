@@ -1,6 +1,7 @@
 const express = require('express');
 
 const { showTimesBelongMovie, viewShowTimesPublic } = require('../controllers/showtimeController');
+const { getOneMoviePublic, viewMovies } = require('../controllers/movieController');
 
 const router = express.Router();
 
@@ -13,6 +14,17 @@ router.route('/showtime')
 
 router.route('/showtime/:id')
     .get(showTimesBelongMovie);
+
+
+
+router.route('/movie/:id')
+    .get(getOneMoviePublic)
+
+
+router.route('/movie')
+    .get(viewMovies)
+
+
 
 
 

@@ -110,3 +110,34 @@ exports.allowedTo = (...roles) =>
   });
 
 
+
+
+
+
+// middleware to check authentication
+// const checkAuth = async (req, res, next) => {
+//   let token;
+
+//   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+//     token = req.headers.authorization.split(' ')[1];
+//   }
+
+//   if (!token) {
+//     req.user = null;
+//     return next();
+//   }
+
+//   try {
+//     const decoded = jwt.verify(token, JWT_SECRET);
+//     const userResult = await dbOps.findOne(UserModel, { _id: decoded.userId });
+
+//     if (userResult?.error || !userResult.data) {
+//       req.user = null;
+//     } else {
+//       req.user = userResult.data;
+//     }
+//   } catch (err) {
+//     req.user = null;
+//   }
+//   next();
+// };

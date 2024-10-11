@@ -7,9 +7,9 @@ const dbOps = require('../utils/DatabaseOperations');
 const sharp = require('sharp');
 
 const dotenv = require('dotenv');
-const { uploadSingleImage } = require('../middlewares/uploadimg');
-const ShowTimeModel = require('../models/showTimeModel');
-const ReservationModel = require('../models/reservationModel');
+
+const minioClient = require('../config/minioClient');
+const { generateVideoPresignedUrl } = require('../utils/minioUtils');
 dotenv.config({ path: '.env' });
 
 
@@ -20,30 +20,38 @@ dotenv.config({ path: '.env' });
 
 
 
-dotenv.config({ path: '.env' });
 
 
+// @desc    Upload media to storage 
+// @route   
+// @access  Private
+exports.uploadMedia = expressAsyncHandler(async (req, res, next) => {
+    const timestamp = Date.now();
+    const randomId = Math.round(Math.random() * 1E9);
 
-// @desc Resize Image That user input
-exports.resizeImage = expressAsyncHandler(async (req, res, next) => {
-    const fileName = `${req.user.cinemaId}-${Date.now()}-${Math.round(Math.random() * 1E9)}.png`;
+    // handle image upload
+    if (req.files.image) {
+        const imageFile = req.files.image[0];
+        const imageFileName = `movies/images/${req.body.name}-${timestamp}-${randomId}.png`;
 
-    if (req.file) {
-        await sharp(req.file.buffer)
-            .toFile(`uploads/movies/${fileName}`);
-        req.body.image = `/movies/${fileName}`;  // storage path
+        // resize and upload image
+        const imageBuffer = await sharp(imageFile.buffer).toBuffer();
+        await minioClient.putObject('cinema', imageFileName, imageBuffer);
+        req.body.image = `/cinema/${imageFileName}`;
+    }
+
+    // handle video upload if provided
+    if (req.files.video) {
+        const videoFile = req.files.video[0];
+        const videoFileName = `movies/videos/${req.body.name}-${timestamp}-${randomId}.mp4`;
+
+        // upload video
+        await minioClient.putObject('cinema', videoFileName, videoFile.buffer);
+        req.body.video = `/cinema/${videoFileName}`;
     }
 
     next();
 });
-
-
-
-
-
-
-//@Desc MiddleWare using multer to upload image to server
-exports.imageUploaderMovie = uploadSingleImage('image');
 
 
 
@@ -73,6 +81,87 @@ exports.createMovie = expressAsyncHandler(async (req, res, next) => {
 
 
 
+// @desc    Get a single movie by ID
+// @route   GET /api/v1/movie/:id
+// @access  Private - admin
+exports.viewMovie = expressAsyncHandler(async (req, res, next) => {
+    const { id } = req.params;
+
+    const movieResult = await dbOps.findOne(MovieModel, { _id: id });
+
+    if (movieResult?.error) {
+        return next(new ApiError(`Resource not found: ${movieResult.error}`, 500));
+    }
+
+    if (!movieResult.data) {
+        return next(new ApiError(`No resource found with this ID`, 404));
+    }
+
+    const movie = movieResult.data; // Fill movie with data from db
+
+
+
+    let hasStream = false
+
+    if (movie.video) {
+
+        hasStream = true
+    }
+
+
+    res.status(200).json({
+        data: {
+            ...movie.toObject(),
+            hasStream,
+
+        },
+    });
+});
+
+
+// @desc    Get a single movie by ID but if user not authed or subscribe cant watch movie
+// @route   GET /api/v1/public/movie/:id
+// @access  public 
+exports.getOneMoviePublic = expressAsyncHandler(async (req, res, next) => {
+    const { id } = req.params;
+
+    const movieResult = await dbOps.findOne(MovieModel, { _id: id });
+
+    if (movieResult?.error) {
+        return next(new ApiError(`Resource not found: ${movieResult.error}`, 500));
+    }
+
+    if (!movieResult.data) {
+        return next(new ApiError(`No resource found with this ID`, 404));
+    }
+
+    const movie = movieResult.data;
+
+
+    // Determine if the movie has a video stream
+    let hasStream = false;
+    if (movie.video) {
+        hasStream = true;
+    }
+
+
+    res.status(200).json({
+        data: {
+            id: movie._id,
+            name: movie.name,
+            duration: movie.duration,
+            image: movie.image,
+            genre: movie.genre,
+            rate: movie.rate,
+
+            hasStream,
+
+        },
+    });
+});
+
+
+
 // @desc    Delete a movie
 // @route   DELETE /api/v1/movie/:id
 // @access  Private
@@ -94,16 +183,16 @@ exports.deleteMovie = expressAsyncHandler(async (req, res, next) => {
 
 
 
-// @desc    Get a single movie by ID
-// @route   GET /api/v1/movie/:id
-// @access  Private
-exports.viewMovieAdmin = expressAsyncHandler(async (req, res, next) => {
-    try {
-        res.status(200).json({ data: req.resource });
-    } catch (error) {
-        return next(new ApiError(`Error Fetching Movie: ${error.message}`, 500));
-    }
-});
+// // @desc    Get a single movie by ID
+// // @route   GET /api/v1/movie/:id
+// // @access  Private
+// exports.viewMovieAdmin = expressAsyncHandler(async (req, res, next) => {
+//     try {
+//         res.status(200).json({ data: req.resource });
+//     } catch (error) {
+//         return next(new ApiError(`Error Fetching Movie: ${error.message}`, 500));
+//     }
+// });
 
 
 
@@ -154,7 +243,7 @@ exports.updateMovie = expressAsyncHandler(async (req, res, next) => {
 // @route   GET /api/v1/movie
 // @access  Public 
 exports.viewMovies = expressAsyncHandler(async (req, res, next) => {
-    const { search, genre, date, price } = req.query;
+    const { search, genre } = req.query;
 
     const conditions = {};
 
@@ -163,17 +252,17 @@ exports.viewMovies = expressAsyncHandler(async (req, res, next) => {
         conditions.name = { $regex: search, $options: 'i' };
     }
 
-   
+
     // filter by category if provided
     if (genre) {
-       conditions.genre = genre;
+        conditions.genre = genre;
     }
 
 
     try {
 
-
-        const result = await dbOps.select(MovieModel,conditions);
+        const fields = 'name genre image rate';
+        const result = await dbOps.select(MovieModel, conditions, null, fields);
 
         if (result?.error) {
             return next(new ApiError(`Error Fetching Movies: ${result.error}`, 500));
@@ -184,3 +273,8 @@ exports.viewMovies = expressAsyncHandler(async (req, res, next) => {
         return next(new ApiError(`Error Fetching Movies: ${error.message}`, 500));
     }
 });
+
+
+
+
+
