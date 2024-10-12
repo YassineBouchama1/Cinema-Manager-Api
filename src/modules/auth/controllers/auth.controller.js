@@ -33,7 +33,7 @@ exports.register = expressAsyncHandler(async (req, res, next) => {
             name,
             email,
             password: hashedPassword,
-            role: 'admin'
+            role: 'user'
         };
 
 

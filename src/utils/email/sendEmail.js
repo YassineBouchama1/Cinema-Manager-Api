@@ -21,6 +21,7 @@ const sendEmail = async (options) => {
                 user: config.emailSmtp,
                 pass: config.passSmtp,
             },
+            family: 4 // Use IPv4
         });
 
 

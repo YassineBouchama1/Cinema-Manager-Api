@@ -1,11 +1,12 @@
 const expressAsyncHandler = require('express-async-handler');
-const ReservationModel = require('../models/reservationModel');
-const ShowTimeModel = require('../models/showTimeModel');
-const ApiError = require('../utils/ApiError');
-const dbOps = require('../utils/DatabaseOperations');
-const sendEmail = require('../utils/email/sendEmail');
-const { confirmationTemplate } = require('../utils/email/templates/confirmationTemplate');
-const { logEmailError } = require('../utils/logger');
+
+const ApiError = require('../../../utils/ApiError');
+const dbOps = require('../../../utils/DatabaseOperations');
+const sendEmail = require('../../../utils/email/sendEmail');
+const { confirmationTemplate } = require('../../../utils/email/templates/confirmationTemplate');
+const { logEmailError } = require('../../../utils/logger');
+const ShowTime = require('../../showtimes/models/showtime.model');
+const Reservation = require('../models/reservation.model');
 
 
 // @desc    Create a new reservation
@@ -22,7 +23,7 @@ exports.createReservation = expressAsyncHandler(async (req, res, next) => {
 
 
     // check if showtime exists
-    const showTimeResult = await dbOps.findOne(ShowTimeModel, { _id: showTimeId });
+    const showTimeResult = await dbOps.findOne(ShowTime, { _id: showTimeId });
 
     if (!showTimeResult || !showTimeResult.data) {
         return next(new ApiError('Showtime not found', 404));
@@ -40,7 +41,7 @@ exports.createReservation = expressAsyncHandler(async (req, res, next) => {
 
     try {
 
-        const result = await dbOps.insert(ReservationModel, reservationData);
+        const result = await dbOps.insert(Reservation, reservationData);
 
         if (result?.error) {
             return next(new ApiError(`Error Creating Reservation: ${result.error}`, 500));
@@ -51,19 +52,20 @@ exports.createReservation = expressAsyncHandler(async (req, res, next) => {
 
 
         // send email confirmation
-        const isEmailSent = await sendEmail({ email, html, subject: 'Confirmation Reservation' })
+        // const isEmailSent = await sendEmail({ email, html, subject: 'Confirmation Reservation' })
 
 
-        // chekc if email sent
-        if (!isEmailSent.success) {
-            // if there is error sening email 
-            //TODO:remve previews reservation or add thsi to mq
 
-            // Log email error using the utility
-            logEmailError({ userId, email, name, error: isEmailSent.error, category: 'Confirmaton Resrvation' });
+        // // chekc if email sent
+        // if (!isEmailSent.success) {
+        //     // if there is error sening email 
+        //     //TODO:remve previews reservation or add thsi to mq
 
-            return next(new ApiError(`Error sending email Confirmation`, 500));
-        }
+        //     // Log email error using the utility
+        //     logEmailError({ userId, email, name, error: isEmailSent.error, category: 'Confirmaton Resrvation' });
+
+        //     return next(new ApiError(`Error sending email Confirmation`, 500));
+        // }
 
         res.status(201).json({ data: result.data, message: 'Reservation created successfully' });
     } catch (error) {
@@ -89,7 +91,7 @@ exports.updateReservation = expressAsyncHandler(async (req, res, next) => {
     try {
 
         // fetch reservation with id 
-        const reservationResult = await dbOps.findOne(ReservationModel, { _id: id });
+        const reservationResult = await dbOps.findOne(Reservation, { _id: id });
 
 
 
@@ -103,7 +105,7 @@ exports.updateReservation = expressAsyncHandler(async (req, res, next) => {
 
         // Update the reservation status
         const reservationUpdated = await dbOps.update(
-            ReservationModel,
+            Reservation,
             { _id: reservation.id }, // resource comes from middleware accessControl.js
             { status: reservation.status === 'active' ? 'cancel' : reservation.status }, // update only the status
             { new: true }
@@ -134,7 +136,7 @@ exports.deleteReservation = expressAsyncHandler(async (req, res, next) => {
     //req.resource is reservation item / watch accessControl file
     let reservation = req.resource
 
-    const result = await dbOps.softDelete(ReservationModel, { _id: reservation.id });
+    const result = await dbOps.softDelete(Reservation, { _id: reservation.id });
 
     if (result?.error) {
         return next(new ApiError(`Error Deleting Reservation: ${result.error}`, 500));
@@ -162,7 +164,7 @@ exports.viewUserReservations = expressAsyncHandler(async (req, res, next) => {
         }
     ];
 
-    const result = await dbOps.select(ReservationModel, { userId }, populateOptions);
+    const result = await dbOps.select(Reservation, { userId }, populateOptions);
     if (result?.error) {
         return next(new ApiError(`Error Fetching Reservations: ${result.error}`, 500));
     }
@@ -202,7 +204,7 @@ exports.viewAdminReservations = expressAsyncHandler(async (req, res, next) => {
 
 
     // bring all reservations belong this cinema
-    const result = await dbOps.select(ReservationModel);
+    const result = await dbOps.select(Reservation);
     if (result?.error) {
         return next(new ApiError(`Error Fetching Reservations: ${result.error}`, 500));
     }
@@ -232,7 +234,7 @@ exports.viewReservation = expressAsyncHandler(async (req, res, next) => {
 
 
     try {
-        const reservation = await dbOps.findOne(ReservationModel, { _id: id }, populateOptions)
+        const reservation = await dbOps.findOne(Reservation, { _id: id }, populateOptions)
 
 
         if (!reservation || !reservation.data) {

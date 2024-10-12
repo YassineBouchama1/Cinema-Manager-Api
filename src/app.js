@@ -8,6 +8,7 @@ const authRoute = require('./modules/auth/routes/auth.routes');
 const movieRoute = require('./modules/movies/routes/movie.routes');
 const roomRoute = require('./modules/rooms/routes/room.routes');
 const showtimeRoute = require('./modules/showtimes/routes/showtime.routes');
+const reservationRoute = require('./modules/reservations/routes/reservation.routes');
 
 const ApiError = require('./utils/ApiError');
 
@@ -46,10 +47,10 @@ app.use('/api/v1/auth', authRoute);
 app.use('/api/v1/movie', movieRoute);
 app.use('/api/v1/room', roomRoute);
 app.use('/api/v1/showtime', showtimeRoute);
+app.use('/api/v1/reservation', reservationRoute);
 // app.use('/api/v1/admin', adminRoute);
 // app.use('/api/v1/user', userRoute);
 // app.use('/api/v1/public', publicRoute);
-// app.use('/api/v1/reservation', reservationRoute);
 
 // Handle 404 errors
 app.all('*', (req, res, next) => {
