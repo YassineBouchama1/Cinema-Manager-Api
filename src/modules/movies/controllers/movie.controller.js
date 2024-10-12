@@ -1,15 +1,16 @@
 const expressAsyncHandler = require('express-async-handler');
-const MovieModel = require('../models/movieModel');
-const ApiError = require('../utils/ApiError');
-const dbOps = require('../utils/DatabaseOperations');
 
+
+const ApiError = require('../../../utils/ApiError');
+const dbOps = require('../../../utils/DatabaseOperations');
+
+const dotenv = require('dotenv')
 
 const sharp = require('sharp');
 
-const dotenv = require('dotenv');
 
-const minioClient = require('../config/minioClient.config');
-const { generateVideoPresignedUrl } = require('../utils/minioUtils');
+const minioClient = require('../../../config/minioClient.config');
+const Movie = require('../models/movie.model');
 dotenv.config({ path: '../env' });
 
 
@@ -26,29 +27,32 @@ dotenv.config({ path: '../env' });
 // @route   
 // @access  Private
 exports.uploadMedia = expressAsyncHandler(async (req, res, next) => {
-    const timestamp = Date.now();
-    const randomId = Math.round(Math.random() * 1E9);
+    // const timestamp = Date.now();
+    // const randomId = Math.round(Math.random() * 1E9);
 
-    // handle image upload
-    if (req.files.image) {
-        const imageFile = req.files.image[0];
-        const imageFileName = `movies/images/${req.body.name}-${timestamp}-${randomId}.png`;
+    // // handle image upload
+    // if (req.files.image) {
+    //     const imageFile = req.files.image[0];
+    //     const imageFileName = `movies/images/${req.body.name}-${timestamp}-${randomId}.png`;
 
-        // resize and upload image
-        const imageBuffer = await sharp(imageFile.buffer).toBuffer();
-        await minioClient.putObject('cinema', imageFileName, imageBuffer);
-        req.body.image = `/cinema/${imageFileName}`;
-    }
+    //     // resize and upload image
+    //     const imageBuffer = await sharp(imageFile.buffer).toBuffer();
+    //     await minioClient.putObject('cinema', imageFileName, imageBuffer);
+    //     req.body.image = `/cinema/${imageFileName}`;
+    // }
 
-    // handle video upload if provided
-    if (req.files.video) {
-        const videoFile = req.files.video[0];
-        const videoFileName = `movies/videos/${req.body.name}-${timestamp}-${randomId}.mp4`;
+    // // handle video upload if provided
+    // if (req.files.video) {
+    //     const videoFile = req.files.video[0];
+    //     const videoFileName = `movies/videos/${req.body.name}-${timestamp}-${randomId}.mp4`;
 
-        // upload video
-        await minioClient.putObject('cinema', videoFileName, videoFile.buffer);
-        req.body.video = `/cinema/${videoFileName}`;
-    }
+    //     // upload video
+    //     await minioClient.putObject('cinema', videoFileName, videoFile.buffer);
+    //     req.body.video = `/cinema/${videoFileName}`;
+    // }
+    req.body.image = `/cinema/image.jpg`;
+
+    req.body.video = `/cinema/video.mp4`;
 
     next();
 });
@@ -60,10 +64,11 @@ exports.uploadMedia = expressAsyncHandler(async (req, res, next) => {
 // @route   POST /api/v1/movie
 // @access  Private
 exports.createMovie = expressAsyncHandler(async (req, res, next) => {
-
-
+    console.log('Received body:', req.body);
+    console.log('Received file:', req.file);
+    req.body.image = '/cinema/image.jpg'
     try {
-        const result = await dbOps.insert(MovieModel, req.body)
+        const result = await dbOps.insert(Movie, req.body)
 
 
 
@@ -87,7 +92,7 @@ exports.createMovie = expressAsyncHandler(async (req, res, next) => {
 exports.viewMovie = expressAsyncHandler(async (req, res, next) => {
     const { id } = req.params;
 
-    const movieResult = await dbOps.findOne(MovieModel, { _id: id });
+    const movieResult = await dbOps.findOne(Movie, { _id: id });
 
     if (movieResult?.error) {
         return next(new ApiError(`Resource not found: ${movieResult.error}`, 500));
@@ -125,7 +130,7 @@ exports.viewMovie = expressAsyncHandler(async (req, res, next) => {
 exports.getOneMoviePublic = expressAsyncHandler(async (req, res, next) => {
     const { id } = req.params;
 
-    const movieResult = await dbOps.findOne(MovieModel, { _id: id });
+    const movieResult = await dbOps.findOne(Movie, { _id: id });
 
     if (movieResult?.error) {
         return next(new ApiError(`Resource not found: ${movieResult.error}`, 500));
@@ -169,7 +174,7 @@ exports.deleteMovie = expressAsyncHandler(async (req, res, next) => {
     try {
 
 
-        const result = await dbOps.softDelete(MovieModel, { _id: req.resource.id });
+        const result = await dbOps.softDelete(Movie, { _id: req.resource.id });
 
         if (result?.error) {
             return next(new ApiError(`Error Deleting Movie: ${result.error}`, 500));
@@ -213,7 +218,7 @@ exports.updateMovie = expressAsyncHandler(async (req, res, next) => {
 
 
         const movieUpdated = await dbOps.update(
-            MovieModel,
+            Movie,
             { _id: req.resource.id }, // resource comes from middlewar accessControle.ks
             updateData,
             { new: true }
@@ -262,7 +267,7 @@ exports.viewMovies = expressAsyncHandler(async (req, res, next) => {
     try {
 
         const fields = 'name genre image rate';
-        const result = await dbOps.select(MovieModel, conditions, null, fields);
+        const result = await dbOps.select(Movie, conditions, null, fields);
 
         if (result?.error) {
             return next(new ApiError(`Error Fetching Movies: ${result.error}`, 500));

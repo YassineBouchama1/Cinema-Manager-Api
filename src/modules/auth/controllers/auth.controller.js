@@ -9,7 +9,7 @@ const { config } = require('../../../config/global.config');
 const { createToken } = require('../../../utils/createToken');
 const User = require('../../users/models/user.model');
 const ApiError = require('../../../utils/ApiError');
-
+const sendEmail = require('../../../utils/email/sendEmail')
 
 dotenv.config({ path: '../env' });
 
@@ -178,7 +178,7 @@ exports.forgetPassword = expressAsyncHandler(async (req, res, next) => {
 
         // 3. create token to use it in forget pass 
         // expired in 1 hours
-        const token =  createToken({ userId: user.id }, '1h');
+        const token = createToken({ userId: user.id }, '1h');
 
         const url = `${config.frontUrl}?tokenPass=${token}`
 

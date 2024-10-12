@@ -1,10 +1,11 @@
 const express = require('express');
-const { protect, allowedTo } = require('../middleware/auth.middleware');
-const { createMovie, deleteMovie, viewMovies, updateMovie, uploadMedia, viewMovie } = require('../controllers/movieController');
-const { createMovieValidator, movieByIdValidator } = require('../validators/movieValidator');
-const checkUserAccessToResource = require('../middleware/accessControl');
-const movieModel = require('../models/movieModel');
-const upload = require('../middleware/uploadMedia');
+const { protect, allowedTo } = require('../../../middleware/auth.middleware');
+const { uploadMedia, createMovie, deleteMovie, updateMovie, viewMovie, viewMovies } = require('../controllers/movie.controller');
+const upload = require('../../../middleware/upload.middleware');
+const Movie = require('../models/movie.model');
+const checkUserAccessToResource = require('../../../middleware/accessControl.middleware');
+const { movieByIdValidator, createMovieValidator, updateMovieValidator } = require('../validators/movie.validator');
+
 
 const router = express.Router();
 
@@ -15,13 +16,14 @@ const router = express.Router();
 
 // @access  : Private : Admin
 router.route('/')
-    .post(protect, allowedTo('admin', 'super'), upload, uploadMedia, createMovie)
+    .post(protect, allowedTo('admin', 'super'), upload, uploadMedia, createMovieValidator ,createMovie)
+    // .post(protect, allowedTo('admin', 'super'),  createMovieValidator,createMovie)
     .get(viewMovies);
 
 router.route('/:id')
-    .delete(protect, allowedTo('admin', 'super'), movieByIdValidator, checkUserAccessToResource(movieModel), deleteMovie)
-    .get(protect, allowedTo('admin', 'super'), movieByIdValidator, checkUserAccessToResource(movieModel), viewMovie)
-    .put(protect, allowedTo('admin', 'super'), movieByIdValidator, upload, uploadMedia, checkUserAccessToResource(movieModel), updateMovie);
+    .delete(protect, allowedTo('admin', 'super'), movieByIdValidator, checkUserAccessToResource(Movie), deleteMovie)
+    .get(protect, allowedTo('admin', 'super'), movieByIdValidator, checkUserAccessToResource(Movie), viewMovie)
+    .put(protect, allowedTo('admin', 'super'), updateMovieValidator, upload, uploadMedia, checkUserAccessToResource(Movie), updateMovie);
 
 
 

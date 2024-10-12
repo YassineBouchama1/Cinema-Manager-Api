@@ -28,16 +28,7 @@ exports.createAuthValidator = [
                 }
             })
         ),
-    // check('role')
-    //     .custom((val) => {
-    //         const rolesAllowed = ['user', 'admin'];
-    //         // check if role is included in the allowed roles
-    //         if (val && !rolesAllowed.includes(val)) {
-    //             throw new Error('Invalid role');
-    //         }
-    //         return true; // return true if the role is valid or not passed
-    //     })
-    //     .optional({ checkFalsy: true }),
+
 
     check('password')
         .notEmpty()
