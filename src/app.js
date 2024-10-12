@@ -13,6 +13,7 @@ const userRoute = require('./modules/users/routes/user.routes');
 const adminRoute = require('./modules/admins/routes/admin.routes');
 
 const ApiError = require('./utils/ApiError');
+const minioClient = require('./config/minioClient.config.js');
 
 dotenv.config({ path: '../.env' });
 
@@ -26,19 +27,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Connect to the database
 dbConect(); // Comment this out if you start testing
 
-// Check if 'cinema' bucket exists
-// minioClient.bucketExists('cinema', (err, exists) => {
-//     if (err) {
-//         return console.log(err); // Debugging errors
-//     }
-//     if (!exists) {
-//         minioClient.makeBucket('cinema', 'us-east-1', (err) => {
-//             if (err) return console.log('Error creating bucket.', err);
-//             console.log('Bucket created successfully.');
-//         });
-//     }
-//     console.log('Bucket already created');
-// });
+
 
 app.get('/', (req, res) => {
     res.send('Hello World!');
