@@ -4,7 +4,6 @@ const {
     createShowTime,
     updateShowTime,
     viewShowTimes,
-    viewShowTime,
     deleteShowTime
 } = require('../controllers/showtimeController');
 const {
@@ -23,7 +22,7 @@ router.route('/')
     .get(protect, allowedTo('admin', 'super'), viewShowTimes); // bring showtimes belong cinema
 
 router.route('/:id')
-    .get(showTimeByIdValidator, viewShowTime) // public 
+
     .put(protect, allowedTo('admin', 'super'), showTimeByIdValidator, checkUserAccessToResource(ShowTimeModel), updateShowTime)
     .delete(protect, allowedTo('admin', 'super'), checkUserAccessToResource(ShowTimeModel), deleteShowTime);
 

@@ -8,11 +8,10 @@ const dbOps = require('../utils/DatabaseOperations');
 const checkUserAccessToResource = (Model) =>
   expressAsyncHandler(async (req, res, next) => {
     const { id } = req.params;
-    const { cinemaId } = req.user;
 
     const resource = await dbOps.findOne(Model, { _id: id });
 
-    console
+
 
     if (resource?.error) {
       return next(new ApiError(`Resource not found : ${resource.error}`, 500));
@@ -30,10 +29,6 @@ const checkUserAccessToResource = (Model) =>
 
 
 
-
-    if (resource.data.cinemaId?.toString() !== cinemaId?.toString()) {
-      return next(new ApiError('You do not have permission to access this resource', 403));
-    }
 
     req.resource = resource.data;
     next();

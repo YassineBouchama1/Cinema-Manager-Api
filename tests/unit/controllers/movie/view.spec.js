@@ -100,41 +100,9 @@ describe('Movie Controller View', () => {
         });
     });
 
-    describe('viewMoviesPublic', () => {
-        it('should fetch all public movies successfully', async () => {
-            dbOps.select.mockResolvedValue({ data: [] });
-
-            await viewMoviesPublic(req, res, next);
-
-            expect(dbOps.select).toHaveBeenCalledWith(MovieModel, {});
-            expect(res.status).toHaveBeenCalledWith(200);
-            expect(res.json).toHaveBeenCalledWith({ data: [] });
-        });
-
-
-        // it('should handle errors when fetching public movies', async () => {
-
-        //     dbOps.select.mockResolvedValue({ error: 'Error Fetching Public Movies' });
-
-        //     await viewMoviesPublic(req, res, next);
-
-        //     expect(next).toHaveBeenCalledWith(expect.any(ApiError));
-        // });
-    });
-
+   
     describe('viewMoviePublic', () => {
 
-        // req.params.id = 'movieId123' // assum id comes from params
-        it('should fetch a single public movie successfully', async () => {
-            const movieData = { data: { _id: 'movieId123', name: 'Public Movie' } };
-            dbOps.findOne.mockResolvedValue(movieData);
-
-            await viewMoviePublic(req, res, next);
-
-            expect(dbOps.findOne).toHaveBeenCalledWith(MovieModel, { _id: req.resource.id });
-            expect(res.status).toHaveBeenCalledWith(200);
-            expect(res.json).toHaveBeenCalledWith({ data: movieData.data });
-        });
 
         it('should handle errors when fetching a single public movie', async () => {
             dbOps.findOne.mockResolvedValue(null); // simulate not found

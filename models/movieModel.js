@@ -17,19 +17,22 @@ const movieSchema = mongoose.Schema({
         required: [true, 'Movie duration is required'],
         minlength: [1, 'Movie duration is too short']
     },
-    cinemaId: {
-        type: mongoose.Schema.ObjectId,
-        ref: 'cinema',
-        required: [true, 'cinema id is required'],
-    },
-    category: {
+    genre: {
         type: String,
         enum: ['action', 'comedy', 'drama', 'horror', 'romance', 'thriller', 'animation'],
-        required: [true, 'Category movie is required'],
+        required: [true, 'genre movie is required'],
     },
     image: {
         type: String,
         required: [true, 'Movie image URL is required'],
+    },
+    video: {
+        type: String,
+        default: null
+    },
+    rate: {
+        type: Number,
+        default: 0.0
     },
     isDeleted: {
         type: Boolean,

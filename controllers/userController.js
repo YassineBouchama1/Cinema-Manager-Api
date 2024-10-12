@@ -14,36 +14,6 @@ dotenv.config({ path: '.env' })
 
 
 
-// middleware to determine user ID based on roles
-// TODO: Will reafactore it
-const determineUserId = expressAsyncHandler(async (req, res, next) => {
-    let userId;
-
-
-
-    // super admin can edit any user
-    if (req.user.role === 'super' && req.params.id) {
-        userId = req.params.id;
-    }
-    // admin must specify which user they want to edit
-    else if (req.user.role === 'admin' && req.params.id) {
-        userId = req.params.id;
-    }
-    // regular user can only edit their own profile
-    else if (req.user) {
-        userId = req.user.userId;
-    } else {
-        return next(new ApiError('User ID is required or you must be an authenticated admin', 400));
-    }
-
-    // assign userId to request object
-    return userId;
-
-
-});
-
-
-
 
 // @desc    mark task is done
 // @route   DELETE /api/v1/user
@@ -108,7 +78,7 @@ exports.deleteUser = expressAsyncHandler(async (req, res, next) => {
 
 // @desc    mark task is done
 // @route   PUT /api/v1/user
-// @access  Private /user & admin
+// @access  Private  admin
 exports.updateUser = expressAsyncHandler(async (req, res, next) => {
 
 
@@ -124,21 +94,10 @@ exports.updateUser = expressAsyncHandler(async (req, res, next) => {
 
         );
 
-
         if (!userIsExist.data) {
             return next(new ApiError(`Error finding user: ${userIsExist.error}`, 500));
 
         }
-
-        let userExist = userIsExist.data
-
-
-
-        // check if user belong same cinema admin or  this is super admin
-        if (req.user.role === 'admin' && userExist.cinemaId.toString() !== req.user.cinemaId.toString()) {
-            return next(new ApiError('You are not allowed to update a user from another cinema', 403));
-        }
-
 
 
         // update user
@@ -165,37 +124,21 @@ exports.updateUser = expressAsyncHandler(async (req, res, next) => {
 
 
 
-// @desc    mark task is done
+
+
+// @desc    update profile user with all roles with token
 // @route   PUT /api/v1/user
 // @access  Private /user & admin
 exports.updateMyProfile = expressAsyncHandler(async (req, res, next) => {
 
 
-    const { id } = req.user
-
-
     try {
-
-
-        // check if user exist
-        const userIsExist = await dbOps.findOne(
-            UserModel,
-            { _id: id },
-
-        );
-
-        if (!userIsExist.data) {
-            return next(new ApiError(`there is no user belong this id: ${userIsExist.error}`, 500));
-
-        }
-
-        let userExist = userIsExist.data
 
 
         // update user
         const userUpdated = await dbOps.update(
             UserModel,
-            { _id: userExist.id },
+            { _id: req.user._id },
             req.body
         );
 
@@ -218,9 +161,10 @@ exports.updateMyProfile = expressAsyncHandler(async (req, res, next) => {
 
 
 
+
 // @desc    mark task is done
 // @route   GET /api/v1/user/:id
-// @access  Private
+// @access  public
 exports.viewUser = expressAsyncHandler(async (req, res, next) => {
 
 
@@ -239,12 +183,6 @@ exports.viewUser = expressAsyncHandler(async (req, res, next) => {
         }
 
 
-        // check if user belong same cinema admin or  this is super admin 
-        if (req.user.role === 'admin' && userExist.cinemaId !== req.user.cinemaId) {
-            return next(new ApiError('You are not allowed to update a user from another cinema', 403));
-        }
-
-
 
         res.status(200).json({ data: userExist.data });
     } catch (error) {
@@ -260,42 +198,24 @@ exports.viewUser = expressAsyncHandler(async (req, res, next) => {
 
 
 
-// @desc    users belong cinema
-// @route   GET /api/v1/users
-// @access  Private
-exports.usersBelongCinema = expressAsyncHandler(async (req, res, next) => {
-
-    //get cinemaId authed user that belong cinema
-    const { cinemaId } = req.user
-    try {
-
-        const result = await dbOps.select(UserModel, { cinemaId });
-
-        if (result?.error) {
-            return next(new ApiError(`Error Fetching Cinemas: ${result.error}`, 500));
-        }
-
-        res.status(200).json({ data: result.data });
-    } catch (error) {
-        return next(new ApiError(`Error Fetching Cinema: ${error.message}`, 500));
-    }
-});
 
 
 
-// @desc    users belong cinema
+
+
+// @desc    view all users 
 // @route   GET /api/v1/users
 // @access  Private : super admin
 exports.viewUsers = expressAsyncHandler(async (req, res, next) => {
 
 
-    const { role, cinemaId } = req.user
 
     try {
 
-        // if  request from super admin bring all users 
-        // if admin bring users belong same cinema admin 
-        const conditions = role === 'admin' ? { cinemaId } : {}
+        // display users
+        const conditions = {
+            role: "user"
+        }
 
         const result = await dbOps.select(UserModel, conditions);
 

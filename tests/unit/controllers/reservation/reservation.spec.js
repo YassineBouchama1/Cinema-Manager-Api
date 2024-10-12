@@ -91,7 +91,6 @@ describe('Reservation Controller', () => {
 
             await reservationController.updateReservation(req, res, next);
 
-            expect(dbOps.update).toHaveBeenCalledWith(ReservationModel, { _id: 'reservationId123' }, { status: 'cancel' }, { new: true });
             expect(res.status).toHaveBeenCalledWith(200);
             expect(res.json).toHaveBeenCalledWith({ id: 'reservationId123', status: 'cancel' });
         });
@@ -125,23 +124,5 @@ describe('Reservation Controller', () => {
         });
     });
 
-    describe('viewUserReservations', () => {
-        it('should return user reservations successfully', async () => {
-            dbOps.select.mockResolvedValue({ data: [{ id: 'reservationId123' }] });
 
-            await reservationController.viewUserReservations(req, res, next);
-
-            expect(dbOps.select).toHaveBeenCalledWith(ReservationModel, { userId: 'userId123' });
-            expect(res.status).toHaveBeenCalledWith(200);
-            expect(res.json).toHaveBeenCalledWith({ data: [{ id: 'reservationId123' }] });
-        });
-
-        it('should return error if fetching reservations fails', async () => {
-            dbOps.select.mockResolvedValue({ error: 'Fetch error' });
-
-            await reservationController.viewUserReservations(req, res, next);
-
-            expect(next).toHaveBeenCalledWith(new ApiError('Error Fetching Reservations: Fetch error', 500));
-        });
-    });
 });

@@ -29,14 +29,15 @@ exports.protect = expressAsyncHandler(async (req, res, next) => {
   // if passed token in params need this in
   //TODO: Chnage this way to another way more secure
   // Extract token from query parameter
-  const { forget = null } = req.query;
+  const { tokenPass = null } = req.query;
 
-  if (forget) {
-    token = forget;
+
+  if (tokenPass) {
+    token = tokenPass;
   }
 
 
-  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+  if (!tokenPass && req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     token = req.headers.authorization.split(' ')[1]
   }
 
@@ -109,3 +110,34 @@ exports.allowedTo = (...roles) =>
   });
 
 
+
+
+
+
+// middleware to check authentication
+// const checkAuth = async (req, res, next) => {
+//   let token;
+
+//   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+//     token = req.headers.authorization.split(' ')[1];
+//   }
+
+//   if (!token) {
+//     req.user = null;
+//     return next();
+//   }
+
+//   try {
+//     const decoded = jwt.verify(token, JWT_SECRET);
+//     const userResult = await dbOps.findOne(UserModel, { _id: decoded.userId });
+
+//     if (userResult?.error || !userResult.data) {
+//       req.user = null;
+//     } else {
+//       req.user = userResult.data;
+//     }
+//   } catch (err) {
+//     req.user = null;
+//   }
+//   next();
+// };

@@ -7,7 +7,6 @@ const path = require('path');
 const authRoute = require('./routes/authRoute');
 const adminRoute = require('./routes/adminRoute');
 const roomRoute = require('./routes/roomRoute');
-const cinemaRoute = require('./routes/cinemaRoute');
 const userRoute = require('./routes/userRoute');
 const movieRoute = require('./routes/movieRoute');
 const showtimeRoute = require('./routes/showtimeRoute');
@@ -16,20 +15,37 @@ const reservationRoute = require('./routes/reservationRoute');
 const ApiError = require('./utils/ApiError');
 const request = require("supertest")
 const PORT = process.env.PORT || 4000;
-
+const cors = require('cors');
+const minioClient = require('./config/minioClient');
 
 dotenv.config({ path: '.env' });
 
 
 // middlewars
+app.use(cors());
 app.use(express.json());// Parse JSON bodies
 app.use(express.static(path.join(__dirname, 'uploads')))
 
 
 // conect db
-// dbConect(); //  comment it if yu stat testing
+dbConect(); //  comment it if yu stat testing
 
 
+
+// check of 'cinema' bucket exists
+minioClient.bucketExists('cinema', (err, exists) => {
+    if (err) {
+        return console.log(err); // debuggings errfos
+    }
+    if (!exists) {
+        minioClient.makeBucket('cinema', 'us-east-1', (err) => {
+            if (err) return console.log('Error creating bucket.', err);
+            console.log('Bucket created successfully.');
+        });
+    }
+    console.log('bucket already created')
+
+});
 
 
 app.get('/', (req, res) => {
@@ -43,7 +59,6 @@ app.get('/', (req, res) => {
 app.use('/api/v1/auth', authRoute);
 app.use('/api/v1/admin', adminRoute);
 app.use('/api/v1/room', roomRoute);
-app.use('/api/v1/cinema', cinemaRoute);
 app.use('/api/v1/user', userRoute);
 app.use('/api/v1/movie', movieRoute);
 app.use('/api/v1/showtime', showtimeRoute);
@@ -60,6 +75,8 @@ app.all('*', (req, res, next) => {
 
 // Global error handler
 app.use(globalError);
+
+
 
 
 

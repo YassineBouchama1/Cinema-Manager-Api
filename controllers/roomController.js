@@ -22,12 +22,11 @@ dotenv.config({ path: '.env' })
 // @access  Private
 exports.createRoom = expressAsyncHandler(async (req, res, next) => {
 
-    // get id cinema from uathed admin
-    const { cinemaId } = req.user
+
 
     try {
 
-        const result = await dbOps.insert(RoomModel, { ...req.body, cinemaId });
+        const result = await dbOps.insert(RoomModel, req.body);
 
         if (result?.error) {
             return next(new ApiError(`Error Creating Room: ${result.error}`, 500));
@@ -51,7 +50,6 @@ exports.deleteRoom = expressAsyncHandler(async (req, res, next) => {
 
 
         //Notic : req.resource : is resource item passed from accessControl middlewar file
-
         const result = await dbOps.softDelete(RoomModel, { _id: req.resource.id });
 
         if (result?.error) {
@@ -72,17 +70,11 @@ exports.deleteRoom = expressAsyncHandler(async (req, res, next) => {
 exports.viewRooms = expressAsyncHandler(async (req, res, next) => {
 
 
-    // get id cinema from uathed admin
-    const { cinemaId = null } = req.user
 
-    if (!cinemaId) {
-        return next(new ApiError(`Cinema Id is required`, 400));
-
-    }
 
     try {
 
-        const result = await dbOps.select(RoomModel, { cinemaId });
+        const result = await dbOps.select(RoomModel);
 
         if (result?.error) {
             return next(new ApiError(`Error Fetching Rooms: ${result.error}`, 500));
@@ -104,6 +96,7 @@ exports.viewRooms = expressAsyncHandler(async (req, res, next) => {
 exports.viewRoom = expressAsyncHandler(async (req, res, next) => {
 
     try {
+
 
         //Notic : req.resource : is resource item passed from accessControl middlewar file
 

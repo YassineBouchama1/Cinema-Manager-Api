@@ -1,42 +1,32 @@
 const express = require('express');
-const {
-    viewShowTimesPublic,
-    viewShowTime
-} = require('../controllers/showtimeController');
-const { viewMoviesPublic, viewMoviePublic } = require('../controllers/movieController');
-const { viewCinemaPublic, viewCinemasPublic } = require('../controllers/cinemaController');
+
+const { showTimesBelongMovie, viewShowTimesPublic } = require('../controllers/showtimeController');
+const { getOneMoviePublic, viewMovies } = require('../controllers/movieController');
 
 const router = express.Router();
 
 
-//@desc : routs un auth users 
-
-
-//@Path  : Public/showtime
-router.route('/showTime')
-    .get(viewShowTimesPublic)
-
-router.route('/showTime/:id')
-    .get(viewShowTime)
-
 
 
 //@Path  : Public/movie
-router.route('/movie')
-    .get(viewMoviesPublic);
+router.route('/showtime')
+    .get(viewShowTimesPublic);
+
+router.route('/showtime/:id')
+    .get(showTimesBelongMovie);
+
+
 
 router.route('/movie/:id')
-    .get(viewMoviePublic);
+    .get(getOneMoviePublic)
 
 
-//@Path  : Public/cinema
-router.route('/cinema/:id')
-    .get(viewCinemaPublic) // bring all showTimes belong this cinema
+router.route('/movie')
+    .get(viewMovies)
 
 
-//@Path  : Public/cinema : bring all cinema
-router.route('/cinema')
-    .get(viewCinemasPublic)
+
+
 
 
 

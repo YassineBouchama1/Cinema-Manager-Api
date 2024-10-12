@@ -15,12 +15,6 @@ const showTimeSchema = mongoose.Schema({
         required: [true, 'Movie id is Required']
 
     },
-    cinemaId: {
-        type: mongoose.Schema.ObjectId,
-        ref: 'cinema',
-        required: [true, 'Cienma id is Required']
-
-    },
     roomId: {
         type: mongoose.Schema.ObjectId,
         ref: 'room',

@@ -17,7 +17,7 @@ router.route('/login')
     .post(LoginAuthValidator, login)
 
 
-//@access  : private
+//@access  : private - public
 router.route('/reset')
     .put(resetPassValidator, protect, resetPassword)
 

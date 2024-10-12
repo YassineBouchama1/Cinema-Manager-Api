@@ -1,0 +1,24 @@
+{
+  "type": "Compass Connections",
+  "version": {
+    "$numberInt": "1"
+  },
+  "connections": [
+    {
+      "id": "1ee7146e-bde0-427e-a0a2-9684c2e0abe0",
+      "lastUsed": {
+        "$date": {
+          "$numberLong": "1727857439420"
+        }
+      },
+      "favorite": {
+        "name": "main db"
+      },
+      "savedConnectionType": "favorite",
+      "connectionOptions": {
+        "connectionString": "mongodb+srv://siskodb@cluster0.2pdvdr6.mongodb.net/",
+        "oidc": {}
+      }
+    }
+  ]
+}

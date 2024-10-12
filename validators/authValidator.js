@@ -2,7 +2,6 @@ const { check } = require('express-validator');
 
 const validatormiddleware = require('../middlewares/validator')
 const User = require('../models/userModel');
-const CinemaModel = require('../models/cinemaModel');
 
 
 
@@ -21,6 +20,7 @@ exports.createAuthValidator = [
         .isEmail()
         .withMessage('Invalid email address')
         .custom((val) =>
+
             // check if user exist if not return error
             User.findOne({ email: val }).then((user) => {
                 if (user) {
@@ -28,31 +28,17 @@ exports.createAuthValidator = [
                 }
             })
         ),
-    check('role')
-        .custom((val) => {
-            const rolesAllowed = ['user', 'admin'];
-            // check if role is included in the allowed roles
-            if (val && !rolesAllowed.includes(val)) {
-                throw new Error('Invalid role');
-            }
-            return true; // return true if the role is valid or not passed
-        })
-        .optional({ checkFalsy: true }),
-    check('cinemaName')
-        .custom((cinemaName, { req }) => {
-            // check if cinemaName is required when the role is admin
-            if (req.body.role === 'admin' && !cinemaName) {
-                throw new Error('Cinema name is required for admins');
-            }
+    // check('role')
+    //     .custom((val) => {
+    //         const rolesAllowed = ['user', 'admin'];
+    //         // check if role is included in the allowed roles
+    //         if (val && !rolesAllowed.includes(val)) {
+    //             throw new Error('Invalid role');
+    //         }
+    //         return true; // return true if the role is valid or not passed
+    //     })
+    //     .optional({ checkFalsy: true }),
 
-            // ceck if cinemaName already exists
-            return CinemaModel.findOne({ name: cinemaName }).then((cinema) => {
-                if (cinema) {
-                    return Promise.reject(new Error('Cinema name already exists'));
-                }
-            });
-        })
-        .optional({ checkFalsy: true }),
     check('password')
         .notEmpty()
         .withMessage('Password is required')

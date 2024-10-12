@@ -54,10 +54,18 @@ class DatabaseOperations {
 
     // find multiple documents with optional populate logic
     //populate : is bring assoiated schemas
-    async select(model, conditions = {}, populateOptions = null) {
+    async select(model, conditions = {}, populateOptions = null, paginationOptions = {}, fields = null) {
         const modifiedConditions = { ...conditions, isDeleted: false }; // Exclude soft-deleted documents
+
+        const { skip = 0, limit = 10 } = paginationOptions; // default pagination
         try {
-            let query = model.find(modifiedConditions); // Create the query object
+            let query = model.find(modifiedConditions).skip(skip).limit(limit); // Create the query object
+
+
+            // apply field selection if provided
+            if (fields) {
+                query = query.select(fields);
+            }
 
             // apply populate if are provider
             if (populateOptions) {
@@ -95,6 +103,16 @@ class DatabaseOperations {
             return { error: error.message };
         }
     }
+
+
+
+
+
+
+
+
+
+
 
 
     async insert(model, data) {

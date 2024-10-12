@@ -1,0 +1,60 @@
+[{
+  "_id": {
+    "$oid": "6701a0a1a58246608534d8aa"
+  },
+  "name": "A1",
+  "capacity": 85,
+  "seatsPerRow": 10,
+  "type": "NORMAM",
+  "cinemaId": {
+    "$oid": "6701a092a58246608534d8a4"
+  },
+  "isDeleted": false,
+  "createdAt": {
+    "$date": "2024-10-05T20:25:05.224Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-05T20:25:05.224Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6701a0b4a58246608534d8ad"
+  },
+  "name": "A2",
+  "capacity": 75,
+  "seatsPerRow": 13,
+  "type": "NORMAM",
+  "cinemaId": {
+    "$oid": "6701a092a58246608534d8a4"
+  },
+  "isDeleted": false,
+  "createdAt": {
+    "$date": "2024-10-05T20:25:24.026Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-05T20:25:24.026Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6701a0bca58246608534d8b0"
+  },
+  "name": "A3",
+  "capacity": 65,
+  "seatsPerRow": 13,
+  "type": "NORMAM",
+  "cinemaId": {
+    "$oid": "6701a092a58246608534d8a4"
+  },
+  "isDeleted": false,
+  "createdAt": {
+    "$date": "2024-10-05T20:25:32.658Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-05T20:25:32.658Z"
+  },
+  "__v": 0
+}]

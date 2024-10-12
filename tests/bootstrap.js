@@ -11,8 +11,8 @@ beforeAll(async () => {
         const uri = mongoServer.getUri();
 
         await mongoose.connect(uri, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
+            // useNewUrlParser: true,
+            // useUnifiedTopology: true,
         });
     } catch (error) {
         console.error("Failed to connect to in-memory MongoDB:", error);
@@ -47,6 +47,6 @@ beforeEach(() => {
     jest.clearAllMocks();
 });
 
-process.on("unhandledRejection", (reason, promise) => {
-    console.error("Unhandled Rejection at:", promise, "reason:", reason);
-});
+// process.on("unhandledRejection", (reason, promise) => {
+//     console.error("Unhandled Rejection at:", promise, "reason:", reason);
+// });
