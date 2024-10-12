@@ -1,10 +1,10 @@
 
 const expressAsyncHandler = require('express-async-handler')
-const ApiError = require('../utils/ApiError');
-const dbOps = require('../utils/DatabaseOperations');
+const ApiError = require('../../../utils/ApiError');
+const dbOps = require('../../../utils/DatabaseOperations');
 const dotenv = require('dotenv');
-const UserModel = require('../models/userModel');
-dotenv.config({ path: '../env' })
+const User = require('../models/user.model');
+dotenv.config({ path: '../../../../.env' })
 
 
 
@@ -29,7 +29,7 @@ exports.deleteUser = expressAsyncHandler(async (req, res, next) => {
 
         // check if user exist
         const userIsExist = await dbOps.findOne(
-            UserModel,
+            User,
             { _id: id },
 
         );
@@ -51,7 +51,7 @@ exports.deleteUser = expressAsyncHandler(async (req, res, next) => {
 
         // change status user 
         const userResult = await dbOps.update(
-            UserModel,
+            User,
             { _id: req.userId },
             { isDeleted: true }
         );
@@ -89,7 +89,7 @@ exports.updateUser = expressAsyncHandler(async (req, res, next) => {
 
         // check if user exist
         const userIsExist = await dbOps.findOne(
-            UserModel,
+            User,
             { _id: id },
 
         );
@@ -102,7 +102,7 @@ exports.updateUser = expressAsyncHandler(async (req, res, next) => {
 
         // update user
         const userResult = await dbOps.update(
-            UserModel,
+            User,
             { _id: req.userId },
             req.body
         );
@@ -137,7 +137,7 @@ exports.updateMyProfile = expressAsyncHandler(async (req, res, next) => {
 
         // update user
         const userUpdated = await dbOps.update(
-            UserModel,
+            User,
             { _id: req.user._id },
             req.body
         );
@@ -171,7 +171,7 @@ exports.viewUser = expressAsyncHandler(async (req, res, next) => {
     const { id } = req.params
 
     try {
-        const userExist = await dbOps.findOne(UserModel, { _id: id });
+        const userExist = await dbOps.findOne(User, { _id: id });
 
         if (!userExist || !userExist.data) {
             return next(new ApiError(`No User found with this ID`, 404));
@@ -191,6 +191,26 @@ exports.viewUser = expressAsyncHandler(async (req, res, next) => {
 });
 
 
+
+
+
+// @desc    get profile inofo of authed user
+// @route   GET /api/v1/user/me
+// @access  private
+exports.myProfile = expressAsyncHandler(async (req, res, next) => {
+
+
+
+
+    try {
+
+
+
+        res.status(200).json({ data: req.user });
+    } catch (error) {
+        return next(new ApiError(`Error Fetching User: ${error.message}`, 500));
+    }
+});
 
 
 
@@ -217,7 +237,7 @@ exports.viewUsers = expressAsyncHandler(async (req, res, next) => {
             role: "user"
         }
 
-        const result = await dbOps.select(UserModel, conditions);
+        const result = await dbOps.select(User, conditions);
 
         if (result?.error) {
             return next(new ApiError(`Error Fetching Cinemas: ${result.error}`, 500));
