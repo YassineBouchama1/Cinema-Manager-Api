@@ -1,6 +1,6 @@
 const express = require('express');
 const { protect, allowedTo } = require('../../../middleware/auth.middleware');
-const { uploadMedia, createMovie, deleteMovie, updateMovie, viewMovie, viewMovies } = require('../controllers/movie.controller');
+const { uploadMedia, createMovie, deleteMovie, updateMovie, viewMovie, viewMovies, getOneMoviePublic } = require('../controllers/movie.controller');
 const upload = require('../../../middleware/upload.middleware');
 const Movie = require('../models/movie.model');
 const checkUserAccessToResource = require('../../../middleware/accessControl.middleware');
@@ -16,9 +16,19 @@ const router = express.Router();
 
 // @access  : Private : Admin
 router.route('/')
-    .post(protect, allowedTo('admin', 'super'), upload, uploadMedia, createMovieValidator ,createMovie)
+    .post(protect, allowedTo('admin', 'super'), upload, uploadMedia, createMovieValidator, createMovie)
     // .post(protect, allowedTo('admin', 'super'),  createMovieValidator,createMovie)
     .get(viewMovies);
+
+
+//@access Public 
+router.route('/public/:id')
+    .get(getOneMoviePublic)
+
+
+router.route('/public')
+    .get(viewMovies)
+
 
 router.route('/:id')
     .delete(protect, allowedTo('admin', 'super'), movieByIdValidator, checkUserAccessToResource(Movie), deleteMovie)
