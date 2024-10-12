@@ -1,10 +1,11 @@
 const express = require('express')
+const { protect, allowedTo } = require('../../../middleware/auth.middleware')
+const { createRoomValidator, roomByIdValidator, updateRoomValidator } = require('../validators/room.validator')
+const { createRoom, viewRooms, deleteRoom, viewRoom, updateRoom, viewRoomPublic, viewRoomsPublic } = require('../controllers/room.controller')
+const checkUserAccessToResource = require('../../../middleware/accessControl.middleware')
+const Room = require('../models/room.model')
 
-const { protect, allowedTo } = require('../middleware/auth.middleware')
-const { createRoom, deleteRoom, viewRooms, viewRoom, viewRoomPublic, viewRoomsPublic, updateRoom } = require('../controllers/roomController')
-const { createRoomValidator, roomByIdValidator } = require('../validators/roomValidator')
-const checkUserAccessToResource = require('../middleware/accessControl')
-const roomModel = require('../models/roomModel')
+
 
 
 
@@ -18,9 +19,9 @@ router.route('/')
 
 
 router.route('/:id')
-    .delete(protect, allowedTo('admin', 'super'), roomByIdValidator, checkUserAccessToResource(roomModel), deleteRoom)
-    .get(protect, allowedTo('admin', 'super'), roomByIdValidator, checkUserAccessToResource(roomModel), viewRoom)
-    .put(protect, allowedTo('admin', 'super'), roomByIdValidator, checkUserAccessToResource(roomModel), updateRoom)
+    .delete(protect, allowedTo('admin', 'super'), roomByIdValidator, checkUserAccessToResource(Room), deleteRoom)
+    .get(protect, allowedTo('admin', 'super'), roomByIdValidator, checkUserAccessToResource(Room), viewRoom)
+    .put(protect, allowedTo('admin', 'super'), updateRoomValidator, checkUserAccessToResource(Room), updateRoom)
 
 
 

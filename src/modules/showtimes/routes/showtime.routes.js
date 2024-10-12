@@ -1,17 +1,9 @@
 const express = require('express');
-const { protect, allowedTo } = require('../middleware/auth.middleware');
-const {
-    createShowTime,
-    updateShowTime,
-    viewShowTimes,
-    deleteShowTime
-} = require('../controllers/showtimeController');
-const {
-    createShowTimeValidator,
-    showTimeByIdValidator,
-} = require('../validators/showtimeValidator');
-const ShowTimeModel = require('../models/showTimeModel');
-const checkUserAccessToResource = require('../middleware/accessControl');
+const { protect, allowedTo } = require('../../../middleware/auth.middleware');
+const { createShowTimeValidator, showTimeByIdValidator } = require('../validators/showtime.validator');
+const { createShowTime, viewShowTimes, deleteShowTime, updateShowTime } = require('../controllers/showtime.controller');
+const checkUserAccessToResource = require('../../../middleware/accessControl.middleware');
+const ShowTime = require('../models/showtime.model');
 
 
 const router = express.Router();
@@ -23,8 +15,8 @@ router.route('/')
 
 router.route('/:id')
 
-    .put(protect, allowedTo('admin', 'super'), showTimeByIdValidator, checkUserAccessToResource(ShowTimeModel), updateShowTime)
-    .delete(protect, allowedTo('admin', 'super'), checkUserAccessToResource(ShowTimeModel), deleteShowTime);
+    .put(protect, allowedTo('admin', 'super'), showTimeByIdValidator, checkUserAccessToResource(ShowTime), updateShowTime)
+    .delete(protect, allowedTo('admin', 'super'), checkUserAccessToResource(ShowTime), deleteShowTime);
 
 
 

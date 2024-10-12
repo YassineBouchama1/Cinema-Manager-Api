@@ -1,6 +1,6 @@
 
 const mongoose = require('mongoose');
-const dbOps = require('../utils/DatabaseOperations');
+const dbOps = require('../../../utils/DatabaseOperations');
 
 
 

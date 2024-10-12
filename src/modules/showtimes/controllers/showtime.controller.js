@@ -1,10 +1,10 @@
 const expressAsyncHandler = require('express-async-handler');
-const ShowTimeModel = require('../models/showTimeModel');
-const MovieModel = require('../models/movieModel');
-const ApiError = require('../utils/ApiError');
-const dbOps = require('../utils/DatabaseOperations');
-const RoomModel = require('../models/roomModel');
-const ReservationModel = require('../models/reservationModel');
+const ApiError = require('../../../utils/ApiError');
+const dbOps = require('../../../utils/DatabaseOperations');
+const Movie = require('../../movies/models/movie.model');
+const Room = require('../../rooms/models/room.model');
+const ShowTime = require('../models/showtime.model');
+const Reservation = require('../../reservations/models/reservation.model');
 
 
 
@@ -18,7 +18,7 @@ exports.createShowTime = expressAsyncHandler(async (req, res, next) => {
 
 
     // get movie
-    const movieResult = await dbOps.findOne(MovieModel, { _id: movieId });
+    const movieResult = await dbOps.findOne(Movie, { _id: movieId });
 
 
     if (!movieResult || !movieResult.data) {
@@ -29,7 +29,7 @@ exports.createShowTime = expressAsyncHandler(async (req, res, next) => {
 
 
     // fet room
-    const roomResult = await dbOps.findOne(RoomModel, { _id: roomId });
+    const roomResult = await dbOps.findOne(Room, { _id: roomId });
     if (!roomResult || !roomResult.data) {
         return next(new ApiError('Room not found', 404));
     }
@@ -60,7 +60,7 @@ exports.createShowTime = expressAsyncHandler(async (req, res, next) => {
 
 
     try {
-        const result = await dbOps.insert(ShowTimeModel, {
+        const result = await dbOps.insert(ShowTime, {
             price,
             movieId,
             roomId,
@@ -94,7 +94,7 @@ exports.updateShowTime = expressAsyncHandler(async (req, res, next) => {
 
     try {
         // det the movie duration
-        const movie = await MovieModel.findById(showTime.movieId);
+        const movie = await Movie.findById(showTime.movieId);
         if (!movie) {
             return next(new ApiError('Movie not found', 404));
         }
@@ -111,7 +111,7 @@ exports.updateShowTime = expressAsyncHandler(async (req, res, next) => {
         };
 
         // update the showtime using the update function
-        const result = await dbOps.update(ShowTimeModel, { _id: showTime.id }, updatedFields);
+        const result = await dbOps.update(ShowTime, { _id: showTime.id }, updatedFields);
 
         if (result?.error) {
             return next(new ApiError(`Error Updating Showtime: ${result.error}`, 500));
@@ -135,7 +135,7 @@ exports.deleteShowTime = expressAsyncHandler(async (req, res, next) => {
         //req.resource is showtime item / watch accessControl file
         let showTime = req.resource
 
-        const result = await dbOps.softDelete(ShowTimeModel, { _id: showTime.id });
+        const result = await dbOps.softDelete(ShowTime, { _id: showTime.id });
 
         if (result?.error) {
             return next(new ApiError(`Error Deleting Showtime: ${result.error}`, 500));
@@ -154,7 +154,7 @@ exports.deleteShowTime = expressAsyncHandler(async (req, res, next) => {
 exports.viewShowTimes = expressAsyncHandler(async (req, res, next) => {
 
     try {
-        const result = await dbOps.select(ShowTimeModel);
+        const result = await dbOps.select(ShowTime);
 
         if (result?.error) {
             return next(new ApiError(`Error Fetching Showtimes: ${result.error}`, 500));
@@ -185,7 +185,7 @@ exports.viewShowTimeWithReservations = expressAsyncHandler(async (req, res, next
 
 
     try {
-        const showTimeResult = await dbOps.findOne(ShowTimeModel, { _id: id })
+        const showTimeResult = await dbOps.findOne(ShowTime, { _id: id })
             .populate([
                 { path: 'movieId', select: 'name duration category' },
                 { path: 'roomId', select: 'name capacity' }
@@ -198,7 +198,7 @@ exports.viewShowTimeWithReservations = expressAsyncHandler(async (req, res, next
         let showTime = showTimeResult.data
 
 
-        const reservationsResult = await dbOps.select(ReservationModel, { showTimeId: showTime._id });
+        const reservationsResult = await dbOps.select(Reservation, { showTimeId: showTime._id });
 
 
         if (!reservationsResult.data) {
@@ -269,7 +269,7 @@ exports.viewShowTimesPublic = expressAsyncHandler(async (req, res, next) => {
 
 
         // rtrieve showtimes based on the defined conditions
-        const showtimeResults = await dbOps.select(ShowTimeModel, showtimeConditions);
+        const showtimeResults = await dbOps.select(ShowTime, showtimeConditions);
 
         if (showtimeResults?.error) {
             return next(new ApiError(`Error Fetching Showtimes: ${showtimeResults.error}`, 500));
@@ -287,7 +287,7 @@ exports.viewShowTimesPublic = expressAsyncHandler(async (req, res, next) => {
         }
 
         // Fetch movies based on the conditions
-        const result = await dbOps.select(MovieModel, conditions);
+        const result = await dbOps.select(Movie, conditions);
 
         if (result?.error) {
             return next(new ApiError(`Error Fetching Movies: ${result.error}`, 500));
@@ -308,7 +308,7 @@ exports.showTimesBelongMovie = expressAsyncHandler(async (req, res, next) => {
     const { id } = req.params;
     try {
 
-        const result = await dbOps.findOne(MovieModel, { _id: id });
+        const result = await dbOps.findOne(Movie, { _id: id });
 
         if (!result || !result.data) {
             return next(new ApiError(`No movie found with this ID`, 404));
@@ -320,7 +320,7 @@ exports.showTimesBelongMovie = expressAsyncHandler(async (req, res, next) => {
         ];
 
         // fetch showtimes for this movie
-        const showtimes = await dbOps.select(ShowTimeModel, { movieId: id }, populateOptions);
+        const showtimes = await dbOps.select(ShowTime, { movieId: id }, populateOptions);
 
         if (!showtimes) {
             return next(new ApiError(`No showtimes found for this movie`, 404));
@@ -332,7 +332,7 @@ exports.showTimesBelongMovie = expressAsyncHandler(async (req, res, next) => {
 
 
                 // getch reservations for each showtime only  active reservations
-                const reservations = await dbOps.select(ReservationModel, { showTimeId: showtime._id, status: 'active' });
+                const reservations = await dbOps.select(Reservation, { showTimeId: showtime._id, status: 'active' });
 
                 // collec all reserved seats for the current showtime
                 const reservedSeats = reservations.data.flatMap(reservation => reservation.seats);

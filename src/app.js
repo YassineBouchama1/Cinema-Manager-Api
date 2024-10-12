@@ -6,6 +6,8 @@ const globalError = require('./middleware/globalError.middleware.js');
 const dbConect = require('./config/db.config.js');
 const authRoute = require('./modules/auth/routes/auth.routes');
 const movieRoute = require('./modules/movies/routes/movie.routes');
+const roomRoute = require('./modules/rooms/routes/room.routes');
+const showtimeRoute = require('./modules/showtimes/routes/showtime.routes');
 
 const ApiError = require('./utils/ApiError');
 
@@ -42,10 +44,10 @@ app.get('/', (req, res) => {
 // Routes
 app.use('/api/v1/auth', authRoute);
 app.use('/api/v1/movie', movieRoute);
+app.use('/api/v1/room', roomRoute);
+app.use('/api/v1/showtime', showtimeRoute);
 // app.use('/api/v1/admin', adminRoute);
-// app.use('/api/v1/room', roomRoute);
 // app.use('/api/v1/user', userRoute);
-// app.use('/api/v1/showtime', showtimeRoute);
 // app.use('/api/v1/public', publicRoute);
 // app.use('/api/v1/reservation', reservationRoute);
 

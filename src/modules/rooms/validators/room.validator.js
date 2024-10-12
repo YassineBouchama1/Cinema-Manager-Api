@@ -1,54 +1,101 @@
 const { check } = require('express-validator');
+const validatorMiddleware = require('../../../middleware/validator.middleware');
 
-const validatormiddleware = require('../middleware/validator.middleware')
-
-// validate fileds
+// Validate fields for creating a room
 exports.createRoomValidator = [
     check('name')
         .notEmpty()
-        .withMessage('name is required')
+        .withMessage('Name is required')
         .isLength({ min: 2 })
-        .withMessage('Too short name')
-
-    ,
+        .withMessage('Too short name'),
 
     check('capacity')
-        .notEmpty().withMessage('capacity is Required')
-        .isNumeric().withMessage('capacity shouldbe number')
+        .notEmpty()
+        .withMessage('Capacity is required')
+        .isNumeric()
+        .withMessage('Capacity should be a number')
         .custom((val) => {
             if (val < 4) {
-                throw new Error('capacity is to low make sure be more than 4 seats');
+                throw new Error('Capacity is too low, must be more than 4 seats');
             }
             return true;
-        })
-    ,
+        }),
 
     check('seatsPerRow')
-        .notEmpty().withMessage('seatsPerRow is Required')
-        .isNumeric().withMessage('seatsPerRow shouldbe number')
+        .notEmpty()
+        .withMessage('Seats per row is required')
+        .isNumeric()
+        .withMessage('Seats per row should be a number')
         .custom((val) => {
             if (val < 4) {
-                throw new Error('seatsPerRow is to low make sure be more than  rows');
+                throw new Error('Seats per row is too low, must be more than 4');
             }
             return true;
-        })
-    ,
+        }),
+
     check('type')
         .notEmpty()
-        .withMessage('type is required')
+        .withMessage('Type is required')
         .isLength({ min: 3 })
-        .withMessage('Too short type')
+        .withMessage('Too short type'),
 
-    ,
-
-    validatormiddleware,
+    validatorMiddleware,
 ];
 
+// Validate fields for updating a room
+exports.updateRoomValidator = [
+    check('id')
+        .isMongoId()
+        .withMessage('Invalid ID'),
 
+    check('name')
+        .optional()
+        .notEmpty()
+        .withMessage('Name is required')
+        .isLength({ min: 2 })
+        .withMessage('Too short name'),
+
+    check('capacity')
+        .optional()
+        .notEmpty()
+        .withMessage('Capacity is required')
+        .isNumeric()
+        .withMessage('Capacity should be a number')
+        .custom((val) => {
+            if (val < 4) {
+                throw new Error('Capacity is too low, must be more than 4 seats');
+            }
+            return true;
+        }),
+
+    check('seatsPerRow')
+        .optional()
+        .notEmpty()
+        .withMessage('Seats per row is required')
+        .isNumeric()
+        .withMessage('Seats per row should be a number')
+        .custom((val) => {
+            if (val < 4) {
+                throw new Error('Seats per row is too low, must be more than 4');
+            }
+            return true;
+        }),
+
+    check('type')
+        .optional()
+        .notEmpty()
+        .withMessage('Type is required')
+        .isLength({ min: 3 })
+        .withMessage('Too short type'),
+
+    validatorMiddleware,
+];
+
+// Validate room by ID
 exports.roomByIdValidator = [
     check('id')
-        .isMongoId().withMessage('id Invalid')
-    ,
+        .isMongoId()
+        .withMessage('Invalid ID'),
 
-    validatormiddleware,
-]
+    validatorMiddleware,
+];
