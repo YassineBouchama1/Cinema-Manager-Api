@@ -1,11 +1,10 @@
 const bcrypt = require('bcryptjs');
 const expressAsyncHandler = require('express-async-handler')
-const UserModel = require('../models/userModel');
-const ApiError = require('../utils/ApiError');
-const dbOps = require('../utils/DatabaseOperations');
-
-const dotenv = require('dotenv')
-dotenv.config({ path: '../env' })
+const ApiError = require('../../../tils/ApiError');
+const dbOps = require('../../../utils/DatabaseOperations');
+const dotenv = require('dotenv');
+const User = require('../../users/models/user.model');
+dotenv.config({ path: '../../../../.env' })
 
 
 
@@ -33,7 +32,7 @@ exports.createAdmin = expressAsyncHandler(async (req, res, next) => {
             role: 'admin'
         };
 
-        const result = await dbOps.insert(UserModel, userData);
+        const result = await dbOps.insert(User, userData);
 
         if (result?.error) {
             return next(new ApiError(`Error Creating Account: ${result.error}`, 500));

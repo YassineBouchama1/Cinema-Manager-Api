@@ -1,9 +1,5 @@
 const express = require('express')
 
-const { protect, allowedTo } = require('../middleware/auth.middleware')
-const { createAdminValidator } = require('../validators/adminValidator')
-const { createAdmin } = require('../controllers/adminController')
-
 
 const router = express.Router()
 
