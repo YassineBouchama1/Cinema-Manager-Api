@@ -1,11 +1,11 @@
 {
   "name": "expressjs-auth",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "test": "jest",
-    "start": "nodemon index.js",
-    "dev": "nodemon index.js",
+    "start": "nodemon server.js",
+    "dev": "nodemon server.js",
     "prepare": "husky"
   },
   "husky": {
