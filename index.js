@@ -32,20 +32,6 @@ dbConect(); //  comment it if yu stat testing
 
 
 
-// check of 'cinema' bucket exists
-minioClient.bucketExists('cinema', (err, exists) => {
-    if (err) {
-        return console.log(err); // debuggings errfos
-    }
-    if (!exists) {
-        minioClient.makeBucket('cinema', 'us-east-1', (err) => {
-            if (err) return console.log('Error creating bucket.', err);
-            console.log('Bucket created successfully.');
-        });
-    }
-    console.log('bucket already created')
-
-});
 
 
 app.get('/', (req, res) => {
