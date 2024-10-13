@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const dbOps = require('../../../utils/DatabaseOperations');
+
 
 
 
@@ -41,7 +41,7 @@ const movieSchema = mongoose.Schema({
 }, { timestamps: true })
 
 
-const Movie = dbOps.createModel('movie', movieSchema)
+const Movie = mongoose.model('movie', movieSchema)
 
 module.exports = Movie
 

@@ -1,7 +1,7 @@
 const bcrypt = require('bcryptjs');
 const expressAsyncHandler = require('express-async-handler')
 const ApiError = require('../../../utils/ApiError');
-const dbOps = require('../../../utils/DatabaseOperations');
+
 const dotenv = require('dotenv');
 const User = require('../../users/models/user.model');
 dotenv.config({ path: '../../../../.env' })

@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-const dbOps = require('../../../utils/DatabaseOperations');
+
 
 
 
@@ -44,7 +44,7 @@ const showTimeSchema = mongoose.Schema({
 }, { timestamps: true })
 
 
-const ShowTime = dbOps.createModel('showtime', showTimeSchema)
+const ShowTime = mongoose.model('showtime', showTimeSchema)
 
 
 module.exports = ShowTime

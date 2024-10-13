@@ -1,260 +1,87 @@
-
-const expressAsyncHandler = require('express-async-handler')
+const expressAsyncHandler = require('express-async-handler');
 const ApiError = require('../../../utils/ApiError');
-const dbOps = require('../../../utils/DatabaseOperations');
-const dotenv = require('dotenv');
-const User = require('../models/user.model');
-dotenv.config({ path: '../../../../.env' })
+const UserService = require('../services/user.service');
 
-
-
-
-
-
-
-
-
-
-// @desc    mark task is done
-// @route   DELETE /api/v1/user
+// @desc    Delete a user
+// @route   DELETE /api/v1/user/:id
 // @access  Private /user & admin
 exports.deleteUser = expressAsyncHandler(async (req, res, next) => {
-
-
-    const { id } = req.params
+    const { id } = req.params;
 
     try {
-
-
-
-        // check if user exist
-        const userIsExist = await dbOps.findOne(
-            User,
-            { _id: id },
-
-        );
-
-
-        if (!userIsExist.data) {
-            return next(new ApiError(`There is no user Belong this Id `, 500));
-
-        }
-
-        let userExist = userIsExist.data
-
-
-        // check if user belong same cinema admin or  this is super admin
-        if (userExist.cinemaId !== req.user.cinemaId && req.user.role !== 'super') {
-            return next(new ApiError('You are not allowed to remove a user from another cinema', 403));
-        }
-
-
-        // change status user 
-        const userResult = await dbOps.update(
-            User,
-            { _id: req.userId },
-            { isDeleted: true }
-        );
-
-        if (userResult?.error) {
-            return next(new ApiError(`Error Change Status : ${userResult.error}`, 500));
-        }
-
-
-
-
-        res.status(200).json({
-            message: "User Deleted Changed ",
-
-        });
+        const result = await UserService.deleteUser(id, req.user);
+        res.status(200).json(result);
     } catch (error) {
-
-        return next(new ApiError(`Error in Deleting Operation: ${error.message}`, 500));
+        return next(error);
     }
 });
 
 
 
 
-// @desc    mark task is done
-// @route   PUT /api/v1/user
-// @access  Private  admin
+// @desc    Update a user
+// @route   PUT /api/v1/user/:id
+// @access  Private admin
 exports.updateUser = expressAsyncHandler(async (req, res, next) => {
-
-
-    const { id } = req.params
+    const { id } = req.params;
 
     try {
-
-
-        // check if user exist
-        const userIsExist = await dbOps.findOne(
-            User,
-            { _id: id },
-
-        );
-
-        if (!userIsExist.data) {
-            return next(new ApiError(`Error finding user: ${userIsExist.error}`, 500));
-
-        }
-
-
-        // update user
-        const userResult = await dbOps.update(
-            User,
-            { _id: req.userId },
-            req.body
-        );
-
-        // If there is an error updating the user
-        if (userResult?.error) {
-            return next(new ApiError(`There is no user Belong this Id || or there is errr `, 500));
-        }
-
-
-        res.status(200).json({
-            message: "User Updated Changed ",
-        });
+        const result = await UserService.updateUser(id, req.body);
+        res.status(200).json(result);
     } catch (error) {
-
-        return next(new ApiError(`Error in Updating Operation: ${error.message}`, 500));
+        return next(error);
     }
 });
 
-
-
-
-
-// @desc    update profile user with all roles with token
-// @route   PUT /api/v1/user
+// @desc    Update profile user with all roles with token
+// @route   PUT /api/v1/user/me
 // @access  Private /user & admin
 exports.updateMyProfile = expressAsyncHandler(async (req, res, next) => {
-
-
     try {
 
-
-        // update user
-        const userUpdated = await dbOps.update(
-            User,
-            { _id: req.user._id },
-            req.body
-        );
-
-        // If there is an error updating the user
-        if (userUpdated?.error) {
-            return next(new ApiError(`There is no user Belong this Id || or there is errr `, 500));
-        }
-
-
+        const userUpdated = await UserService.updateMyProfile(req.user._id, req.body);
         res.status(200).json(userUpdated);
     } catch (error) {
-
-        return next(new ApiError(`Error in Updating Operation: ${error.message}`, 500));
+        return next(error);
     }
 });
 
 
 
 
-
-
-
-
-// @desc    mark task is done
+// @desc    Get a single user by ID
 // @route   GET /api/v1/user/:id
 // @access  public
 exports.viewUser = expressAsyncHandler(async (req, res, next) => {
-
-
-    const { id } = req.params
+    const { id } = req.params;
 
     try {
-        const userExist = await dbOps.findOne(User, { _id: id });
-
-        if (!userExist || !userExist.data) {
-            return next(new ApiError(`No User found with this ID`, 404));
-        }
-
-
-        if (userExist.error) {
-            return next(new ApiError(`Error Fetching User: ${userExist.error}`, 500));
-        }
-
-
-
-        res.status(200).json({ data: userExist.data });
+        const user = await UserService.viewUser(id);
+        res.status(200).json({ data: user });
     } catch (error) {
-        return next(new ApiError(`Error Fetching User: ${error.message}`, 500));
+        return next(error);
     }
 });
 
-
-
-
-
-// @desc    get profile inofo of authed user
+// @desc    Get profile info of authenticated user
 // @route   GET /api/v1/user/me
 // @access  private
 exports.myProfile = expressAsyncHandler(async (req, res, next) => {
-
-
-
-
     try {
-
-
-
         res.status(200).json({ data: req.user });
     } catch (error) {
-        return next(new ApiError(`Error Fetching User: ${error.message}`, 500));
+        return next(error);
     }
 });
 
-
-
-
-
-
-
-
-
-
-
-
-// @desc    view all users 
+// @desc    View all users 
 // @route   GET /api/v1/users
 // @access  Private : super admin
 exports.viewUsers = expressAsyncHandler(async (req, res, next) => {
-
-
-
     try {
-
-        // display users
-        const conditions = {
-            role: "user"
-        }
-
-        const result = await dbOps.select(User, conditions);
-
-        if (result?.error) {
-            return next(new ApiError(`Error Fetching Cinemas: ${result.error}`, 500));
-        }
-
-        res.status(200).json({ data: result.data });
+        const users = await UserService.viewUsers();
+        res.status(200).json({ data: users });
     } catch (error) {
-        return next(new ApiError(`Error Fetching Cinema: ${error.message}`, 500));
+        return next(error);
     }
 });
-
-
-
-
-
-
-
-
-
-

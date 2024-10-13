@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const dbOps = require('../../../utils/DatabaseOperations');
+
 
 
 
@@ -41,7 +41,7 @@ const userSchema = mongoose.Schema({
 }, { timestamps: true })
 
 
-const User = dbOps.createModel('user', userSchema);
+const User = mongoose.model('user', userSchema);
 
 module.exports = User
 

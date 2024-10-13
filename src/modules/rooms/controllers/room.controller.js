@@ -1,191 +1,88 @@
-
-const expressAsyncHandler = require('express-async-handler')
-
+const expressAsyncHandler = require('express-async-handler');
 const ApiError = require('../../../utils/ApiError');
-const dbOps = require('../../../utils/DatabaseOperations');
-const dotenv = require('dotenv');
-const Room = require('../models/room.model');
-dotenv.config({ path: '../../../../.env' })
+const RoomService = require('../services/room.service');
 
-
-
-
-
-
-
-
-
-
-
-
-// @desc    mark task is done
+// @desc    Create a new room
 // @route   POST /api/v1/room
 // @access  Private
 exports.createRoom = expressAsyncHandler(async (req, res, next) => {
-
-
-
     try {
-
-        const result = await dbOps.insert(Room, req.body);
-
-        if (result?.error) {
-            return next(new ApiError(`Error Creating Room: ${result.error}`, 500));
-        }
-
-        res.status(201).json({ data: result.data, message: result.message });
+        const roomData = await RoomService.createRoom(req.body);
+        res.status(201).json({ data: roomData, message: 'Room created successfully' });
     } catch (error) {
-        return next(new ApiError(`Error Creating Room: ${error.message}`, 500));
+        return next(error);
     }
 });
 
-
-
-// @desc    mark task is done
-// @route   DELETE /api/v1/room
+// @desc    Delete a room
+// @route   DELETE /api/v1/room/:id
 // @access  Private
 exports.deleteRoom = expressAsyncHandler(async (req, res, next) => {
-
-
     try {
-
-
-        //Notic : req.resource : is resource item passed from accessControl middlewar file
-        const result = await dbOps.softDelete(Room, { _id: req.resource.id });
-
-        if (result?.error) {
-            return next(new ApiError(`Error Deleting Room: ${result.error}`, 500));
-        }
-
-        res.status(201).json(result);
+        const result = await RoomService.deleteRoom(req.resource.id);
+        res.status(200).json(result);
     } catch (error) {
-        return next(new ApiError(`Error Deleting Room: ${error.message}`, 500));
+        return next(error);
     }
 });
 
-
-
-// @desc    mark task is done
+// @desc    View all rooms
 // @route   GET /api/v1/room
 // @access  Private : admins
 exports.viewRooms = expressAsyncHandler(async (req, res, next) => {
-
-
-
-
     try {
-
-        const result = await dbOps.select(Room);
-
-        if (result?.error) {
-            return next(new ApiError(`Error Fetching Rooms: ${result.error}`, 500));
-        }
-
-        res.status(200).json({ data: result.data });
+        const rooms = await RoomService.viewRooms();
+        res.status(200).json({ data: rooms });
     } catch (error) {
-        return next(new ApiError(`Error Fetching Room: ${error.message}`, 500));
+        return next(error);
     }
 });
 
-
-
-
-
-// @desc    mark task is done
+// @desc    View a single room
 // @route   GET /api/v1/room/:id
 // @access  Private
 exports.viewRoom = expressAsyncHandler(async (req, res, next) => {
-
     try {
-
-
-        //Notic : req.resource : is resource item passed from accessControl middlewar file
-
-        res.status(200).json({ data: req.resource });
+        const room = await RoomService.viewRoom(req.resource.id);
+        res.status(200).json({ data: room });
     } catch (error) {
-        return next(new ApiError(`Error Fetching Room: ${error.message}`, 500));
+        return next(error);
     }
 });
 
-
-
-// @desc    update room
-// @route   GET /api/v1/room/:id
+// @desc    Update a room
+// @route   PUT /api/v1/room/:id
 // @access  Private
 exports.updateRoom = expressAsyncHandler(async (req, res, next) => {
-
     try {
-
-        //Notic : req.resource : is resource item passed from accessControl middlewar file
-
-
-        // update Room
-        const roomUpdated = await dbOps.update(
-            Room,
-            { _id: req.resource.id },
-            req.body,
-            { new: true }
-        );
-
-        // If there is an error updating the user
-        if (roomUpdated?.error) {
-            return next(new ApiError(`Error Creating Room: ${roomUpdated.error}`, 500));
-        }
-
+        const roomUpdated = await RoomService.updateRoom(req.resource.id, req.body);
         res.status(200).json(roomUpdated);
     } catch (error) {
-        return next(new ApiError(`Error Fetching Room: ${error.message}`, 500));
+        return next(error);
     }
 });
 
-
-
-
-// @desc    mark task is done
+// @desc    View all rooms publicly
 // @route   GET /api/v1/room
 // @access  Public 
 exports.viewRoomsPublic = expressAsyncHandler(async (req, res, next) => {
-
-
-
     try {
-
-        const result = await dbOps.select(Room, { _id: id });
-
-        if (result?.error) {
-            return next(new ApiError(`Error Fetching Rooms: ${result.error}`, 500));
-        }
-
-        res.status(201).json({ data: result.data });
+        const rooms = await RoomService.viewRoomsPublic();
+        res.status(200).json({ data: rooms });
     } catch (error) {
-        return next(new ApiError(`Error Fetching Room: ${error.message}`, 500));
+        return next(error);
     }
 });
 
-
-
-
-// @desc    mark task is done
+// @desc    View a single room publicly
 // @route   GET /api/v1/room/:id
 // @access  Public
 exports.viewRoomPublic = expressAsyncHandler(async (req, res, next) => {
-
-    const { id } = req.params
+    const { id } = req.params;
     try {
-
-        const result = await dbOps.findOne(Room, { _id: id });
-
-
-        if (!result) {
-            return next(new ApiError(`no room belong this id`, 404));
-        }
-
-        if (result?.error) {
-            return next(new ApiError(`Error Fetching Room: ${result.error}`, 500));
-        }
-
-        res.status(201).json({ data: result.data });
+        const room = await RoomService.viewRoomPublic(id);
+        res.status(200).json({ data: room });
     } catch (error) {
-        return next(new ApiError(`Error Fetching Room: ${error.message}`, 500));
+        return next(error);
     }
 });

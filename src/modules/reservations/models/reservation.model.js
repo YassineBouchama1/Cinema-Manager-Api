@@ -1,6 +1,6 @@
 
 const mongoose = require('mongoose');
-const dbOps = require('../../../utils/DatabaseOperations');
+
 
 
 
@@ -34,6 +34,6 @@ const reservationSchema = mongoose.Schema({
     }
 }, { timestamps: true });
 
-const Reservation = dbOps.createModel('reservation', reservationSchema);
+const Reservation = mongoose.model('reservation', reservationSchema);
 
 module.exports = Reservation;

@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const dbOps = require('../../../utils/DatabaseOperations');
+
 
 
 
@@ -31,7 +31,7 @@ const roomSchema = mongoose.Schema({
 }, { timestamps: true })
 
 
-const Room = dbOps.createModel('room', roomSchema)
+const Room = mongoose.model('room', roomSchema)
 
 module.exports = Room
 
