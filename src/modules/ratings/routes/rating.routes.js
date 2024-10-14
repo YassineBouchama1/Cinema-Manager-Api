@@ -1,6 +1,6 @@
 const express = require('express');
 const { protect } = require('../../../middleware/auth.middleware');
-const { createRating, getRatingsByMovie, deleteRating } = require('../controllers/rating.controller');
+const { createRating, getRatingsByMovie, deleteRating, getUserRating } = require('../controllers/rating.controller');
 const { ratingByIdValidator } = require('../validators/rating.validator');
 
 const router = express.Router();
@@ -14,4 +14,9 @@ router.route('/movie/:movieId')
 router.route('/:id')
     .delete(protect, ratingByIdValidator, deleteRating);
 
+
+
+// thisto  get user rating for a specific movie
+router.route('/user/:movieId')
+    .get(protect, getUserRating);
 module.exports = router;

@@ -34,17 +34,22 @@ exports.createMovie = expressAsyncHandler(async (req, res, next) => {
 // @access  Private - admin
 exports.viewMovie = expressAsyncHandler(async (req, res, next) => {
     try {
-        const movie = await MovieService.viewMovie(req.params.id);
-        const hasStream = !!movie.video; // check if the movie has a video stream
+        const userId = req.user?._id.toString();
 
+
+
+
+        const { movie, userRating } = await MovieService.viewMovie(req.params.id, userId);
+
+        const hasStream = !!movie.video; // Check if the movie has a video stream
 
         const response = {
             ...movie.toObject(),
             hasStream,
+            userRating, // Include the user's rating in the response
         };
 
-
-        delete response.video; // remove the video field from the response
+        delete response.video; // Remove the video field from the response
 
         res.status(200).json(response);
     } catch (error) {

@@ -1,5 +1,5 @@
 const express = require('express');
-const { protect, allowedTo } = require('../../../middleware/auth.middleware');
+const { protect, allowedTo, getUserFromToken } = require('../../../middleware/auth.middleware');
 const { createMovie, deleteMovie, updateMovie, viewMovie, viewMovies, getOneMoviePublic, uploadMedia, viewMovieStreaming } = require('../controllers/movie.controller');
 const upload = require('../../../middleware/upload.middleware');
 const Movie = require('../models/movie.model');
@@ -29,7 +29,7 @@ router.route('/')
 
 router.route('/:id')
     .delete(protect, allowedTo('admin', 'super'), movieByIdValidator, checkUserAccessToResource(Movie), deleteMovie)
-    .get(movieByIdValidator, viewMovie)
+    .get(movieByIdValidator, getUserFromToken, viewMovie) //getUserFromToken is middle war help us get user info if token procider 
     .put(protect, allowedTo('admin', 'super'), updateMovieValidator, upload, uploadMedia, checkUserAccessToResource(Movie), updateMovie);
 
 

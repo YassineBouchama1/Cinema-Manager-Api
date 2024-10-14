@@ -114,31 +114,39 @@ exports.allowedTo = (...roles) =>
 
 
 
+// middleware to get user information from token if provided
+exports.getUserFromToken = expressAsyncHandler(async (req, res, next) => {
+  // 1. check if token exists
+  let token;
 
-// middleware to check authentication
-// const checkAuth = async (req, res, next) => {
-//   let token;
 
-//   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-//     token = req.headers.authorization.split(' ')[1];
-//   }
 
-//   if (!token) {
-//     req.user = null;
-//     return next();
-//   }
+  // 2Check for token in the Authorization header
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    token = req.headers.authorization.split(' ')[1];
+  }
 
-//   try {
-//     const decoded = jwt.verify(token, JWT_SECRET);
-//     const userResult = await dbOps.findOne(UserModel, { _id: decoded.userId });
+  if (!token) {
+    return next(); // continue without setting req.user
+  }
 
-//     if (userResult?.error || !userResult.data) {
-//       req.user = null;
-//     } else {
-//       req.user = userResult.data;
-//     }
-//   } catch (err) {
-//     req.user = null;
-//   }
-//   next();
-// };
+  try {
+    // 2. decode the token
+    const decoded = jwt.verify(token, JWT_SECRET);
+
+    // 3. fetch user
+    const user = await User.findById(decoded.userId); // adjust based on your User model
+
+    // 4. check if user exists
+    if (!user) {
+      return next(); // user does not exist, continue without setting req.user
+    }
+
+    // 5. add user data to request
+    req.user = user;
+    next();
+  } catch (err) {
+
+    return next();
+  }
+});

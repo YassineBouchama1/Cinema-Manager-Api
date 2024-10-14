@@ -37,3 +37,22 @@ exports.deleteRating = expressAsyncHandler(async (req, res, next) => {
         return next(new ApiError(`Error deleting rating: ${error.message}`, 500));
     }
 });
+
+
+// @desc    Get user's rating for a specific movie
+// @route   GET /api/v1/ratings/user/:movieId
+// @access  Private
+exports.getUserRating = expressAsyncHandler(async (req, res, next) => {
+    const { movieId } = req.params;
+    const userId = req.user.id; // Assuming you have user info in req.user from the protect middleware
+
+    try {
+        const rating = await RatingService.getUserRating(userId, movieId);
+        if (!rating) {
+            return res.status(200).json({ message: 'User has not rated this movie', rating: null });
+        }
+        res.status(200).json({ message: 'User rating fetched successfully', rating });
+    } catch (error) {
+        return next(new ApiError(`Error fetching user rating: ${error.message}`, 500));
+    }
+});

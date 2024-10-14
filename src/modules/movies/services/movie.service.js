@@ -2,6 +2,7 @@ const Movie = require('../models/movie.model');
 const ApiError = require('../../../utils/ApiError');
 const sharp = require('sharp');
 const minioClient = require('../../../config/minioClient.config');
+const Rating = require('../../ratings/models/rating.model');
 
 class MovieService {
     async uploadMedia(req) {
@@ -44,13 +45,23 @@ class MovieService {
         }
     }
 
-    async viewMovie(id) {
+    async viewMovie(id, userId) {
         const movie = await Movie.findById(id).select('name genre image rating duration id video');;
 
         if (!movie) {
             throw new ApiError(`No resource found with this ID`, 404);
         }
-        return movie;
+
+
+        // Fetch the user's rating if userId is provided
+        let userRating = null;
+        if (userId) {
+            const rating = await Rating.findOne({ userId, movieId: id, isDeleted: false });
+            userRating = rating ? rating.value : null; // Get the rating value or null if not rated
+        }
+
+        return { movie, userRating };
+
     }
 
     async viewMovieStreaming(id) {

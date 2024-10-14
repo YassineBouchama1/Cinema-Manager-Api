@@ -66,6 +66,13 @@ class RatingService {
         }
         return result;
     }
+
+
+
+    async getUserRating(userId, movieId) {
+        const rating = await Rating.findOne({ userId, movieId, isDeleted: false });
+        return rating; // this will return null if user dosnt rat this movie
+    }
 }
 
 module.exports = new RatingService();
