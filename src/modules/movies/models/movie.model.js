@@ -30,7 +30,7 @@ const movieSchema = mongoose.Schema({
         type: String,
         default: null
     },
-    rate: {
+    rating: {
         type: Number,
         default: 0.0
     },

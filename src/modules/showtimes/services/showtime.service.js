@@ -1,8 +1,8 @@
 const ShowTime = require('../models/showtime.model');
 const Movie = require('../../movies/models/movie.model');
 const Room = require('../../rooms/models/room.model');
-const Reservation = require('../../reservations/models/reservation.model');
 const ApiError = require('../../../utils/ApiError');
+const Reservation = require('../../reservations/models/reservation.model');
 
 class ShowTimeService {
     async createShowTime(showTimeData) {

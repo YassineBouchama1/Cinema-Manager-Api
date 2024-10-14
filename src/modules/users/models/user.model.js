@@ -32,7 +32,15 @@ const userSchema = mongoose.Schema({
     isActive: {
         type: Boolean,
         default: true
-
+    },
+    isSubscribe: {
+        type: Boolean,
+        default: false
+    },
+    subscriptionEndDate: {
+        type: Date,
+        // only required if subscribed
+        required: function () { return this.isSubscribe; }
     },
     isDeleted: {
         type: Boolean,

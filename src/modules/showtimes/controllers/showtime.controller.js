@@ -1,6 +1,7 @@
 const expressAsyncHandler = require('express-async-handler');
-const ApiError = require('../../../utils/ApiError');
 const ShowTimeService = require('../services/showtime.service');
+const ApiError = require('../../../utils/ApiError');
+const Reservation = require('../../reservations/models/reservation.model');
 
 // @desc    Create a new showtime
 // @route   POST /api/v1/showtime
@@ -10,7 +11,8 @@ exports.createShowTime = expressAsyncHandler(async (req, res, next) => {
         const showTimeData = await ShowTimeService.createShowTime(req.body);
         res.status(201).json({ data: showTimeData, message: 'Showtime created successfully' });
     } catch (error) {
-        return next(error);
+        return next(new ApiError(`Error Creating ShowTime: ${error.message}`, 500));
+
     }
 });
 
@@ -24,7 +26,8 @@ exports.updateShowTime = expressAsyncHandler(async (req, res, next) => {
         const updatedShowTime = await ShowTimeService.updateShowTime(id, req.body);
         res.status(200).json(updatedShowTime);
     } catch (error) {
-        return next(error);
+        return next(new ApiError(`Error Update ShowTime: ${error.message}`, 500));
+
     }
 });
 
@@ -38,7 +41,8 @@ exports.deleteShowTime = expressAsyncHandler(async (req, res, next) => {
         const result = await ShowTimeService.deleteShowTime(id);
         res.status(200).json(result);
     } catch (error) {
-        return next(error);
+        return next(new ApiError(`Error Delete ShowTime: ${error.message}`, 500));
+
     }
 });
 
@@ -50,7 +54,8 @@ exports.viewShowTimes = expressAsyncHandler(async (req, res, next) => {
         const showTimes = await ShowTimeService.viewShowTimes();
         res.status(200).json(showTimes);
     } catch (error) {
-        return next(error);
+        return next(new ApiError(`Error Fetch ShowTime: ${error.message}`, 500));
+
     }
 });
 
@@ -64,7 +69,8 @@ exports.viewShowTimeWithReservations = expressAsyncHandler(async (req, res, next
         const { showTime, reservations } = await ShowTimeService.viewShowTimeWithReservations(id);
         res.status(200).json({ showTime, reservations });
     } catch (error) {
-        return next(error);
+        return next(new ApiError(`Error ShowTime ShowTime: ${error.message}`, 500));
+
     }
 });
 
@@ -130,7 +136,8 @@ exports.viewShowTimesPublic = expressAsyncHandler(async (req, res, next) => {
 
         res.status(200).json({ data: result });
     } catch (error) {
-        return next(error);
+        return next(new ApiError(`Error Fetching ShowTime: ${error.message}`, 500));
+
     }
 });
 
@@ -163,6 +170,6 @@ exports.showTimesBelongMovie = expressAsyncHandler(async (req, res, next) => {
 
         res.status(200).json(showtimesWithReservedSeats);
     } catch (error) {
-        return next(new ApiError(`Error Fetching Movie: ${error.message}`, 500));
+        return next(new ApiError(`Error Fetching ShowTime: ${error.message}`, 500));
     }
 });

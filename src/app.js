@@ -11,6 +11,8 @@ const showtimeRoute = require('./modules/showtimes/routes/showtime.routes');
 const reservationRoute = require('./modules/reservations/routes/reservation.routes');
 const userRoute = require('./modules/users/routes/user.routes');
 const adminRoute = require('./modules/admins/routes/admin.routes');
+const commentRoute = require('./modules/comments/routes/comment.routes');
+const ratingRoutes = require('./modules/ratings/routes/rating.routes');
 
 const ApiError = require('./utils/ApiError');
 const minioClient = require('./config/minioClient.config.js');
@@ -41,6 +43,8 @@ app.use('/api/v1/showtime', showtimeRoute);
 app.use('/api/v1/reservation', reservationRoute);
 app.use('/api/v1/user', userRoute);
 app.use('/api/v1/admin', adminRoute);
+app.use('/api/v1/comment', commentRoute);
+app.use('/api/v1/rating', ratingRoutes);
 
 
 // Handle 404 errors

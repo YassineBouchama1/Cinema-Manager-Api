@@ -1,6 +1,6 @@
 const expressAsyncHandler = require('express-async-handler');
-const ApiError = require('../../../utils/ApiError');
 const MovieService = require('../services/movie.service');
+const ApiError = require('../../../utils/ApiError');
 
 // @desc    Upload media to storage 
 // @route   
@@ -24,7 +24,8 @@ exports.createMovie = expressAsyncHandler(async (req, res, next) => {
         const movieData = await MovieService.createMovie(req.body);
         res.status(201).json({ data: movieData, message: 'Movie created successfully' });
     } catch (error) {
-        return next(error);
+        return next(new ApiError(`Error Creating Movie: ${error.message}`, 500));
+
     }
 });
 
@@ -35,9 +36,19 @@ exports.viewMovie = expressAsyncHandler(async (req, res, next) => {
     try {
         const movie = await MovieService.viewMovie(req.params.id);
         const hasStream = !!movie.video; // check if the movie has a video stream
-        res.status(200).json({ ...movie.toObject(), hasStream });
+
+
+        const response = {
+            ...movie.toObject(),
+            hasStream,
+        };
+
+
+        delete response.video; // remove the video field from the response
+
+        res.status(200).json(response);
     } catch (error) {
-        return next(error);
+        return next(new ApiError(`Error fetching Movie: ${error.message}`, 500));
     }
 });
 
@@ -49,7 +60,8 @@ exports.deleteMovie = expressAsyncHandler(async (req, res, next) => {
         const result = await MovieService.deleteMovie(req.params.id);
         res.status(200).json(result);
     } catch (error) {
-        return next(error);
+        return next(new ApiError(`Error delete Movie: ${error.message}`, 500));
+
     }
 });
 
@@ -68,7 +80,8 @@ exports.updateMovie = expressAsyncHandler(async (req, res, next) => {
         const movieUpdated = await MovieService.updateMovie(req.params.id, updateData);
         res.status(200).json(movieUpdated);
     } catch (error) {
-        return next(error);
+        return next(new ApiError(`Error Updating Movie: ${error.message}`, 500));
+
     }
 });
 
@@ -93,6 +106,33 @@ exports.viewMovies = expressAsyncHandler(async (req, res, next) => {
         const movies = await MovieService.viewMovies(conditions);
         res.status(200).json({ data: movies });
     } catch (error) {
-        return next(error);
+        return next(new ApiError(`Error fetch Movie: ${error.message}`, 500));
+
+    }
+});
+
+
+
+// @desc    Get a single movie by ID
+// @route   GET /api/v1/movie/:id
+// @access  Private - admin
+exports.viewMovieStreaming = expressAsyncHandler(async (req, res, next) => {
+    try {
+
+        // chekc if user susbcribe
+        // if (!req.user.subscribe) {
+        //     return next(new ApiError(`you are not Subscribeed`, 401));
+        // }
+        const movie = await MovieService.viewMovie(req.params.id);
+
+        if (!movie.video) {
+            return next(new ApiError(`there is no video belong this movie`, 404));
+        }
+
+
+        res.status(200).json(movie);
+    } catch (error) {
+        return next(new ApiError(`Error fetching Movie: ${error.message}`, 500));
+
     }
 });

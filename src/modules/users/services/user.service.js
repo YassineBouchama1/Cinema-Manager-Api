@@ -53,6 +53,24 @@ class UserService {
         const users = await User.find({ role: "user" });
         return users;
     }
+
+
+    async updateUserSubscription(userId, subscriptionDuration) {
+        const subscriptionEndDate = new Date(Date.now() + subscriptionDuration * 24 * 60 * 60 * 1000);
+
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            {
+                isSubscribe: true,
+                subscriptionEndDate,
+            },
+            { new: true } 
+        );
+
+        return updatedUser;
+    }
+
+
 }
 
 module.exports = new UserService();

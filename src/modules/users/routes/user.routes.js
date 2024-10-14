@@ -1,6 +1,6 @@
 const express = require('express')
 const { protect, allowedTo } = require('../../../middleware/auth.middleware')
-const { deleteUser, updateUser, viewUser, viewUsers, updateMyProfile, myProfile } = require('../controllers/user.controller')
+const { deleteUser, updateUser, viewUser, viewUsers, updateMyProfile, myProfile, updateSubscription } = require('../controllers/user.controller')
 
 
 
@@ -12,6 +12,10 @@ const router = express.Router()
 // make it first 
 router.route('/me')
     .get(protect, myProfile)
+
+router.route('/subscribe')
+    .put(protect, allowedTo('user'), updateSubscription)
+
 
 
 //@access  : private : admin

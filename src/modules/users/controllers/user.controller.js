@@ -85,3 +85,19 @@ exports.viewUsers = expressAsyncHandler(async (req, res, next) => {
         return next(error);
     }
 });
+
+
+// @desc    Update subscription for the logged-in user
+// @route   POST /api/v1/users/subscribe
+// @access  Private
+exports.updateSubscription = expressAsyncHandler(async (req, res, next) => {
+    const userId = req.user._id;
+    const subscriptionDuration = 30; // 30 days subscribs
+
+    try {
+        const updatedUser = await UserService.updateUserSubscription(userId, subscriptionDuration);
+        res.status(200).json({ message: 'Subscription updated successfully', data: updatedUser });
+    } catch (error) {
+        return next(error);
+    }
+});

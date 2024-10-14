@@ -33,7 +33,7 @@ class MovieService {
         return mediaData;
     }
 
-    
+
     async createMovie(movieData) {
         const newMovie = new Movie(movieData);
         try {
@@ -45,7 +45,17 @@ class MovieService {
     }
 
     async viewMovie(id) {
-        const movie = await Movie.findById(id);
+        const movie = await Movie.findById(id).select('name genre image rating duration id video');;
+
+        if (!movie) {
+            throw new ApiError(`No resource found with this ID`, 404);
+        }
+        return movie;
+    }
+
+    async viewMovieStreaming(id) {
+        const movie = await Movie.findById(id).select('name genre image rating duration  id video');;
+
         if (!movie) {
             throw new ApiError(`No resource found with this ID`, 404);
         }
@@ -69,7 +79,7 @@ class MovieService {
     }
 
     async viewMovies(conditions) {
-        const movies = await Movie.find(conditions).select('name genre image rate');
+        const movies = await Movie.find(conditions).select('name genre image rating');
         return movies;
     }
 }
