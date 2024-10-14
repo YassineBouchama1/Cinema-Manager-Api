@@ -13,7 +13,11 @@ class CommentService {
     }
 
     async getCommentsByMovie(movieId) {
-        const comments = await Comment.find({ movieId, isDeleted: false });
+        const comments = await Comment.find({ movieId, isDeleted: false })
+            .select('text userId createdAt')
+            .populate('userId', 'name')
+            .sort({ createdAt: -1 }); // latest 
+
         return comments;
     }
 

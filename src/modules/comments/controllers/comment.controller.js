@@ -7,7 +7,7 @@ const ApiError = require('../../../utils/ApiError');
 // @access  Private
 exports.createComment = expressAsyncHandler(async (req, res, next) => {
     try {
-        const commentData = await CommentService.createComment(req.body);
+        const commentData = await CommentService.createComment({ ...req.body, userId: req.user.id });
         res.status(201).json({ data: commentData, message: 'Comment created successfully' });
     } catch (error) {
         return next(new ApiError(`Error Creating Comment: ${error.message}`, 500));
@@ -20,7 +20,26 @@ exports.createComment = expressAsyncHandler(async (req, res, next) => {
 exports.getCommentsByMovie = expressAsyncHandler(async (req, res, next) => {
     try {
         const comments = await CommentService.getCommentsByMovie(req.params.movieId);
-        res.status(200).json({ data: comments });
+
+        const formattedComments = comments.map(comment => ({
+            id: comment._id,
+            movieId: req.params.movieId,
+            text: comment.text,
+            name: comment.userId.name,
+            userId: comment.userId.id,
+            avatar: 'https://flowbite.com/docs/images/people/profile-picture-5.jpg',
+            date: new Date(comment.createdAt).toLocaleString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            })
+        }));
+
+        res.status(200).json({ data: formattedComments });
     } catch (error) {
         return next(new ApiError(`Error fetching comments: ${error.message}`, 500));
     }

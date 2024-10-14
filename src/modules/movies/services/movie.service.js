@@ -65,7 +65,7 @@ class MovieService {
     }
 
     async viewMovieStreaming(id) {
-        const movie = await Movie.findById(id).select('name genre image rating duration  id video');;
+        const movie = await Movie.findById(id).select('name genre image rating duration  id video');
 
         if (!movie) {
             throw new ApiError(`No resource found with this ID`, 404);
