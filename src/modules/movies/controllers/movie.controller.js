@@ -35,7 +35,7 @@ exports.viewMovie = expressAsyncHandler(async (req, res, next) => {
     try {
         const movie = await MovieService.viewMovie(req.params.id);
         const hasStream = !!movie.video; // check if the movie has a video stream
-        res.status(200).json({ data: { ...movie.toObject(), hasStream } });
+        res.status(200).json({ ...movie.toObject(), hasStream });
     } catch (error) {
         return next(error);
     }

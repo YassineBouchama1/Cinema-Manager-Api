@@ -48,7 +48,7 @@ exports.deleteShowTime = expressAsyncHandler(async (req, res, next) => {
 exports.viewShowTimes = expressAsyncHandler(async (req, res, next) => {
     try {
         const showTimes = await ShowTimeService.viewShowTimes();
-        res.status(200).json({ data: showTimes });
+        res.status(200).json(showTimes);
     } catch (error) {
         return next(error);
     }
