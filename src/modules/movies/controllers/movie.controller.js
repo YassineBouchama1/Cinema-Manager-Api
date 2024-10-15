@@ -20,6 +20,7 @@ exports.uploadMedia = expressAsyncHandler(async (req, res, next) => {
 // @route   POST /api/v1/movie
 // @access  Private
 exports.createMovie = expressAsyncHandler(async (req, res, next) => {
+    console.log(req.body)
     try {
         const movieData = await MovieService.createMovie(req.body);
         res.status(201).json({ data: movieData, message: 'Movie created successfully' });
@@ -95,7 +96,7 @@ exports.updateMovie = expressAsyncHandler(async (req, res, next) => {
 // @access  Public 
 exports.viewMovies = expressAsyncHandler(async (req, res, next) => {
     const { search, genre } = req.query;
-    const conditions = {};
+    const conditions = { isDeleted: false };
 
     // Filter by movie name if provided
     if (search) {

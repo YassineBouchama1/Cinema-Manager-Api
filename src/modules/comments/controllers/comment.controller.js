@@ -50,7 +50,7 @@ exports.getCommentsByMovie = expressAsyncHandler(async (req, res, next) => {
 // @access  Private
 exports.deleteComment = expressAsyncHandler(async (req, res, next) => {
     try {
-        const result = await CommentService.deleteComment(req.params.id);
+        const result = await CommentService.deleteComment(req.params.id, req.user.id);
         res.status(200).json(result);
     } catch (error) {
         return next(new ApiError(`Error deleting comment: ${error.message}`, 500));

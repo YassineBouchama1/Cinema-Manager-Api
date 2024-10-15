@@ -77,14 +77,17 @@ class ShowTimeService {
     }
 
     async viewShowTimes() {
-        const showTimes = await ShowTime.find();
+        const showTimes = await ShowTime.find({ isDeleted: false }).populate([
+            { path: 'movieId', select: 'name  image' },
+            { path: 'roomId', select: 'name capacity' },
+        ]);
         return showTimes;
     }
 
     async viewShowTimeWithReservations(id) {
         const showTime = await ShowTime.findById(id)
             .populate([
-                { path: 'movieId', select: 'name duration category' },
+                { path: 'movieId', select: 'name duration category image' },
                 { path: 'roomId', select: 'name capacity' },
             ]);
 

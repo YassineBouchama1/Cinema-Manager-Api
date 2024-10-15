@@ -1,5 +1,6 @@
 const Room = require('../models/room.model');
 const ApiError = require('../../../utils/ApiError');
+const ShowTime = require('../../showtimes/models/showtime.model');
 
 class RoomService {
     async createRoom(roomData) {
@@ -14,9 +15,15 @@ class RoomService {
 
     async deleteRoom(id) {
         const result = await Room.findByIdAndUpdate(id, { isDeleted: true }, { new: true });
+
+
         if (!result) {
             throw new ApiError(`Error Deleting Room: Room not found`, 404);
         }
+
+        // mrk all associated showtimes as deleted
+        await ShowTime.updateMany({ roomId: id }, { isDeleted: true });
+
         return result;
     }
 

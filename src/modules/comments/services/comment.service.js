@@ -21,11 +21,24 @@ class CommentService {
         return comments;
     }
 
-    async deleteComment(id) {
-        const result = await Comment.findByIdAndUpdate(id, { isDeleted: true }, { new: true });
-        if (!result) {
+    async deleteComment(id,userId) {
+
+        // fnd the comment byid
+        const comment = await Comment.findById(id)
+
+        // check if the comment exists
+        if (!comment) {
             throw new ApiError(`Error Deleting Comment: Comment not found`, 404);
         }
+
+        // check if the user owns this comment
+        if (userId !== comment.userId.toString()) {
+            throw new ApiError(`Error Deleting Comment: You do not have permission to delete this comment`, 403);
+        }
+
+        // mark the comment as deleted
+        const result = await Comment.findByIdAndUpdate(id, { isDeleted: true }, { new: true });
+
         return result;
     }
 }

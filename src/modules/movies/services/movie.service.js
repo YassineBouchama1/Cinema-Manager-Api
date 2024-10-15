@@ -3,6 +3,7 @@ const ApiError = require('../../../utils/ApiError');
 const sharp = require('sharp');
 const minioClient = require('../../../config/minioClient.config');
 const Rating = require('../../ratings/models/rating.model');
+const ShowTime = require('../../showtimes/models/showtime.model');
 
 class MovieService {
     async uploadMedia(req) {
@@ -78,6 +79,10 @@ class MovieService {
         if (!result) {
             throw new ApiError(`Error Deleting Movie: Movie not found`, 404);
         }
+
+        // mrk all associated showtimes as deleted
+        await ShowTime.updateMany({ movieId: id }, { isDeleted: true });
+
         return result;
     }
 
@@ -90,7 +95,7 @@ class MovieService {
     }
 
     async viewMovies(conditions) {
-        const movies = await Movie.find(conditions).select('name genre image rating');
+        const movies = await Movie.find(conditions).select('name genre image rating duration');
         return movies;
     }
 }

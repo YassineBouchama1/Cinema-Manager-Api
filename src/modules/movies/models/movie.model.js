@@ -17,6 +17,11 @@ const movieSchema = mongoose.Schema({
         required: [true, 'Movie duration is required'],
         minlength: [1, 'Movie duration is too short']
     },
+    description: {
+        type: String,
+        required: [true, 'Movie description is required'],
+        minlength: [10, 'Movie description is too short']
+    },
     genre: {
         type: String,
         enum: ['action', 'comedy', 'drama', 'horror', 'romance', 'thriller', 'animation'],
