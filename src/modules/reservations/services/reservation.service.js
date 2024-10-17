@@ -33,10 +33,11 @@ class ReservationService {
         const reservation = await Reservation.findById(id);
         if (!reservation) {
             throw new ApiError(`Reservation not found`, 404);
-        }
+        }   
+
 
         // Update the reservation status
-        const updatedStatus = reservation.status === 'active' ? 'cancel' : reservation.status;
+        const updatedStatus = reservation.status === 'active' ? 'cancel' : 'active';
         reservation.status = updatedStatus;
 
         try {
@@ -68,7 +69,17 @@ class ReservationService {
     }
 
     async viewAdminReservations() {
-        const reservations = await Reservation.find();
+        const reservations = await Reservation.find().populate({
+            path: 'showTimeId',
+            populate: [
+                { path: 'movieId', select: 'name as movieName  image as imageMovie' },
+                { path: 'roomId', select: 'name capacity' },
+            ]
+        }).populate({
+            path: 'userId',
+            select: 'name'
+        });
+
         return reservations;
     }
 

@@ -3,7 +3,7 @@ const { protect, allowedTo } = require('../../../middleware/auth.middleware');
 const { createReservationValidator, updateReservationValidator } = require('../validators/reservation.validator');
 const checkUserAccessToResource = require('../../../middleware/accessControl.middleware');
 const Reservation = require('../models/reservation.model');
-const { createReservation, viewUserReservations, viewReservation, updateReservation, deleteReservation } = require('../controllers/reservation.controller');
+const { createReservation, viewUserReservations, viewReservation, updateReservation, deleteReservation, viewAdminReservations } = require('../controllers/reservation.controller');
 
 const router = express.Router();
 
@@ -11,6 +11,8 @@ router.route('/')
     .post(protect, allowedTo('user'), createReservationValidator, createReservation)
     .get(protect, allowedTo('user'), viewUserReservations);
 
+router.route('/admin')
+    .get(protect, allowedTo('admin', 'super'), viewAdminReservations);
 
 
 router.route('/:id')

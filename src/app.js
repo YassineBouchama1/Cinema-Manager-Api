@@ -13,9 +13,10 @@ const userRoute = require('./modules/users/routes/user.routes');
 const adminRoute = require('./modules/admins/routes/admin.routes');
 const commentRoute = require('./modules/comments/routes/comment.routes');
 const ratingRoutes = require('./modules/ratings/routes/rating.routes');
+const favoriteRoutes = require('./modules/favorites/routes/favorite.routes');
+const { swaggerUi, swaggerDocs } = require('./config/swagger.config.js');
 
 const ApiError = require('./utils/ApiError');
-const minioClient = require('./config/minioClient.config.js');
 
 dotenv.config({ path: '../.env' });
 
@@ -35,6 +36,10 @@ app.get('/', (req, res) => {
     res.send('Hello World!');
 });
 
+
+// swagger UI setup
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+
 // Routes
 app.use('/api/v1/auth', authRoute);
 app.use('/api/v1/movie', movieRoute);
@@ -45,6 +50,7 @@ app.use('/api/v1/user', userRoute);
 app.use('/api/v1/admin', adminRoute);
 app.use('/api/v1/comment', commentRoute);
 app.use('/api/v1/rating', ratingRoutes);
+app.use('/api/v1/favorite', favoriteRoutes);
 
 
 // Handle 404 errors

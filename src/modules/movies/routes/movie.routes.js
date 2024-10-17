@@ -20,7 +20,7 @@ router.route('/stream/:id')
 router.route('/')
     .post(protect, allowedTo('admin', 'super'), upload, uploadMedia, createMovieValidator, createMovie)
     // .post(protect, allowedTo('admin', 'super'),  createMovieValidator,createMovie)
-    .get(viewMovies);
+    .get(getUserFromToken, viewMovies);
 
 
 

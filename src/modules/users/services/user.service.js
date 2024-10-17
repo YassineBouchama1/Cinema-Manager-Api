@@ -49,8 +49,33 @@ class UserService {
         return user;
     }
 
-    async viewUsers() {
-        const users = await User.find({ role: "user" });
+    async viewUsers(conditions) {
+
+        console.log(conditions)
+        const users = await User.aggregate([
+            {
+                $match: conditions
+            },
+            {
+                $lookup: {
+                    from: 'comments',
+                    localField: '_id',
+                    foreignField: 'userId',
+                    as: 'comments'
+                }
+            },
+            {
+                $addFields: {
+                    commentCount: { $size: '$comments' }
+                }
+            },
+            {
+                $project: {
+                    comments: 0
+                }
+            }
+        ]);
+
         return users;
     }
 
@@ -64,7 +89,7 @@ class UserService {
                 isSubscribe: true,
                 subscriptionEndDate,
             },
-            { new: true } 
+            { new: true }
         );
 
         return updatedUser;

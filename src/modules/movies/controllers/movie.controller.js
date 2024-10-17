@@ -98,6 +98,8 @@ exports.viewMovies = expressAsyncHandler(async (req, res, next) => {
     const { search, genre } = req.query;
     const conditions = { isDeleted: false };
 
+    const userId = req.user?._id.toString();
+
     // Filter by movie name if provided
     if (search) {
         conditions.name = { $regex: search, $options: 'i' };
@@ -109,7 +111,7 @@ exports.viewMovies = expressAsyncHandler(async (req, res, next) => {
     }
 
     try {
-        const movies = await MovieService.viewMovies(conditions);
+        const movies = await MovieService.viewMovies(conditions, userId);
         res.status(200).json({ data: movies });
     } catch (error) {
         return next(new ApiError(`Error fetch Movie: ${error.message}`, 500));
