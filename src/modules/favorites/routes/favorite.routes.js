@@ -7,10 +7,11 @@ const router = express.Router();
 router.route('/')
     .post(protect, addFavorite);
 
-router.route('/user/:userId')
-    .get(protect, getFavoritesByUser);
-
 router.route('/:id')
     .delete(protect, getFavoritesByUser, removeFavorite);
+
+router.route('/')
+    .get(protect, getFavoritesByUser);
+
 
 module.exports = router;

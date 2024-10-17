@@ -97,16 +97,18 @@ exports.updateUser = expressAsyncHandler(async (req, res, next) => {
 // @access  Private /user & admin
 exports.updateMyProfile = expressAsyncHandler(async (req, res, next) => {
     try {
+        // Ensure req.user._id is available and valid
+        const userId = req.user._id; // Assuming req.user is populated by your authentication middleware
 
-        const userUpdated = await UserService.updateMyProfile(req.user._id, req.body);
+        // Pass userId and req.body to the UserService method
+        const userUpdated = await UserService.updateMyProfile(userId, req.body);
+        
+        // Respond with the updated user data
         res.status(200).json(userUpdated);
     } catch (error) {
         return next(error);
     }
 });
-
-
-
 
 // @desc    Get a single user by ID
 // @route   GET /api/v1/user/:id

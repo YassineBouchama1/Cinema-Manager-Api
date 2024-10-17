@@ -80,6 +80,21 @@ exports.resetPassValidator = [
         .withMessage('new Password required')
         .isLength({ min: 6 })
         .withMessage('Password must be at least 6 characters'),
+ 
+    check('oldPassword')
+        .notEmpty()
+        .withMessage('Password confirmation required'),
+    //     .custom((password, { req }) => {
+    //         if (password !== req.body.passwordConfirm) {
+    //             throw new Error('Password Confirmation incorrect');
+    //         }
+    //         return true;
+    //     }),
+
+    // check('oldPassword')
+    //     .notEmpty()
+    //     .withMessage('Password confirmation required'),
+
     validatorMiddleware,
 ]
 

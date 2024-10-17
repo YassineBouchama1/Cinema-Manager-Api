@@ -102,22 +102,22 @@ class MovieService {
 
     async viewMovies(conditions, userId) {
         const movies = await Movie.find(conditions).select('name genre image rating duration');
-    
+
         // if userId is provided, check for favorites
         if (userId) {
             const favorites = await Favorite.find({ userId, isDeleted: false }).select('movieId');
             const favoriteMovieIds = favorites.map(favorite => favorite.movieId.toString());
-    
+
             // Add a favorite status to each movie
             const moviesWithFavoriteStatus = movies.map(movie => ({
                 ...movie.toObject(),
                 isFavorite: favoriteMovieIds.includes(movie._id.toString()) // here i check if the movie is in the user favorites
             }));
-    
+
             return moviesWithFavoriteStatus;
         }
-    
-        return movies; 
+
+        return movies;
     }
 }
 

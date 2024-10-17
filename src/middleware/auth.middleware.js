@@ -58,7 +58,6 @@ exports.protect = expressAsyncHandler(async (req, res, next) => {
     const decoded = jwt.verify(token, JWT_SECRET)
 
 
-
     //3) fetch user
     const result = await dbOps.findOne(User, { _id: decoded.userId })
 
@@ -66,6 +65,7 @@ exports.protect = expressAsyncHandler(async (req, res, next) => {
     if (result?.error) {
       return next(new ApiError(`Error finding user: ${result.error}`, 500));
     }
+ 
 
     const currentUser = result.data;
 

@@ -1,42 +1,24 @@
-const express = require('express')
-const { protect, allowedTo } = require('../../../middleware/auth.middleware')
-const { deleteUser, updateUser, viewUser, viewUsers, updateMyProfile, myProfile, updateSubscription } = require('../controllers/user.controller')
+const express = require('express');
+const { protect, allowedTo } = require('../../../middleware/auth.middleware');
+const { deleteUser, updateUser, viewUser, viewUsers, updateMyProfile, myProfile, updateSubscription } = require('../controllers/user.controller');
+const upload = require('../../../middleware/upload.middleware');
+const { uploadMediaAvatar } = require('../services/user.service');
 
+const router = express.Router();
 
-
-
-const router = express.Router()
-
-
-
-// make it first 
 router.route('/me')
-    .get(protect, myProfile)
+    .get(protect, myProfile);
 
 router.route('/subscribe')
-    .put(protect, allowedTo('user'), updateSubscription)
-
-
-
-//@access  : private : admin
+    .put(protect, allowedTo('user'), updateSubscription);
 
 router.route('/:id')
     .delete(protect, allowedTo('admin', 'super'), deleteUser)
     .put(protect, allowedTo('admin', 'super'), updateUser)
-    .get(viewUser)
-
-
-
-
-
+    .get(viewUser);
 
 router.route('/')
     .get(protect, allowedTo('admin', 'super'), viewUsers)
-    .put(protect, updateMyProfile) // this route user can update his profile
+    .put(protect, upload, uploadMediaAvatar, updateMyProfile);
 
-
-
-
-
-
-module.exports = router
+module.exports = router;

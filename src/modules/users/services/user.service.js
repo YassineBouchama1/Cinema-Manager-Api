@@ -1,7 +1,53 @@
 const User = require('../models/user.model');
 const ApiError = require('../../../utils/ApiError');
+const sharp = require('sharp');
+const minioClient = require('../../../config/minioClient.config');
 
 class UserService {
+
+    async uploadMediaAvatar(req, res, next) {
+        const timestamp = Date.now();
+        const randomId = Math.round(Math.random() * 1E9);
+
+        // handle image upload
+        if (req.files && req.files.image) {
+            try {
+                const imageFile = req.files.image[0];
+                const imageFileName = `users/avatars/${req.body.name}-${timestamp}-${randomId}.png`;
+
+                // Resize and upload image
+                const imageBuffer = await sharp(imageFile.buffer).toBuffer();
+                await minioClient.putObject('cinema', imageFileName, imageBuffer);
+                req.body.avatar = `/cinema/${imageFileName}`; // Set avatar URL in request body
+                next(); // Call the next middleware
+            } catch (error) {
+                console.log(error.message);
+                return next(new ApiError(`Error while uploading image: ${error.message}`, 404));
+            }
+        } else {
+            next(); // If no image, just proceed to the next middleware
+        }
+    }
+
+    async updateMyProfile(userId, updateData) {
+        const user = await User.findById(userId);
+        if (!user) {
+            throw new ApiError(`User not found`, 404);
+        }
+
+        // // Check if old password is provided and correct
+        // if (updateData.oldPassword && !(await bcrypt.compare(updateData.oldPassword, user.password))) {
+        //     throw new ApiError(`The old password is incorrect`, 401);
+        // }
+
+
+        console.log(updateData)
+        // Update user data
+        Object.assign(user, updateData);
+        await user.save();
+        return user; // Return the updated user
+    }
+
     async deleteUser(id, currentUser) {
         const user = await User.findById(id);
         if (!user) {
@@ -30,16 +76,6 @@ class UserService {
         return { message: "User Updated Changed" };
     }
 
-    async updateMyProfile(userId, updateData) {
-        const user = await User.findById(userId);
-        if (!user) {
-            throw new ApiError(`User not found`, 404);
-        }
-
-        Object.assign(user, updateData);
-        await user.save();
-        return user;
-    }
 
     async viewUser(id) {
         const user = await User.findById(id);

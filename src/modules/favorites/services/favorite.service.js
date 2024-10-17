@@ -22,6 +22,7 @@ class FavoriteService {
             movieId: favorite.movieId._id,
             title: favorite.movieId.title,
             image: favorite.movieId.image,
+            rating: favorite.movieId.rating,
             createdAt: favorite.createdAt,
         }));
 
@@ -39,8 +40,9 @@ class FavoriteService {
             throw new ApiError(`Error Removing Favorite: You do not have permission to remove this favorite`, 403);
         }
 
-        const result = await Favorite.findByIdAndUpdate(id, { isDeleted: true }, { new: true });
 
+        const result = await Favorite.findByIdAndUpdate(id, { isDeleted: true }, { new: true });
+        cosnole.log(result)
         return result;
     }
 }

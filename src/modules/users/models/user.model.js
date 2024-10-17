@@ -21,13 +21,20 @@ const userSchema = mongoose.Schema({
         type: String,
         required: [true, "passowrd is requierd"],
         minlegth: [6, 'to short password'],
-
     },
-
+    address: {
+        type: String,
+        required: [false, "name is required"],
+        default: ''
+    },
     role: {
         type: String,
         enum: ['user', 'admin', 'super'],
         default: 'user'
+    },
+    avatar: {
+        type: String,
+        default: ''
     },
     isActive: {
         type: Boolean,
