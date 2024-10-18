@@ -5,7 +5,7 @@ const expressAsyncHandler = require('express-async-handler');
 const jwt = require('jsonwebtoken');
 const ApiError = require('../utils/ApiError');
 const dbOps = require('../utils/DatabaseOperations');
-const User = require('../modules/users/models/user.model');
+const User = require('../modules/users/user.model');
 
 require('dotenv').config();
 
@@ -43,7 +43,7 @@ exports.protect = expressAsyncHandler(async (req, res, next) => {
   }
 
 
-
+  console.log(token)
 
 
   if (!token) {
@@ -65,7 +65,7 @@ exports.protect = expressAsyncHandler(async (req, res, next) => {
     if (result?.error) {
       return next(new ApiError(`Error finding user: ${result.error}`, 500));
     }
- 
+
 
     const currentUser = result.data;
 
