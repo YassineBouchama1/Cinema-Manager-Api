@@ -3,6 +3,7 @@ const { protect, allowedTo } = require('../../../middleware/auth.middleware');
 const { deleteUser, updateUser, viewUser, viewUsers, updateMyProfile, myProfile, updateSubscription } = require('../controllers/user.controller');
 const upload = require('../../../middleware/upload.middleware');
 const { uploadMediaAvatar } = require('../services/user.service');
+const { updateUserValidator } = require('../validators/user.validator');
 
 const router = express.Router();
 
@@ -19,6 +20,6 @@ router.route('/:id')
 
 router.route('/')
     .get(protect, allowedTo('admin', 'super'), viewUsers)
-    .put(protect, upload, uploadMediaAvatar, updateMyProfile);
+    .put(protect, upload, uploadMediaAvatar, updateUserValidator, updateMyProfile);
 
 module.exports = router;

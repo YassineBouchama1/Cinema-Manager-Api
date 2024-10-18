@@ -2,6 +2,8 @@ const User = require('../models/user.model');
 const ApiError = require('../../../utils/ApiError');
 const sharp = require('sharp');
 const minioClient = require('../../../config/minioClient.config');
+const bcrypt = require('bcryptjs');
+
 
 class UserService {
 
@@ -9,11 +11,14 @@ class UserService {
         const timestamp = Date.now();
         const randomId = Math.round(Math.random() * 1E9);
 
+        const userName = req.body.name?.replace(/\s+/g, '') || 'avatar';
+
         // handle image upload
         if (req.files && req.files.image) {
             try {
+
                 const imageFile = req.files.image[0];
-                const imageFileName = `users/avatars/${req.body.name}-${timestamp}-${randomId}.png`;
+                const imageFileName = `users/avatars/${userName}-${timestamp}-${randomId}.png`;
 
                 // Resize and upload image
                 const imageBuffer = await sharp(imageFile.buffer).toBuffer();
@@ -35,13 +40,16 @@ class UserService {
             throw new ApiError(`User not found`, 404);
         }
 
-        // // Check if old password is provided and correct
-        // if (updateData.oldPassword && !(await bcrypt.compare(updateData.oldPassword, user.password))) {
-        //     throw new ApiError(`The old password is incorrect`, 401);
-        // }
+
+        // if user want  update password 
+        if (updateData.password && updateData.passwordConfirm) {
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(updateData.password, salt); // hach the new pass before saved
+            updateData.password = hashedPassword
+        }
 
 
-        console.log(updateData)
+
         // Update user data
         Object.assign(user, updateData);
         await user.save();

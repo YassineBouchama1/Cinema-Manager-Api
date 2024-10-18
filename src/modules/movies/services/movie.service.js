@@ -11,11 +11,11 @@ class MovieService {
         const timestamp = Date.now();
         const randomId = Math.round(Math.random() * 1E9);
         const mediaData = {};
-
+        const userName = req.body.name?.replace(/\s+/g, '') || 'avatar';
         // Handle image upload
         if (req.files.image) {
             const imageFile = req.files.image[0];
-            const imageFileName = `movies/images/${req.body.name}-${timestamp}-${randomId}.png`;
+            const imageFileName = `movies/images/${userName}-${timestamp}-${randomId}.png`;
 
             // Resize and upload image
             const imageBuffer = await sharp(imageFile.buffer).toBuffer();
@@ -26,7 +26,7 @@ class MovieService {
         // Handle video upload if provided
         if (req.files.video) {
             const videoFile = req.files.video[0];
-            const videoFileName = `movies/videos/${req.body.name}-${timestamp}-${randomId}.mp4`;
+            const videoFileName = `movies/videos/${userName}-${timestamp}-${randomId}.mp4`;
 
             // Upload video
             await minioClient.putObject('cinema', videoFileName, videoFile.buffer);
