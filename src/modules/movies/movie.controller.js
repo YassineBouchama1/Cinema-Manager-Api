@@ -24,6 +24,12 @@ exports.createMovie = expressAsyncHandler(async (req, res, next) => {
     console.log(req.body)
     try {
         const movieData = await MovieService.createMovie(req.body);
+
+        // udate the number of movies in statistics
+        req.statistics.numberOfMovies += 1; // increment the count
+        await req.statistics.save(); // Save the update
+
+
         res.status(201).json({ data: movieData, message: 'Movie created successfully' });
     } catch (error) {
         return next(new ApiError(`Error Creating Movie: ${error.message}`, 500));
@@ -65,6 +71,11 @@ exports.viewMovie = expressAsyncHandler(async (req, res, next) => {
 exports.deleteMovie = expressAsyncHandler(async (req, res, next) => {
     try {
         const result = await MovieService.deleteMovie(req.params.id);
+
+        // update the number of movies in statistics
+        req.statistics.numberOfMovies -= 1; // decrement the count
+        await req.statistics.save(); // save the updated 
+
         res.status(200).json(result);
     } catch (error) {
         return next(new ApiError(`Error delete Movie: ${error.message}`, 500));
@@ -136,6 +147,8 @@ exports.streamMovie = expressAsyncHandler(async (req, res, next) => {
     try {
         // Ggt the video URL from the service
         const videoUrl = await MovieService.getVideoUrl(id);
+
+      
 
         // create a proxy to the Minio server
         const proxy = createProxyMiddleware({

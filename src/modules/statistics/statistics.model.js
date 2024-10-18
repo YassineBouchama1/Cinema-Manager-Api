@@ -5,6 +5,7 @@ const statisticsSchema = new mongoose.Schema({
     numberOfMovies: { type: Number, default: 0 },
     numberOfVisits: { type: Number, default: 0 },
     timeSpent: { type: Number, default: 0 },
+    revenue: { type: Number, default: 0 },
 }, { timestamps: true });
 
 const Statistic = mongoose.model('Statistic', statisticsSchema);

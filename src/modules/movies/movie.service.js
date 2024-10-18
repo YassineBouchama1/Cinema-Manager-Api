@@ -48,7 +48,7 @@ class MovieService {
     }
 
     async viewMovie(id, userId) {
-        const movie = await Movie.findById(id).select('name genre image rating duration id video');
+        const movie = await Movie.findById(id).select('name genre image rating duration id video description');
 
         if (!movie) {
             throw new ApiError(`No resource found with this ID`, 404);
@@ -76,18 +76,31 @@ class MovieService {
 
 
     async getVideoUrl(movieId) {
-        const movie = await Movie.findById(movieId).select('video');
 
+
+        // find the movie by ID 
+        const movie = await Movie.findById(movieId).select('video views');
+
+        // check if the movie exists and has a video
         if (!movie || !movie.video) {
             throw new ApiError(`No video found for this movie`, 404);
         }
 
-        // Prepend the base URL to the video path
+        // preperd the base URL to the video path
         const baseUrl = 'http://127.0.0.1:9000';
         const videoUrl = `${baseUrl}${movie.video}`;
 
-        return videoUrl; // Return the full video URL
+        // increment the views count
+        movie.views += 1;
+
+        // save the updated movie document
+        await movie.save();
+
+        // return the full movie stream URL
+        return videoUrl;
     }
+
+
 
     async deleteMovie(id) {
         const result = await Movie.findByIdAndUpdate(id, { isDeleted: true }, { new: true });

@@ -32,6 +32,11 @@ exports.createReservation = expressAsyncHandler(async (req, res, next) => {
         //     return next(new ApiError(`Error sending email Confirmation`, 500));
         // }
 
+        // udate therevenues in statistics
+        req.statistics.revenue += reservationData.totalPrice; // increment the revenues
+        await req.statistics.save(); // Save the update
+
+
         res.status(201).json({ data: reservationData, message: 'Reservation created successfully' });
     } catch (error) {
         return next(new ApiError(`Error Creating Reservation: ${error.message}`, 500));
@@ -60,6 +65,8 @@ exports.deleteReservation = expressAsyncHandler(async (req, res, next) => {
 
     try {
         const result = await ReservationService.deleteReservation(id);
+
+
         res.status(200).json(result);
     } catch (error) {
         return next(new ApiError(`Error Deleting Reservation: ${error.message}`, 500));

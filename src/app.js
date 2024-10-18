@@ -18,6 +18,7 @@ const statisticsRoute = require('./modules/statistics/statistics.routes.js');
 const { swaggerUi, swaggerDocs } = require('./config/swagger.config.js');
 
 const ApiError = require('./utils/ApiError');
+const { trackVisits } = require('./middleware/trackVisits.middleware.js');
 
 dotenv.config({ path: '../.env' });
 
@@ -27,6 +28,7 @@ const app = express();
 app.use(cors());
 app.use(express.json()); // Parse JSON bodies
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(trackVisits); // this midlewar track visitors
 
 // Connect to the database
 dbConect(); // Comment this out if you start testing

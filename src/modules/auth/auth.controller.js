@@ -8,6 +8,11 @@ const AuthService = require('./auth.service');
 exports.register = expressAsyncHandler(async (req, res, next) => {
     try {
         const userData = await AuthService.register(req.body);
+
+        // update the number of users in statistics
+        req.statistics.numberOfCustomers += 1; // incress the count
+        await req.statistics.save(); // save the updated 
+
         res.status(201).json({ data: userData, message: 'Created Account Successfully' });
     } catch (error) {
         return next(new ApiError(`Error Created Account: ${error.message}`, 500));

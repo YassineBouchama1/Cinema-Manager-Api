@@ -53,6 +53,9 @@ class ReservationService {
         if (!result) {
             throw new ApiError(`Error Deleting Reservation: Reservation not found`, 404);
         }
+
+        
+
         return result;
     }
 
