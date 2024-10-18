@@ -1,6 +1,6 @@
 const express = require('express');
 const { protect, allowedTo, getUserFromToken } = require('../../../middleware/auth.middleware');
-const { createMovie, deleteMovie, updateMovie, viewMovie, viewMovies, getOneMoviePublic, uploadMedia, viewMovieStreaming } = require('../controllers/movie.controller');
+const { createMovie, deleteMovie, updateMovie, viewMovie, viewMovies, uploadMedia, viewMovieStreaming, streamMovie } = require('../controllers/movie.controller');
 const upload = require('../../../middleware/upload.middleware');
 const Movie = require('../models/movie.model');
 const checkUserAccessToResource = require('../../../middleware/accessControl.middleware');
@@ -10,16 +10,15 @@ const { movieByIdValidator, createMovieValidator, updateMovieValidator } = requi
 const router = express.Router();
 
 
-//checkUserAccessToResource : is middleware deteremin weather user have access for this route or not
-//upload.single('image'): image is filed thad you passed image file on it
-
-
 router.route('/stream/:id')
-    .get(protect, allowedTo('admin', 'super', 'user'), viewMovieStreaming)
+
+    .get(streamMovie)
+
+
 // @access  : Private : Admin
 router.route('/')
     .post(protect, allowedTo('admin', 'super'), upload, uploadMedia, createMovieValidator, createMovie)
-    // .post(protect, allowedTo('admin', 'super'),  createMovieValidator,createMovie)
+
     .get(getUserFromToken, viewMovies);
 
 

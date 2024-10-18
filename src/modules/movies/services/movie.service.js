@@ -71,14 +71,23 @@ class MovieService {
         return { movie, userRating, userFavorite };
     }
 
-    async viewMovieStreaming(id) {
-        const movie = await Movie.findById(id).select('name genre image rating duration  id video');
 
-        if (!movie) {
-            throw new ApiError(`No resource found with this ID`, 404);
+
+
+
+        async getVideoUrl(movieId) {
+            const movie = await Movie.findById(movieId).select('video');
+
+            if (!movie || !movie.video) {
+                throw new ApiError(`No video found for this movie`, 404);
+            }
+
+            // Prepend the base URL to the video path
+            const baseUrl = 'http://127.0.0.1:9000';
+            const videoUrl = `${baseUrl}${movie.video}`;
+
+            return videoUrl; // Return the full video URL
         }
-        return movie;
-    }
 
     async deleteMovie(id) {
         const result = await Movie.findByIdAndUpdate(id, { isDeleted: true }, { new: true });

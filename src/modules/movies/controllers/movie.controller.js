@@ -1,6 +1,7 @@
 const expressAsyncHandler = require('express-async-handler');
 const MovieService = require('../services/movie.service');
 const ApiError = require('../../../utils/ApiError');
+const { createProxyMiddleware } = require('http-proxy-middleware');
 
 // @desc    Upload media to storage 
 // @route   
@@ -121,26 +122,43 @@ exports.viewMovies = expressAsyncHandler(async (req, res, next) => {
 
 
 
-// @desc    Get a single movie by ID
-// @route   GET /api/v1/movie/:id
-// @access  Private - admin
-exports.viewMovieStreaming = expressAsyncHandler(async (req, res, next) => {
+// @desc    Stream movie video
+// @route   GET /api/v1/movie/stream/:id
+// @access  Private
+exports.streamMovie = expressAsyncHandler(async (req, res, next) => {
+    const { id } = req.params;
+
+    // Check if user is authenticated
+    // if (!req.user) {
+    //     return next(new ApiError('Unauthorized access', 401));
+    // }
+
     try {
+        // Get the video URL from the service
+        const videoUrl = await MovieService.getVideoUrl(id);
 
-        // chekc if user susbcribe
-        // if (!req.user.subscribe) {
-        //     return next(new ApiError(`you are not Subscribeed`, 401));
-        // }
-        const movie = await MovieService.viewMovie(req.params.id);
+        // Create a proxy to the Minio server
+        const proxy = createProxyMiddleware({
+            target: videoUrl,
+            changeOrigin: true,
+            pathRewrite: (path, req) => {
+                // Remove the /api/stream/:id part from the path
+                return '';
+            },
+            onProxyRes: (proxyRes, req, res) => {
+                // Remove headers that might expose the actual file location
+                proxyRes.headers['x-amz-request-id'] = undefined;
+                proxyRes.headers['x-amz-id-2'] = undefined;
+            }
+        });
 
-        if (!movie.video) {
-            return next(new ApiError(`there is no video belong this movie`, 404));
-        }
+        // Use the proxy middleware
+        proxy(req, res, next);
 
-
-        res.status(200).json(movie);
+        // res.redirect(videoUrl);
     } catch (error) {
-        return next(new ApiError(`Error fetching Movie: ${error.message}`, 500));
-
+        return next(new ApiError(`Error fetching video: ${error.message}`, 500));
     }
 });
+
+

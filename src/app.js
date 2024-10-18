@@ -12,8 +12,9 @@ const reservationRoute = require('./modules/reservations/routes/reservation.rout
 const userRoute = require('./modules/users/routes/user.routes');
 const adminRoute = require('./modules/admins/routes/admin.routes');
 const commentRoute = require('./modules/comments/routes/comment.routes');
-const ratingRoutes = require('./modules/ratings/routes/rating.routes');
+const ratingRoute = require('./modules/ratings/routes/rating.routes');
 const favoriteRoutes = require('./modules/favorites/routes/favorite.routes');
+const statisticsRoute = require('./modules/statistics/routes/statistics.routes');
 const { swaggerUi, swaggerDocs } = require('./config/swagger.config.js');
 
 const ApiError = require('./utils/ApiError');
@@ -49,8 +50,9 @@ app.use('/api/v1/reservation', reservationRoute);
 app.use('/api/v1/user', userRoute);
 app.use('/api/v1/admin', adminRoute);
 app.use('/api/v1/comment', commentRoute);
-app.use('/api/v1/rating', ratingRoutes);
+app.use('/api/v1/rating', ratingRoute);
 app.use('/api/v1/favorite', favoriteRoutes);
+app.use('/api/v1/statistics', statisticsRoute);
 
 
 // Handle 404 errors

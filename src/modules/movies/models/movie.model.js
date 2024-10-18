@@ -39,6 +39,7 @@ const movieSchema = mongoose.Schema({
         type: Number,
         default: 0.0
     },
+    views: { type: Number, default: 0 },
     isDeleted: {
         type: Boolean,
         default: false
