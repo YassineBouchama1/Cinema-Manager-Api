@@ -6,27 +6,7 @@ const UserService = require('./user.service');
 
 
 
-/**
- * @swagger
- * /api/v1/user/{id}:
- *   delete:
- *     summary: Delete a user
- *     tags: [Users]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         description: ID of the user to delete
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: User deleted successfully
- *       404:
- *         description: User not found
- *       403:
- *         description: Not allowed to delete this user
- */
+
 // @desc    Delete a user
 // @route   DELETE /api/v1/user/:id
 // @access  Private /user & admin
@@ -45,39 +25,7 @@ exports.deleteUser = expressAsyncHandler(async (req, res, next) => {
 
 
 
-/**
- * @swagger
- * /api/v1/user/{id}:
- *   put:
- *     summary: Update a user
- *     tags: [Users]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         description: ID of the user to update
- *         schema:
- *           type: string
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
- *               email:
- *                 type: string
- *               role:
- *                 type: string
- *                 enum: [user, admin, super]
- *     responses:
- *       200:
- *         description: User updated successfully
- *       404:
- *         description: User not found
- */
+
 // @desc    Update a user
 // @route   PUT /api/v1/user/:id
 // @access  Private admin

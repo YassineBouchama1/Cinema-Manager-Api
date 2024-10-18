@@ -1,3 +1,4 @@
+// config/swagger.config.js
 const swaggerJsDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 
@@ -5,28 +6,17 @@ const swaggerOptions = {
     swaggerDefinition: {
         openapi: '3.0.0',
         info: {
-            title: 'Cinema Reservation API',
+            title: 'Cinema API Title',
             version: '1.0.0',
-            description: 'API for managing cinema reservations, users, movies, and more.',
+            description: 'API documentation for your application',
         },
         servers: [
             {
-                url: 'http://localhost:4000',
+                url: 'http://localhost:4000/api/v1',
             },
         ],
     },
-
-    apis: [
-        './modules/users/controllers/*.js',
-        './modules/movies/controllers/*.js',
-        './modules/rooms/controllers/*.js',
-        './modules/showtimes/controllers/*.js',
-        './modules/reservations/controllers/*.js',
-        './modules/comments/controllers/*.js',
-        './modules/ratings/controllers/*.js',
-        './modules/admins/controllers/*.js',
-
-    ],
+    apis: ['./src/modules/**/*.routes.js'],
 };
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
