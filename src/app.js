@@ -15,6 +15,7 @@ const commentRoute = require('./modules/comments/comment.routes.js');
 const ratingRoute = require('./modules/ratings/rating.routes.js');
 const favoriteRoutes = require('./modules/favorites/favorite.routes.js');
 const statisticsRoute = require('./modules/statistics/statistics.routes.js');
+const subscribeRoute = require('./modules/subscriptions/subscription.routes');
 const { swaggerUi, swaggerDocs } = require('./config/swagger.config.js');
 
 const ApiError = require('./utils/ApiError');
@@ -55,6 +56,7 @@ app.use('/api/v1/comment', commentRoute);
 app.use('/api/v1/rating', ratingRoute);
 app.use('/api/v1/favorite', favoriteRoutes);
 app.use('/api/v1/statistics', statisticsRoute);
+app.use('/api/v1/subscribe', subscribeRoute);
 
 
 // Handle 404 errors
