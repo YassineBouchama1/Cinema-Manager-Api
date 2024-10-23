@@ -1,0 +1,117 @@
+openapi: 3.0.0
+info:
+  title: Cinema API | Comment
+  version: 1.0.0
+  description: API documentation for Movie Endpoints
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+tags:
+  - name: Comments
+    description: Comment management
+
+paths:
+  /comments:
+    post:
+      tags:
+        - Comments
+      summary: Create a new comment
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                text:
+                  type: string
+                  description: The text of the comment
+                  example: "This movie was fantastic!"
+                movieId:
+                  type: string
+                  description: The ID of the movie the comment is associated with
+                  example: "60d5ec49f1b2c8b8f8e4b8e4"
+      responses:
+        '201':
+          description: Comment created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                  message:
+                    type: string
+        '500':
+          description: Error creating comment
+
+  /comments/movie/{movieId}:
+    get:
+      tags:
+        - Comments
+      summary: Get all comments for a specific movie
+      parameters:
+        - name: movieId
+          in: path
+          required: true
+          description: The ID of the movie
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of comments for the movie
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        movieId:
+                          type: string
+                        text:
+                          type: string
+                        name:
+                          type: string
+                        userId:
+                          type: string
+                        avatar:
+                          type: string
+                        date:
+                          type: string
+        '500':
+          description: Error fetching comments
+
+  /comments/{id}:
+    delete:
+      tags:
+        - Comments
+      summary: Delete a comment
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the comment to delete
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Comment deleted successfully
+        '404':
+          description: Comment not found
+        '500':
+          description: Error deleting comment

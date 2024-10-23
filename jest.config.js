@@ -1,5 +1,5 @@
 module.exports = {
-    setupFilesAfterEnv: ["<rootDir>/tests/bootstrap.js"],
+    setupFilesAfterEnv: ["<rootDir>/src/tests/bootstrap.js"],
     testEnvironment: "node",
 
 
