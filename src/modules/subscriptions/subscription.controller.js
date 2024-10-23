@@ -1,12 +1,27 @@
 const stripe = require('stripe')(process.env.NEXT_PUBLIC_STRIPE_SECRET_KEY);
 const expressAsyncHandler = require('express-async-handler');
-    
-
+const ApiError = require('../../utils/ApiError');
+const User = require('../users/user.model');
 
 const subscriptionPlans = [
-    { id: 'basic', name: 'Basic Plan', price: 120 },
-    { id: 'premium', name: 'Premium Plan', price: 6592 },
-    { id: 'deluxe', name: 'Deluxe Plan', price: 7191 },
+    {
+        id: 'basic',
+        name: '1 Month',
+        priceId: 'price_1QD1d0KY6q86Wg4m1ZDvlnov',
+        durationInDays: 30
+    },
+    {
+        id: 'premium',
+        name: '6 Months',
+        priceId: 'price_1QD1dTKY6q86Wg4mJgCricTb',
+        durationInDays: 180
+    },
+    {
+        id: 'deluxe',
+        name: '1 Year',
+        priceId: 'price_1QD1e3KY6q86Wg4mb65Ez1gy',
+        durationInDays: 365
+    },
 ];
 
 // @desc    Get subscription plans
@@ -19,14 +34,14 @@ exports.getSubscriptionPlans = (req, res) => {
 
 
 
-// @desc    Create a subscription
-// @route   POST /api/v1/subscription
+// @desc    Create a subscription via Stripe Checkout
+// @route   POST /api/v1/subscription/checkout
 // @access  Private
-exports.createSubscription = expressAsyncHandler(async (req, res, next) => {
-    const { paymentMethodId, planId } = req.body;
+exports.createCheckoutSession = expressAsyncHandler(async (req, res, next) => {
+    const { planId } = req.body;
     const userId = req.user._id;
-
-    // Find the selected plan
+    console.log(planId)
+    // find the selected plan
     const selectedPlan = subscriptionPlans.find(plan => plan.id === planId);
 
     if (!selectedPlan) {
@@ -34,30 +49,114 @@ exports.createSubscription = expressAsyncHandler(async (req, res, next) => {
     }
 
     try {
-        // Create a customer if not already created
-        const customer = await stripe.customers.create({
-            email: req.user.email,
-            payment_method: paymentMethodId,
-            invoice_settings: {
-                default_payment_method: paymentMethodId,
-            },
+        // Create metadata to store plan details
+        const metadata = {
+            userId: userId.toString(),
+            planId: selectedPlan.id,
+            durationInDays: selectedPlan.durationInDays.toString()
+        };
+
+
+        console.log(process.env.NEXT_PUBLIC_FRONT_URL)
+        // Create a Checkout Session
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ['card'],
+            line_items: [
+                {
+                    price: selectedPlan.priceId,
+                    quantity: 1,
+                },
+            ],
+            mode: 'subscription',
+            success_url: `${process.env.NEXT_PUBLIC_FRONT_URL}/profile?session_id={CHECKOUT_SESSION_ID}`,
+            cancel_url: `${process.env.NEXT_PUBLIC_FRONT_URL}/cancel`,
+            metadata: metadata,
         });
 
-        // Create a subscription
-        const subscription = await stripe.subscriptions.create({
-            customer: customer.id,
-            items: [{ price: selectedPlan.price }],
-            expand: ['latest_invoice.payment_intent'],
-        });
 
-        // Update user subscription status in your database
-        await User.findByIdAndUpdate(userId, {
-            isSubscribe: true,
-            subscriptionEndDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
-        });
-
-        res.status(201).json({ message: 'Subscription created successfully', subscription });
+        res.status(200).json({ id: session.id });
     } catch (error) {
-        return next(new ApiError(`Error creating subscription: ${error.message}`, 500));
+        return next(new ApiError(`Error creating checkout session: ${error.message}`, 500));
+    }
+});
+
+
+
+// @desc    Handle successful payment webhook
+// @route   POST /api/v1/subscription/webhook
+// @access  Private (Stripe webhook)
+exports.handleWebhook = expressAsyncHandler(async (req, res, next) => {
+    const sig = req.headers['stripe-signature'];
+    let event;
+
+    try {
+        event = stripe.webhooks.constructEvent(
+            req.body,
+            sig,
+            process.env.STRIPE_WEBHOOK_SECRET
+        );
+    } catch (err) {
+        return next(new ApiError(`Webhook Error: ${err.message}`, 400));
+    }
+
+    // Handle the checkout.session.completed event
+    if (event.type === 'checkout.session.completed') {
+        const session = event.data.object;
+
+        // Get the metadata from the session
+        const { userId, durationInDays } = session.metadata;
+
+        // Calculate subscription end date
+        const subscriptionEndDate = new Date(
+            Date.now() + parseInt(durationInDays) * 24 * 60 * 60 * 1000
+        );
+
+        try {
+            // Update user subscription status
+            await User.findByIdAndUpdate(userId, {
+                isSubscribe: true,
+                subscriptionEndDate,
+                subscriptionHistory: {
+                    $push: {
+                        startDate: new Date(),
+                        endDate: subscriptionEndDate,
+                        planId: session.metadata.planId,
+                        paymentId: session.payment_intent
+                    }
+                }
+            });
+        } catch (error) {
+            return next(new ApiError(`Error updating user subscription: ${error.message}`, 500));
+        }
+    }
+
+    res.status(200).json({ received: true });
+});
+
+// @desc    Check subscription status
+// @route   GET /api/v1/subscription/status
+// @access  Private
+exports.checkSubscriptionStatus = expressAsyncHandler(async (req, res, next) => {
+    const userId = req.user._id;
+
+    try {
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return next(new ApiError('User not found', 404));
+        }
+
+        const now = new Date();
+        const isActive = user.isSubscribe && user.subscriptionEndDate > now;
+
+        res.status(200).json({
+            isActive,
+            subscriptionEndDate: user.subscriptionEndDate,
+            daysRemaining: isActive ?
+                Math.ceil((user.subscriptionEndDate - now) / (1000 * 60 * 60 * 24)) :
+                0
+        });
+    } catch (error) {
+        return next(new ApiError(`Error checking subscription status: ${error.message}`, 500));
     }
 });
