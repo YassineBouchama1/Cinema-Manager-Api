@@ -61,6 +61,7 @@ exports.createCheckoutSession = expressAsyncHandler(async (req, res, next) => {
         // Create a Checkout Session
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
+
             line_items: [
                 {
                     price: selectedPlan.priceId,
@@ -89,18 +90,20 @@ exports.handleWebhook = expressAsyncHandler(async (req, res, next) => {
     const sig = req.headers['stripe-signature'];
     let event;
 
+    const sessionId = req.params.sessionId;
     try {
-        event = stripe.webhooks.constructEvent(
-            req.body,
-            sig,
-            process.env.STRIPE_WEBHOOK_SECRET
-        );
+        event = await stripe.checkout.sessions.retrieve(sessionId);
     } catch (err) {
         return next(new ApiError(`Webhook Error: ${err.message}`, 400));
     }
 
-    // Handle the checkout.session.completed event
-    if (event.type === 'checkout.session.completed') {
+    // Check if the session is open
+    if (event?.status === "open") {
+        return next(new ApiError(`Payment still open, not finished: ${event.status}`, 400));
+    }
+
+    // Handle the checkout.status event
+    if (event?.status === "complete") {
         const session = event.data.object;
 
         // Get the metadata from the session
@@ -113,25 +116,23 @@ exports.handleWebhook = expressAsyncHandler(async (req, res, next) => {
 
         try {
             // Update user subscription status
-            await User.findByIdAndUpdate(userId, {
+            const userUpdated = await User.findByIdAndUpdate(userId, {
                 isSubscribe: true,
                 subscriptionEndDate,
-                subscriptionHistory: {
-                    $push: {
-                        startDate: new Date(),
-                        endDate: subscriptionEndDate,
-                        planId: session.metadata.planId,
-                        paymentId: session.payment_intent
-                    }
-                }
             });
+
+            console.log(userUpdated)
         } catch (error) {
             return next(new ApiError(`Error updating user subscription: ${error.message}`, 500));
         }
+    } else {
+        return res.status(400).json({ error: 'Payment not completed' });
     }
 
     res.status(200).json({ received: true });
 });
+
+
 
 // @desc    Check subscription status
 // @route   GET /api/v1/subscription/status

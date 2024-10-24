@@ -6,6 +6,6 @@ const router = express.Router();
 
 router.route('/plans').get(getSubscriptionPlans);
 router.route('/checkout').post(protect, createCheckoutSession);
-router.route('/webhook').post(handleWebhook);
+router.route('/update/:sessionId').get(handleWebhook);
 
 module.exports = router;
